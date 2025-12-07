@@ -16,6 +16,7 @@ import {
   Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { signOut } from "next-auth/react";
 
 const adminNavItems = [
   { title: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -174,7 +175,7 @@ export function AdminSidebar({ userName, userEmail }: AdminSidebarProps) {
               {userInitial}
             </div>
             <button
-              onClick={handleSignOut}
+              onClick={() => signOut({ callbackUrl: "/login" })}
               className="rounded-lg p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
               title="Sign Out"
             >

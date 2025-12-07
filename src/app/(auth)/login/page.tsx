@@ -55,6 +55,16 @@ function LoginForm() {
       if (result?.error) {
         setFormError(result.error);
       } else {
+        // After sign in, fetch the session to determine the user's role
+        const sessionRes = await fetch("/api/auth/session");
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData?.user?.role === "ADMIN") {
+            router.push("/admin");
+            router.refresh();
+            return;
+          }
+        }
         router.push(callbackUrl);
         router.refresh();
       }
