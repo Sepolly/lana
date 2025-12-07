@@ -184,3 +184,13 @@ body {
 .animate-spin {
   animation: spin 1s linear infinite;
 }
+
+/* Hide YouTube's default spinner - show only custom spinner */
+.ytp-spinner,
+.ytp-spinner-container,
+.ytp-spinner-svg,
+.ytp-spinner-circle {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}

@@ -1,0 +1,535 @@
+// Lana - AI powered Career Guidance Platform
+// Database Schema for NeonDB (PostgreSQL)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==================== ENUMS ====================
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum LearningStyle {
+  VISUAL
+  AUDITORY
+  READING_WRITING
+  KINESTHETIC
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  DROPPED
+}
+
+enum ExamStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum CertificateLevel {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWED
+  INTERVIEW
+  ACCEPTED
+  REJECTED
+}
+
+// ==================== AUTH MODELS ====================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  name          String?
+  image         String?
+  role          Role      @default(STUDENT)
+
+  // Relations
+  accounts        Account[]
+  sessions        Session[]
+  profile         StudentProfile?
+  enrollments     Enrollment[]
+  quizAttempts    QuizAttempt[]
+  examSchedules   ExamSchedule[]
+  certificates    Certificate[]
+  jobApplications JobApplication[]
+  waitlist        CourseWaitlist[]
+  notifications   Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ==================== STUDENT PROFILE ====================
+
+model StudentProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Personal Info
+  dateOfBirth DateTime?
+  phoneNumber String?
+  address     String?
+  school      String?
+  gradeLevel  String?
+
+  // Aptitude Test Results
+  learningStyle   LearningStyle?
+  aptitudeResults Json? // Stores detailed aptitude test answers
+  interests       String[] // Array of interest areas
+  strengths       String[] // Identified strengths from aptitude test
+  weaknesses      String[] // Areas for improvement
+
+  // Career Recommendations (from RAG system)
+  recommendedCareers Json? // Array of recommended career paths with scores
+  recommendedCourses Json? // Array of recommended courses with alignment scores
+
+  // Profile completion
+  aptitudeCompleted Boolean   @default(false)
+  completedAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("student_profiles")
+}
+
+// ==================== COURSES & LEARNING ====================
+
+model Course {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  description String      @db.Text
+  thumbnail   String?
+  level       CourseLevel @default(BEGINNER)
+  duration    Int // Estimated hours to complete
+
+  // Career alignment
+  careerPaths   String[] // Related career paths
+  skills        String[] // Skills taught in this course
+  prerequisites String[] // Required prerequisite courses (slugs)
+
+  // Content
+  topics Topic[]
+
+  // Metadata
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+
+  // Relations
+  enrollments  Enrollment[]
+  certificates Certificate[]
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  examSchedules ExamSchedule[]
+
+  @@map("courses")
+}
+
+model Topic {
+  id       String @id @default(cuid())
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String? @db.Text
+  order       Int // Sequence order within the course
+
+  // Section grouping for organized display
+  section      String? // Section name (e.g., "Getting Started", "Core Concepts")
+  sectionOrder Int? // Order within the section
+
+  // Content variants for different learning styles
+  videoUrl        String? // For visual/auditory learners
+  videoTranscript String? @db.Text
+  textContent     String? @db.Text // For reading/writing learners
+  pdfUrl          String?
+  interactiveUrl  String? // For kinesthetic learners (simulations, etc.)
+
+  // Duration in minutes
+  duration Int @default(10)
+
+  // Quiz for this topic
+  quiz Quiz?
+
+  // Progress tracking
+  topicProgress TopicProgress[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("topics")
+}
+
+model Enrollment {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  status   EnrollmentStatus @default(ACTIVE)
+  progress Float            @default(0) // Percentage 0-100
+
+  // Topic progress
+  topicProgress TopicProgress[]
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId])
+  @@map("enrollments")
+}
+
+model TopicProgress {
+  id           String     @id @default(cuid())
+  enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  topicId      String
+  topic        Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  // Video watch progress
+  videoWatched  Boolean @default(false)
+  videoProgress Float   @default(0) // Percentage 0-100
+
+  // Quiz completion
+  quizPassed Boolean @default(false)
+  quizScore  Float? // Percentage score
+
+  // Overall completion
+  isCompleted Boolean   @default(false)
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([enrollmentId, topicId])
+  @@map("topic_progress")
+}
+
+// ==================== QUIZZES ====================
+
+model Quiz {
+  id      String @id @default(cuid())
+  topicId String @unique
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  title        String
+  passingScore Float  @default(70) // Minimum percentage to pass
+
+  questions QuizQuestion[]
+  attempts  QuizAttempt[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id     String @id @default(cuid())
+  quizId String
+  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  question      String  @db.Text
+  options       Json // Array of answer options
+  correctAnswer Int // Index of correct answer (0-based)
+  explanation   String? @db.Text // Explanation for the correct answer
+  order         Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("quiz_questions")
+}
+
+model QuizAttempt {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quizId String
+  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  answers Json // User's answers
+  score   Float // Percentage score
+  passed  Boolean
+
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@map("quiz_attempts")
+}
+
+// ==================== EXAMS & CERTIFICATES ====================
+
+model ExamSchedule {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  scheduledAt DateTime
+  duration    Int // Duration in minutes (determined by LLM)
+  status      ExamStatus @default(SCHEDULED)
+
+  // Exam content (generated by LLM)
+  questions Json?
+
+  // Results
+  answers Json?
+  score   Float?
+  passed  Boolean?
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("exam_schedules")
+}
+
+model Certificate {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course @relation(fields: [courseId], references: [id])
+
+  // Certificate details
+  level             CertificateLevel
+  examScore         Float
+  issueDate         DateTime         @default(now())
+  certificateNumber String           @unique
+
+  // Blockchain verification
+  blockchainHash String?
+  blockchainTxId String?
+
+  // PDF storage
+  certificateUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId])
+  @@map("certificates")
+}
+
+// ==================== JOBS ====================
+
+model Company {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  logo        String?
+  description String? @db.Text
+  website     String?
+  industry    String?
+  location    String?
+
+  // Partner status
+  isPartner Boolean @default(false)
+
+  jobs Job[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("companies")
+}
+
+model Job {
+  id        String  @id @default(cuid())
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  title        String
+  slug         String  @unique
+  description  String  @db.Text
+  requirements String? @db.Text
+
+  // Job details
+  location    String?
+  jobType     String? // Full-time, Part-time, Contract, etc.
+  salaryRange String?
+
+  // Required skills/courses
+  requiredSkills  String[]
+  requiredCourses String[] // Course slugs
+
+  // Direct placement opportunity
+  isDirectPlacement Boolean @default(false)
+
+  isActive  Boolean   @default(true)
+  expiresAt DateTime?
+
+  applications JobApplication[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("jobs")
+}
+
+model JobApplication {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId  String
+  job    Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  status      ApplicationStatus @default(PENDING)
+  coverLetter String?           @db.Text
+  resumeUrl   String?
+
+  // Tracking
+  appliedAt  DateTime  @default(now())
+  reviewedAt DateTime?
+  notes      String?   @db.Text // Internal notes from recruiters
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, jobId])
+  @@map("job_applications")
+}
+
+// ==================== WAITLIST ====================
+
+model CourseWaitlist {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  careerPath String // The career path they're waiting for
+  email      String // User's email for notifications
+  notified   Boolean   @default(false) // Whether user has been notified
+  notifiedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, careerPath])
+  @@map("course_waitlist")
+}
+
+// ==================== NOTIFICATIONS ====================
+
+model Notification {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type    String // e.g., "COURSE_AVAILABLE", "WAITLIST_JOINED", etc.
+  title   String
+  message String  @db.Text
+  link    String? // Optional link to related resource
+
+  read   Boolean   @default(false)
+  readAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+// ==================== ADMIN NOTIFICATIONS ====================
+
+model AdminNotification {
+  id String @id @default(cuid())
+
+  type    String // e.g., "WAITLIST_JOINED", "COURSE_PUBLISHED", etc.
+  title   String
+  message String  @db.Text
+  link    String? // Optional link to related resource
+
+  metadata Json? // Additional data (e.g., userId, careerPath, courseId)
+
+  read   Boolean   @default(false)
+  readAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@map("admin_notifications")
+}
