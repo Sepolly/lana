@@ -1,14 +1,32 @@
 import { Pinecone } from "@pinecone-database/pinecone";
 
-// Initialize Pinecone client
-const pineconeClient = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY!,
-});
+// Lazy initialization of Pinecone client
+let pineconeClient: Pinecone | null = null;
+
+function getPineconeClient(): Pinecone {
+  if (!pineconeClient) {
+    const apiKey = process.env.PINECONE_API_KEY;
+    if (!apiKey) {
+      throw new Error(
+        "PINECONE_API_KEY is not set. Please configure it in your environment variables."
+      );
+    }
+    pineconeClient = new Pinecone({
+      apiKey,
+    });
+  }
+  return pineconeClient;
+}
 
 // Get the index for career/course embeddings
 export const getIndex = () => {
-  const indexName = process.env.PINECONE_INDEX!;
-  return pineconeClient.index(indexName);
+  const indexName = process.env.PINECONE_INDEX;
+  if (!indexName) {
+    throw new Error(
+      "PINECONE_INDEX is not set. Please configure it in your environment variables."
+    );
+  }
+  return getPineconeClient().index(indexName);
 };
 
 // Metadata type value (compatible with Pinecone RecordMetadataValue)
@@ -124,4 +142,4 @@ export async function getVector(id: string, namespace?: string): Promise<CareerV
   };
 }
 
-export default pineconeClient;
+export default getPineconeClient;
