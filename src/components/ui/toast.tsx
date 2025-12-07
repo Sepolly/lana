@@ -67,7 +67,7 @@ function ToastContainer({
   removeToast: (id: string) => void;
 }) {
   return (
-    <div className="fixed right-4 bottom-4 z-50 flex max-w-md flex-col gap-2">
+    <div className="fixed top-4 right-4 z-[100] flex max-w-md flex-col gap-3">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
       ))}
@@ -76,38 +76,73 @@ function ToastContainer({
 }
 
 function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
-  const icons = {
-    success: <CheckCircle2 className="text-success h-5 w-5" />,
-    error: <AlertCircle className="text-destructive h-5 w-5" />,
-    warning: <AlertTriangle className="text-warning h-5 w-5" />,
-    info: <Info className="text-primary h-5 w-5" />,
+  const iconConfig = {
+    success: {
+      icon: <CheckCircle2 className="h-5 w-5" />,
+      borderColor: "border-l-success",
+      iconBg: "bg-success/10",
+      iconColor: "text-success",
+    },
+    error: {
+      icon: <AlertCircle className="h-5 w-5" />,
+      borderColor: "border-l-destructive",
+      iconBg: "bg-destructive/10",
+      iconColor: "text-destructive",
+    },
+    warning: {
+      icon: <AlertTriangle className="h-5 w-5" />,
+      borderColor: "border-l-warning",
+      iconBg: "bg-warning/10",
+      iconColor: "text-warning",
+    },
+    info: {
+      icon: <Info className="h-5 w-5" />,
+      borderColor: "border-l-primary",
+      iconBg: "bg-primary/10",
+      iconColor: "text-primary",
+    },
   };
 
-  const backgrounds = {
-    success: "bg-success/10 border-success/20",
-    error: "bg-destructive/10 border-destructive/20",
-    warning: "bg-warning/10 border-warning/20",
-    info: "bg-primary/10 border-primary/20",
-  };
+  const config = iconConfig[toast.type];
 
   return (
     <div
       className={cn(
-        "animate-slide-up flex items-start gap-3 rounded-xl border p-4 shadow-lg",
-        "bg-card",
-        backgrounds[toast.type]
+        "animate-slide-up group relative flex items-start gap-3 overflow-hidden rounded-lg border-t border-r border-b border-l-4",
+        "bg-card shadow-[0_10px_38px_-10px_rgba(22,23,24,0.35),0_10px_20px_-15px_rgba(22,23,24,0.2)]",
+        "backdrop-blur-sm",
+        config.borderColor,
+        "border-border/50",
+        "p-4 pr-3"
       )}
+      style={{
+        boxShadow:
+          "0 10px 38px -10px rgba(22, 38, 96, 0.15), 0 10px 20px -15px rgba(22, 38, 96, 0.1)",
+      }}
     >
-      {icons[toast.type]}
-      <div className="min-w-0 flex-1">
-        <p className="text-foreground font-semibold">{toast.title}</p>
+      {/* Icon with background */}
+      <div
+        className={cn(
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-md",
+          config.iconBg
+        )}
+      >
+        <div className={config.iconColor}>{config.icon}</div>
+      </div>
+
+      {/* Content */}
+      <div className="min-w-0 flex-1 space-y-1">
+        <p className="text-foreground text-sm leading-5 font-semibold">{toast.title}</p>
         {toast.description && (
-          <p className="text-muted-foreground mt-1 text-sm">{toast.description}</p>
+          <p className="text-muted-foreground text-sm leading-5">{toast.description}</p>
         )}
       </div>
+
+      {/* Close button */}
       <button
         onClick={onClose}
-        className="text-muted-foreground hover:text-foreground transition-colors"
+        className="text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100"
+        aria-label="Close toast"
       >
         <X className="h-4 w-4" />
       </button>
