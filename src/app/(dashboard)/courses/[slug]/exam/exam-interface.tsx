@@ -64,8 +64,11 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
       existingExamId: existingExam?.id,
       currentExamState: exam?.status,
       certificateExists: !!certificate,
+      questionsCount: questions.length,
+      timeLeft,
+      shouldShowExam: exam?.status === "IN_PROGRESS" && questions.length > 0,
     });
-  }, [existingExam, exam, certificate]);
+  }, [existingExam, exam, certificate, questions.length, timeLeft]);
 
   // Timer effect
   React.useEffect(() => {
@@ -151,9 +154,46 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
 
       if (startResponse.ok) {
         const startData = await startResponse.json();
-        setExam(startData.data);
-        setQuestions(startData.data.questions);
+        console.log("Exam started successfully:", {
+          examStatus: startData.data.status,
+          questionsCount: startData.data.questions?.length,
+          duration: startData.data.duration,
+          fullResponse: startData,
+        });
+
+        // Extract questions before setting exam (to avoid nested questions in exam object)
+        const examQuestions = startData.data.questions || [];
+
+        if (examQuestions.length === 0) {
+          setError("No questions were generated for this exam. Please try again.");
+          console.error("No questions in exam response");
+          setIsLoading(false);
+          return;
+        }
+
+        // Create a clean exam object without questions and endTime
+        const { questions: _, endTime: __, ...examData } = startData.data;
+
+        // Ensure status is IN_PROGRESS
+        if (examData.status !== "IN_PROGRESS") {
+          console.warn("Exam status is not IN_PROGRESS:", examData.status);
+          examData.status = "IN_PROGRESS";
+        }
+
+        // Set all state - React will batch these updates
+        // Order matters: set questions first, then exam, then timeLeft
+        setQuestions(examQuestions);
         setTimeLeft(startData.data.duration * 60);
+        // Set exam last to trigger the condition check
+        setExam(examData);
+
+        console.log("State updated:", {
+          examStatus: examData.status,
+          questionsLength: examQuestions.length,
+          timeLeft: startData.data.duration * 60,
+          examId: examData.id,
+          willShowExam: examData.status === "IN_PROGRESS" && examQuestions.length > 0,
+        });
       } else {
         const startError = await startResponse.json();
         setError(startError.error || "Failed to start exam. Please try again.");
@@ -329,8 +369,28 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
 
   // Exam in progress
   if (exam?.status === "IN_PROGRESS" && questions.length > 0) {
-    console.log("Showing exam in progress UI");
+    console.log("Showing exam in progress UI", {
+      examStatus: exam.status,
+      questionsCount: questions.length,
+      currentQuestion,
+      timeLeft,
+    });
     const question = questions[currentQuestion];
+
+    if (!question) {
+      console.error("No question found at index:", currentQuestion);
+      return (
+        <div className="mx-auto max-w-2xl space-y-6">
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-destructive">
+                Error: Question not found. Please refresh the page.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
 
     return (
       <div className="mx-auto max-w-3xl space-y-6">
