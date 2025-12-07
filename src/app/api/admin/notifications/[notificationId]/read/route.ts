@@ -9,10 +9,7 @@ interface RouteParams {
  * POST /api/admin/notifications/[notificationId]/read
  * Mark a notification as read
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { notificationId } = await params;
 
@@ -39,4 +36,3 @@ export async function POST(
     );
   }
 }
-

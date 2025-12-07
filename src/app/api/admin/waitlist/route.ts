@@ -29,13 +29,16 @@ export async function GET(request: NextRequest) {
     });
 
     // Group by career path
-    const groupedByCareer = waitlist.reduce((acc, entry) => {
-      if (!acc[entry.careerPath]) {
-        acc[entry.careerPath] = [];
-      }
-      acc[entry.careerPath].push(entry);
-      return acc;
-    }, {} as Record<string, typeof waitlist>);
+    const groupedByCareer = waitlist.reduce(
+      (acc, entry) => {
+        if (!acc[entry.careerPath]) {
+          acc[entry.careerPath] = [];
+        }
+        acc[entry.careerPath].push(entry);
+        return acc;
+      },
+      {} as Record<string, typeof waitlist>
+    );
 
     return NextResponse.json({
       success: true,
@@ -54,4 +57,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-

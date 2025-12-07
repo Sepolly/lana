@@ -12,10 +12,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { slug } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Find the course
@@ -24,10 +21,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     // Check if already enrolled
@@ -68,10 +62,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error("Enrollment error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to enroll" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to enroll" }, { status: 500 });
   }
 }
-

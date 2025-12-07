@@ -10,10 +10,7 @@ interface RouteParams {
  * POST /api/admin/courses/[courseId]/publish
  * Publish a course (make it available to users)
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { courseId } = await params;
 
@@ -26,24 +23,21 @@ export async function POST(
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     // Check if course has topics
     if (course.topics.length === 0) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: "Cannot publish course without topics. Please add at least one topic." 
+        {
+          success: false,
+          error: "Cannot publish course without topics. Please add at least one topic.",
         },
         { status: 400 }
       );
     }
 
-        // Publish course
+    // Publish course
     const updatedCourse = await db.course.update({
       where: { id: courseId },
       data: {
@@ -71,9 +65,10 @@ export async function POST(
 
     // Filter waitlist entries that match any of the course's career paths
     const waitlistedUsers = allWaitlistEntries.filter((entry) =>
-      updatedCourse.careerPaths.some((cp) =>
-        entry.careerPath.toLowerCase().includes(cp.toLowerCase()) ||
-        cp.toLowerCase().includes(entry.careerPath.toLowerCase())
+      updatedCourse.careerPaths.some(
+        (cp) =>
+          entry.careerPath.toLowerCase().includes(cp.toLowerCase()) ||
+          cp.toLowerCase().includes(entry.careerPath.toLowerCase())
       )
     );
 
@@ -130,9 +125,9 @@ export async function POST(
   } catch (error) {
     console.error("Error publishing course:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to publish course" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to publish course",
       },
       { status: 500 }
     );
@@ -143,10 +138,7 @@ export async function POST(
  * POST /api/admin/courses/[courseId]/unpublish
  * Unpublish a course (make it unavailable to users)
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { courseId } = await params;
 
@@ -156,10 +148,7 @@ export async function DELETE(
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     // Unpublish course
@@ -183,12 +172,11 @@ export async function DELETE(
   } catch (error) {
     console.error("Error unpublishing course:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to unpublish course" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to unpublish course",
       },
       { status: 500 }
     );
   }
 }
-

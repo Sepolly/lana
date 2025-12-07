@@ -14,7 +14,7 @@ interface AdminNotification {
   link: string | null;
   read: boolean;
   createdAt: Date;
-  metadata: any;
+  metadata: Record<string, unknown>;
 }
 
 export function AdminNotifications() {
@@ -53,9 +53,7 @@ export function AdminNotifications() {
 
       if (response.ok) {
         setNotifications((prev) =>
-          prev.map((n) =>
-            n.id === notificationId ? { ...n, read: true, readAt: new Date() } : n
-          )
+          prev.map((n) => (n.id === notificationId ? { ...n, read: true, readAt: new Date() } : n))
         );
         setUnreadCount((prev) => Math.max(0, prev - 1));
       }
@@ -76,11 +74,11 @@ export function AdminNotifications() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case "WAITLIST_JOINED":
-        return <Users className="w-5 h-5 text-primary" />;
+        return <Users className="text-primary h-5 w-5" />;
       case "COURSE_PUBLISHED":
-        return <BookOpen className="w-5 h-5 text-success" />;
+        return <BookOpen className="text-success h-5 w-5" />;
       default:
-        return <Bell className="w-5 h-5 text-primary" />;
+        return <Bell className="text-primary h-5 w-5" />;
     }
   };
 
@@ -93,14 +91,12 @@ export function AdminNotifications() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-primary" />
+            <Bell className="text-primary h-5 w-5" />
             Notifications
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground text-center py-4">
-            No notifications yet
-          </p>
+          <p className="text-muted-foreground py-4 text-center text-sm">No notifications yet</p>
         </CardContent>
       </Card>
     );
@@ -111,10 +107,10 @@ export function AdminNotifications() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-primary" />
+            <Bell className="text-primary h-5 w-5" />
             Notifications
             {unreadCount > 0 && (
-              <span className="text-xs px-2 py-1 rounded-full bg-primary text-primary-foreground">
+              <span className="bg-primary text-primary-foreground rounded-full px-2 py-1 text-xs">
                 {unreadCount}
               </span>
             )}
@@ -122,34 +118,30 @@ export function AdminNotifications() {
         </div>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="divide-y divide-border max-h-96 overflow-y-auto">
+        <div className="divide-border max-h-96 divide-y overflow-y-auto">
           {notifications.map((notification) => (
             <div
               key={notification.id}
-              className={`p-4 hover:bg-muted/50 transition-colors cursor-pointer ${
+              className={`hover:bg-muted/50 cursor-pointer p-4 transition-colors ${
                 !notification.read ? "bg-primary/5" : ""
               }`}
               onClick={() => handleNotificationClick(notification)}
             >
               <div className="flex items-start gap-3">
-                <div className="shrink-0 mt-0.5">
-                  {getNotificationIcon(notification.type)}
-                </div>
-                <div className="flex-1 min-w-0">
+                <div className="mt-0.5 shrink-0">{getNotificationIcon(notification.type)}</div>
+                <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <h4 className="font-semibold text-foreground text-sm">
+                      <h4 className="text-foreground text-sm font-semibold">
                         {notification.title}
                       </h4>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {notification.message}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-2">
+                      <p className="text-muted-foreground mt-1 text-sm">{notification.message}</p>
+                      <p className="text-muted-foreground mt-2 text-xs">
                         {new Date(notification.createdAt).toLocaleString()}
                       </p>
                     </div>
                     {!notification.read && (
-                      <div className="w-2 h-2 rounded-full bg-primary shrink-0 mt-1" />
+                      <div className="bg-primary mt-1 h-2 w-2 shrink-0 rounded-full" />
                     )}
                   </div>
                 </div>
@@ -161,4 +153,3 @@ export function AdminNotifications() {
     </Card>
   );
 }
-

@@ -15,20 +15,14 @@ export async function POST(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const validationResult = scheduleSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        { success: false, error: "Invalid request data" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Invalid request data" }, { status: 400 });
     }
 
     const { courseId, scheduledAt } = validationResult.data;
@@ -61,10 +55,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!courseData) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     // Get current topic progress
@@ -76,20 +67,20 @@ export async function POST(request: NextRequest) {
       select: { topicId: true },
     });
 
-    const completedTopicIds = new Set(topicProgress.map(tp => tp.topicId));
+    const completedTopicIds = new Set(topicProgress.map((tp) => tp.topicId));
     const totalTopics = courseData.topics.length;
     const completedTopics = completedTopicIds.size;
     const actualProgress = totalTopics > 0 ? (completedTopics / totalTopics) * 100 : 0;
 
     // Debug: log current progress
-    console.log('Exam scheduling attempt:', {
+    console.log("Exam scheduling attempt:", {
       userId: session.user.id,
       courseId,
       enrollmentProgress: enrollment.progress,
       actualProgress,
       totalTopics,
       completedTopics,
-      completedTopicIds: Array.from(completedTopicIds)
+      completedTopicIds: Array.from(completedTopicIds),
     });
 
     // Check if all topics are actually completed
@@ -97,7 +88,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: `You must complete all topics and pass all quizzes before scheduling an exam. ${completedTopics}/${totalTopics} topics completed.`
+          error: `You must complete all topics and pass all quizzes before scheduling an exam. ${completedTopics}/${totalTopics} topics completed.`,
         },
         { status: 400 }
       );
@@ -139,25 +130,24 @@ export async function POST(request: NextRequest) {
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     // Generate comprehensive exam questions using AI
-    const topicsForExam = course.topics.map(topic => ({
+    const topicsForExam = course.topics.map((topic) => ({
       id: topic.id,
       title: topic.title,
       videoTranscript: topic.videoTranscript,
       textContent: topic.textContent,
-      quiz: topic.quiz ? {
-        questions: topic.quiz.questions.map(q => ({
-          question: q.question,
-          options: q.options as string[],
-          correctAnswer: q.correctAnswer,
-        }))
-      } : null,
+      quiz: topic.quiz
+        ? {
+            questions: topic.quiz.questions.map((q) => ({
+              question: q.question,
+              options: q.options as string[],
+              correctAnswer: q.correctAnswer,
+            })),
+          }
+        : null,
     }));
 
     let generatedQuestions: GeneratedQuestion[] = [];
@@ -170,21 +160,25 @@ export async function POST(request: NextRequest) {
         50 // Generate at least 50 questions
       );
 
-      console.log('Exam generation:', {
+      console.log("Exam generation:", {
         courseId,
         requestedMin: 50,
         topicsCount: topicsForExam.length,
-        generatedCount: generatedQuestions.length
+        generatedCount: generatedQuestions.length,
       });
-    } catch (error: any) {
-      console.error('Exam question generation failed:', error);
-      generationError = error?.message || 'Failed to generate exam questions';
+    } catch (error: unknown) {
+      console.error("Exam question generation failed:", error);
+      const errorObj = error instanceof Error ? error : new Error(String(error));
+      generationError = errorObj.message || "Failed to generate exam questions";
 
       // Check if it's a rate limit or API error
-      if (generationError && (generationError.includes('API_RATE_LIMIT_EXCEEDED') ||
-          generationError.includes('API_QUOTA_EXCEEDED') ||
-          generationError.includes('429'))) {
-        console.warn('API rate limit exceeded, will use fallback questions');
+      if (
+        generationError &&
+        (generationError.includes("API_RATE_LIMIT_EXCEEDED") ||
+          generationError.includes("API_QUOTA_EXCEEDED") ||
+          generationError.includes("429"))
+      ) {
+        console.warn("API rate limit exceeded, will use fallback questions");
       } else {
         // Re-throw non-API errors
         throw error;
@@ -197,7 +191,7 @@ export async function POST(request: NextRequest) {
 
     // If we have no questions due to API errors, use fallback questions
     if (finalQuestions.length === 0 && generationError) {
-      console.log('Using fallback questions due to generation failure');
+      console.log("Using fallback questions due to generation failure");
       finalQuestions = createFallbackExamQuestions(course.title, Math.min(30, maxQuestions));
     }
 
@@ -220,7 +214,7 @@ export async function POST(request: NextRequest) {
       const baseDuration = 15; // minutes
 
       // Calculate total duration
-      const calculatedDuration = baseDuration + (questionCount * timePerQuestion);
+      const calculatedDuration = baseDuration + questionCount * timePerQuestion;
 
       // Minimum exam time (30 minutes for very short exams)
       const minDuration = 30;
@@ -247,10 +241,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Exam schedule error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to schedule exam" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to schedule exam" }, { status: 500 });
   }
 }
 
@@ -263,10 +254,10 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
         "To memorize facts without understanding",
         "To develop practical skills and knowledge",
         "To complete course requirements only",
-        "To focus solely on theoretical concepts"
+        "To focus solely on theoretical concepts",
       ],
       correctAnswer: 1,
-      explanation: "The primary goal is to develop practical skills and deep understanding."
+      explanation: "The primary goal is to develop practical skills and deep understanding.",
     },
     {
       question: `Which approach is most effective for learning ${courseTitle}?`,
@@ -274,10 +265,11 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
         "Passive reading without practice",
         "Active learning with hands-on application",
         "Memorizing without comprehension",
-        "Avoiding challenging concepts"
+        "Avoiding challenging concepts",
       ],
       correctAnswer: 1,
-      explanation: "Active learning with practical application leads to better retention and understanding."
+      explanation:
+        "Active learning with practical application leads to better retention and understanding.",
     },
     {
       question: `What is essential for success in ${courseTitle}?`,
@@ -285,10 +277,10 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
         "Speed over accuracy",
         "Consistent practice and review",
         "Avoiding difficult problems",
-        "Working in isolation"
+        "Working in isolation",
       ],
       correctAnswer: 1,
-      explanation: "Consistent practice and regular review are key to mastering the subject."
+      explanation: "Consistent practice and regular review are key to mastering the subject.",
     },
     {
       question: `How should you approach problem-solving in ${courseTitle}?`,
@@ -296,10 +288,11 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
         "Give up when facing difficulties",
         "Apply logical reasoning and learned concepts",
         "Guess randomly without analysis",
-        "Avoid complex problems"
+        "Avoid complex problems",
       ],
       correctAnswer: 1,
-      explanation: "Problem-solving requires logical reasoning and application of learned concepts."
+      explanation:
+        "Problem-solving requires logical reasoning and application of learned concepts.",
     },
     {
       question: `What is the benefit of understanding foundational concepts in ${courseTitle}?`,
@@ -307,10 +300,11 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
         "It limits your ability to learn advanced topics",
         "It provides a strong base for advanced learning",
         "It makes the subject more confusing",
-        "It reduces the need for practice"
+        "It reduces the need for practice",
       ],
       correctAnswer: 1,
-      explanation: "Strong foundational knowledge enables better understanding of advanced concepts."
+      explanation:
+        "Strong foundational knowledge enables better understanding of advanced concepts.",
     },
     {
       question: `Which learning method is most valuable for ${courseTitle}?`,
@@ -318,10 +312,11 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
         "Rote memorization only",
         "Understanding principles and their application",
         "Avoiding practical exercises",
-        "Focusing only on easy topics"
+        "Focusing only on easy topics",
       ],
       correctAnswer: 1,
-      explanation: "Understanding principles and their practical application is essential for mastery."
+      explanation:
+        "Understanding principles and their practical application is essential for mastery.",
     },
     {
       question: `What should you do when you encounter a challenging concept in ${courseTitle}?`,
@@ -329,10 +324,11 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
         "Skip it and move on",
         "Break it down and seek additional resources",
         "Give up on the topic",
-        "Memorize without understanding"
+        "Memorize without understanding",
       ],
       correctAnswer: 1,
-      explanation: "Breaking down challenging concepts and seeking additional resources helps overcome difficulties."
+      explanation:
+        "Breaking down challenging concepts and seeking additional resources helps overcome difficulties.",
     },
     {
       question: `Why is regular review important in ${courseTitle}?`,
@@ -340,10 +336,10 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
         "It prevents forgetting learned material",
         "It wastes valuable time",
         "It makes concepts more confusing",
-        "It reduces the need for practice"
+        "It reduces the need for practice",
       ],
       correctAnswer: 0,
-      explanation: "Regular review helps reinforce learning and prevents forgetting."
+      explanation: "Regular review helps reinforce learning and prevents forgetting.",
     },
     {
       question: `What role does critical thinking play in ${courseTitle}?`,
@@ -351,10 +347,11 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
         "It is not important for this subject",
         "It helps analyze and evaluate information",
         "It makes learning more difficult",
-        "It should be avoided"
+        "It should be avoided",
       ],
       correctAnswer: 1,
-      explanation: "Critical thinking is essential for analyzing and evaluating concepts in the subject."
+      explanation:
+        "Critical thinking is essential for analyzing and evaluating concepts in the subject.",
     },
     {
       question: `How can you improve your performance in ${courseTitle}?`,
@@ -362,11 +359,11 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
         "Avoid seeking help when needed",
         "Practice regularly and ask questions",
         "Work only when motivated",
-        "Focus only on areas you already know"
+        "Focus only on areas you already know",
       ],
       correctAnswer: 1,
-      explanation: "Regular practice and seeking help when needed leads to continuous improvement."
-    }
+      explanation: "Regular practice and seeking help when needed leads to continuous improvement.",
+    },
   ];
 
   // Return the requested number of questions, cycling through available ones if needed
@@ -375,7 +372,7 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
     const question = fallbackQuestions[i % fallbackQuestions.length];
     result.push({
       ...question,
-      question: question.question.replace('${courseTitle}', courseTitle)
+      question: question.question.replace("${courseTitle}", courseTitle),
     });
   }
 
@@ -388,10 +385,7 @@ export async function GET() {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const exams = await db.examSchedule.findMany({
@@ -409,10 +403,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Exam fetch error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch exams" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to fetch exams" }, { status: 500 });
   }
 }
-

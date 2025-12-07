@@ -52,12 +52,9 @@ export interface QueryResult {
 /**
  * Upsert vectors into Pinecone index
  */
-export async function upsertVectors(
-  vectors: CareerVector[],
-  namespace?: string
-): Promise<void> {
+export async function upsertVectors(vectors: CareerVector[], namespace?: string): Promise<void> {
   const index = getIndex();
-  
+
   // Filter out undefined values from metadata for Pinecone compatibility
   const cleanedVectors = vectors.map((v) => {
     const cleanMetadata: Record<string, string | number | boolean | string[]> = {};
@@ -86,7 +83,7 @@ export async function querySimilar(
   filter?: Record<string, unknown>
 ): Promise<QueryResult[]> {
   const index = getIndex();
-  
+
   const results = await index.namespace(namespace ?? "default").query({
     vector: queryVector,
     topK,
@@ -104,10 +101,7 @@ export async function querySimilar(
 /**
  * Delete vectors by IDs
  */
-export async function deleteVectors(
-  ids: string[],
-  namespace?: string
-): Promise<void> {
+export async function deleteVectors(ids: string[], namespace?: string): Promise<void> {
   const index = getIndex();
   await index.namespace(namespace ?? "default").deleteMany(ids);
 }
@@ -115,14 +109,11 @@ export async function deleteVectors(
 /**
  * Get vector by ID
  */
-export async function getVector(
-  id: string,
-  namespace?: string
-): Promise<CareerVector | null> {
+export async function getVector(id: string, namespace?: string): Promise<CareerVector | null> {
   const index = getIndex();
-  
+
   const result = await index.namespace(namespace ?? "default").fetch([id]);
-  
+
   const record = result.records?.[id];
   if (!record) return null;
 

@@ -21,10 +21,7 @@ const updateCompanySchema = z.object({
  * GET /api/admin/companies/[companyId]
  * Get company details
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { companyId } = await params;
 
@@ -40,10 +37,7 @@ export async function GET(
     });
 
     if (!company) {
-      return NextResponse.json(
-        { success: false, error: "Company not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Company not found" }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -53,9 +47,9 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching company:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to fetch company" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch company",
       },
       { status: 500 }
     );
@@ -66,10 +60,7 @@ export async function GET(
  * PUT /api/admin/companies/[companyId]
  * Update company
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { companyId } = await params;
     const body = await request.json();
@@ -77,10 +68,10 @@ export async function PUT(
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid company data",
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 }
       );
@@ -92,10 +83,7 @@ export async function PUT(
     });
 
     if (!existingCompany) {
-      return NextResponse.json(
-        { success: false, error: "Company not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Company not found" }, { status: 404 });
     }
 
     const updateData: {
@@ -119,13 +107,15 @@ export async function PUT(
           NOT: { id: companyId },
         },
       });
-      
+
       if (slugExists) {
         let finalSlug = newSlug;
         let counter = 1;
-        while (await db.company.findFirst({
-          where: { slug: finalSlug, NOT: { id: companyId } },
-        })) {
+        while (
+          await db.company.findFirst({
+            where: { slug: finalSlug, NOT: { id: companyId } },
+          })
+        ) {
           finalSlug = `${newSlug}-${counter}`;
           counter++;
         }
@@ -175,9 +165,9 @@ export async function PUT(
   } catch (error) {
     console.error("Error updating company:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to update company" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to update company",
       },
       { status: 500 }
     );
@@ -188,10 +178,7 @@ export async function PUT(
  * DELETE /api/admin/companies/[companyId]
  * Delete a company
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { companyId } = await params;
 
@@ -208,18 +195,15 @@ export async function DELETE(
     });
 
     if (!company) {
-      return NextResponse.json(
-        { success: false, error: "Company not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Company not found" }, { status: 404 });
     }
 
     // Check if company has jobs
     if (company._count.jobs > 0) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: "Cannot delete company with existing jobs. Please delete or reassign jobs first." 
+        {
+          success: false,
+          error: "Cannot delete company with existing jobs. Please delete or reassign jobs first.",
         },
         { status: 400 }
       );
@@ -237,12 +221,11 @@ export async function DELETE(
   } catch (error) {
     console.error("Error deleting company:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to delete company" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to delete company",
       },
       { status: 500 }
     );
   }
 }
-

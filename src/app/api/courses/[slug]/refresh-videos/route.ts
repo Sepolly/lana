@@ -18,10 +18,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { slug } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Verify YouTube API key is available
@@ -43,10 +40,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     const careerPath = course.careerPaths[0] || course.title;
@@ -56,19 +50,21 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Track used video IDs to prevent duplicates in the same course
     const usedVideoIds: Set<string> = new Set();
-    
+
     // Helper function to extract video ID from URL
     const extractVideoId = (url: string): string | null => {
-      const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?\s]+)/);
+      const match = url.match(
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?\s]+)/
+      );
       return match ? match[1] : null;
     };
-    
+
     // Helper function to check if a video is already used
     const isVideoUsed = (url: string): boolean => {
       const videoId = extractVideoId(url);
       return videoId ? usedVideoIds.has(videoId) : false;
     };
-    
+
     // Helper function to mark a video as used
     const markVideoUsed = (url: string): void => {
       const videoId = extractVideoId(url);
@@ -84,7 +80,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     for (const topic of course.topics) {
       // Build search query - ALWAYS include career path/course name for context
       const searchQuery = `${careerPath} ${topic.title} tutorial`;
-      
+
       console.log(`\n🔍 Topic ${topic.order}: "${topic.title}"`);
       console.log(`   Search: "${searchQuery}"`);
 
@@ -93,7 +89,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         let videoSelected = false;
 
         // Check if first video is valid and not already used
-        if (video && video.url && video.url.includes('watch?v=')) {
+        if (video && video.url && video.url.includes("watch?v=")) {
           if (!isVideoUsed(video.url)) {
             videoSelected = true;
           } else {
@@ -116,13 +112,18 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
           for (const altQuery of altQueries) {
             console.log(`   ⚠️ Trying alternative: "${altQuery}"`);
             const altVideo = await getTopVideoForTopic(altQuery);
-            
-            if (altVideo && altVideo.url && altVideo.url.includes('watch?v=') && !isVideoUsed(altVideo.url)) {
+
+            if (
+              altVideo &&
+              altVideo.url &&
+              altVideo.url.includes("watch?v=") &&
+              !isVideoUsed(altVideo.url)
+            ) {
               video = altVideo;
               videoSelected = true;
               break;
             }
-            
+
             // Small delay between retries
             await new Promise((resolve) => setTimeout(resolve, 200));
           }
@@ -131,7 +132,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         if (videoSelected && video && video.url) {
           // Mark video as used
           markVideoUsed(video.url);
-          
+
           // Update the topic with the video URL
           await db.topic.update({
             where: { id: topic.id },
@@ -172,7 +173,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
 
-    console.log(`\n📊 Refresh complete: ${updated} updated, ${failed} failed, ${duplicatesAvoided} duplicates avoided`);
+    console.log(
+      `\n📊 Refresh complete: ${updated} updated, ${failed} failed, ${duplicatesAvoided} duplicates avoided`
+    );
     console.log(`📊 Unique videos: ${usedVideoIds.size}`);
 
     return NextResponse.json({
@@ -190,12 +193,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     console.error("Video refresh error:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to refresh videos" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to refresh videos",
       },
       { status: 500 }
     );
   }
 }
-

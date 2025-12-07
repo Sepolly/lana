@@ -25,12 +25,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching companies:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to fetch companies" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch companies",
       },
       { status: 500 }
     );
   }
 }
-

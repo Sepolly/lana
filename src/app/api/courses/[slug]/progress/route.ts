@@ -22,20 +22,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { slug } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const validationResult = progressSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        { success: false, error: "Invalid request data" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Invalid request data" }, { status: 400 });
     }
 
     const { topicId, videoProgress, videoWatched, isCompleted } = validationResult.data;
@@ -47,10 +41,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     const enrollment = await db.enrollment.findUnique({
@@ -139,10 +130,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { slug } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const course = await db.course.findUnique({
@@ -151,10 +139,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     const enrollment = await db.enrollment.findUnique({
@@ -191,4 +176,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
   }
 }
-

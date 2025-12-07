@@ -37,7 +37,7 @@ export async function searchVideos(
   } = {}
 ): Promise<YouTubeSearchResult> {
   const apiKey = process.env.YOUTUBE_API_KEY;
-  
+
   if (!apiKey) {
     console.error("❌ YOUTUBE_API_KEY is not set in environment variables");
     throw new Error("YouTube API key is required. Please set YOUTUBE_API_KEY in your .env file");
@@ -68,9 +68,7 @@ export async function searchVideos(
       ...(pageToken && { pageToken }),
     });
 
-    const searchResponse = await fetch(
-      `${YOUTUBE_API_URL}/search?${params.toString()}`
-    );
+    const searchResponse = await fetch(`${YOUTUBE_API_URL}/search?${params.toString()}`);
 
     if (!searchResponse.ok) {
       const errorText = await searchResponse.text();
@@ -79,7 +77,7 @@ export async function searchVideos(
     }
 
     const searchData = await searchResponse.json();
-    
+
     if (!searchData.items || searchData.items.length === 0) {
       console.warn(`⚠️ No videos found for query: "${query}"`);
       return { videos: [] };
@@ -104,12 +102,10 @@ export async function searchVideos(
       part: "contentDetails,statistics",
     });
 
-    const detailsResponse = await fetch(
-      `${YOUTUBE_API_URL}/videos?${detailsParams.toString()}`
-    );
+    const detailsResponse = await fetch(`${YOUTUBE_API_URL}/videos?${detailsParams.toString()}`);
 
     let videoDetails: Record<string, { duration?: string; viewCount?: string }> = {};
-    
+
     if (detailsResponse.ok) {
       const detailsData = await detailsResponse.json();
       videoDetails = detailsData.items?.reduce(
@@ -177,9 +173,7 @@ export async function searchVideos(
 /**
  * Get top educational video for a topic
  */
-export async function getTopVideoForTopic(
-  searchQuery: string
-): Promise<YouTubeVideo | null> {
+export async function getTopVideoForTopic(searchQuery: string): Promise<YouTubeVideo | null> {
   try {
     const result = await searchVideos(searchQuery, {
       maxResults: 1,
@@ -280,24 +274,26 @@ export async function getVideosForTopics(
   topics: { title: string; searchQuery: string }[]
 ): Promise<Map<string, YouTubeVideo | null>> {
   const results = new Map<string, YouTubeVideo | null>();
-  
+
   console.log(`\n📚 Fetching YouTube videos for ${topics.length} topics...`);
-  
+
   // Check for API key first
   if (!process.env.YOUTUBE_API_KEY) {
     console.error("❌ YOUTUBE_API_KEY is not set!");
     throw new Error("YouTube API key is required");
   }
-  
+
   // Process in batches to avoid rate limiting
   const batchSize = 3;
   let successCount = 0;
   let failCount = 0;
-  
+
   for (let i = 0; i < topics.length; i += batchSize) {
     const batch = topics.slice(i, i + batchSize);
-    console.log(`\n📦 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(topics.length / batchSize)}`);
-    
+    console.log(
+      `\n📦 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(topics.length / batchSize)}`
+    );
+
     const batchResults = await Promise.all(
       batch.map(async (topic) => {
         try {
@@ -315,19 +311,19 @@ export async function getVideosForTopics(
         }
       })
     );
-    
+
     batch.forEach((topic, idx) => {
       results.set(topic.title, batchResults[idx]);
     });
-    
+
     // Rate limiting delay between batches
     if (i + batchSize < topics.length) {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }
-  
+
   console.log(`\n✅ YouTube fetch complete: ${successCount} videos found, ${failCount} failed`);
-  
+
   return results;
 }
 
@@ -341,16 +337,12 @@ export async function updateTopicsWithVideos(
 ): Promise<{ success: number; failed: number }> {
   let success = 0;
   let failed = 0;
-  
+
   for (const topic of topics) {
     try {
       const video = await getTopVideoForTopic(topic.searchQuery);
       if (video) {
-        await updateFn(
-          topic.id,
-          video.url,
-          `${video.title} by ${video.channelTitle}`
-        );
+        await updateFn(topic.id, video.url, `${video.title} by ${video.channelTitle}`);
         success++;
         console.log(`✅ Updated video for: ${topic.title}`);
       } else {
@@ -361,10 +353,10 @@ export async function updateTopicsWithVideos(
       failed++;
       console.error(`❌ Failed to update video for: ${topic.title}`, error);
     }
-    
+
     // Rate limiting
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 300));
   }
-  
+
   return { success, failed };
 }

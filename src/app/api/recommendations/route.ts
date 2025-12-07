@@ -9,10 +9,7 @@ export async function GET() {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const profile = await db.studentProfile.findUnique({
@@ -25,10 +22,13 @@ export async function GET() {
     });
 
     if (!profile?.aptitudeCompleted) {
-      return NextResponse.json({
-        success: false,
-        error: "Please complete the aptitude test first",
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Please complete the aptitude test first",
+        },
+        { status: 400 }
+      );
     }
 
     return NextResponse.json({
@@ -53,10 +53,7 @@ export async function POST(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const profile = await db.studentProfile.findUnique({
@@ -64,14 +61,19 @@ export async function POST(request: NextRequest) {
     });
 
     if (!profile?.aptitudeCompleted) {
-      return NextResponse.json({
-        success: false,
-        error: "Please complete the aptitude test first",
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Please complete the aptitude test first",
+        },
+        { status: 400 }
+      );
     }
 
     const body = await request.json().catch(() => ({}));
-    const userType = (body.userType === "Employer" ? "Employer" : "Employed") as "Employed" | "Employer";
+    const userType = (body.userType === "Employer" ? "Employer" : "Employed") as
+      | "Employed"
+      | "Employer";
 
     // Regenerate recommendations based on current profile
     const recommendations = await generateRecommendations(
@@ -105,4 +107,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

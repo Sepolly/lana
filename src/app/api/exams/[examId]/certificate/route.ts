@@ -13,10 +13,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { examId } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Get the exam
@@ -28,10 +25,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!exam || exam.userId !== session.user.id) {
-      return NextResponse.json(
-        { success: false, error: "Exam not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Exam not found" }, { status: 404 });
     }
 
     // Check if exam was passed

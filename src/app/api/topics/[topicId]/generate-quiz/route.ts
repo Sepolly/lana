@@ -20,10 +20,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { topicId } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Get the topic with course info
@@ -44,10 +41,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!topic) {
-      return NextResponse.json(
-        { success: false, error: "Topic not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Topic not found" }, { status: 404 });
     }
 
     // Check if quiz already exists
@@ -82,7 +76,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         {
           success: false,
-          error: "Topic notes are missing or too short to generate a quiz. Please ensure the topic has detailed notes before generating a quiz.",
+          error:
+            "Topic notes are missing or too short to generate a quiz. Please ensure the topic has detailed notes before generating a quiz.",
           requiresNotes: true,
         },
         { status: 400 }
@@ -93,13 +88,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Prepare transcript from notes (clamped length for token limits)
     const preparedTranscript =
-      topic.textContent.length > 10000
-        ? topic.textContent.substring(0, 10000)
-        : topic.textContent;
+      topic.textContent.length > 10000 ? topic.textContent.substring(0, 10000) : topic.textContent;
 
     // Calculate dynamic question count based on content length (up to 10 questions)
     const questionCount = calculateQuestionCount(topic.textContent);
-    console.log(`[Quiz Gen] Generating ${questionCount} questions based on content length (${topic.textContent.length} chars)`);
+    console.log(
+      `[Quiz Gen] Generating ${questionCount} questions based on content length (${topic.textContent.length} chars)`
+    );
 
     // Use AI (Gemini via generateQuizFromTranscript) to create quiz from notes
     // Pass undefined to let the function calculate dynamically, or pass the calculated count
@@ -145,9 +140,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error("Quiz generation error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to generate quiz" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to generate quiz" }, { status: 500 });
   }
 }

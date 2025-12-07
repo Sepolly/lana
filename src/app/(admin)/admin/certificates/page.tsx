@@ -36,23 +36,21 @@ export default async function AdminCertificatesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Certificates</h1>
-        <p className="text-muted-foreground mt-1">
-          View and verify all issued certificates
-        </p>
+        <h1 className="text-foreground text-3xl font-bold">Certificates</h1>
+        <p className="text-muted-foreground mt-1">View and verify all issued certificates</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Award className="w-6 h-6 text-primary" />
+              <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-xl">
+                <Award className="text-primary h-6 w-6" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-                <p className="text-sm text-muted-foreground">Total</p>
+                <p className="text-foreground text-2xl font-bold">{stats.total}</p>
+                <p className="text-muted-foreground text-sm">Total</p>
               </div>
             </div>
           </CardContent>
@@ -60,12 +58,12 @@ export default async function AdminCertificatesPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center">
-                <Award className="w-6 h-6 text-amber-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
+                <Award className="h-6 w-6 text-amber-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.bronze}</p>
-                <p className="text-sm text-muted-foreground">Bronze</p>
+                <p className="text-foreground text-2xl font-bold">{stats.bronze}</p>
+                <p className="text-muted-foreground text-sm">Bronze</p>
               </div>
             </div>
           </CardContent>
@@ -73,12 +71,12 @@ export default async function AdminCertificatesPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
-                <Award className="w-6 h-6 text-gray-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100">
+                <Award className="h-6 w-6 text-gray-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.silver}</p>
-                <p className="text-sm text-muted-foreground">Silver</p>
+                <p className="text-foreground text-2xl font-bold">{stats.silver}</p>
+                <p className="text-muted-foreground text-sm">Silver</p>
               </div>
             </div>
           </CardContent>
@@ -86,12 +84,12 @@ export default async function AdminCertificatesPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center">
-                <Award className="w-6 h-6 text-yellow-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-100">
+                <Award className="h-6 w-6 text-yellow-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.gold}</p>
-                <p className="text-sm text-muted-foreground">Gold</p>
+                <p className="text-foreground text-2xl font-bold">{stats.gold}</p>
+                <p className="text-muted-foreground text-sm">Gold</p>
               </div>
             </div>
           </CardContent>
@@ -99,12 +97,12 @@ export default async function AdminCertificatesPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
-                <Award className="w-6 h-6 text-purple-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-100">
+                <Award className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-foreground">{stats.platinum}</p>
-                <p className="text-sm text-muted-foreground">Platinum</p>
+                <p className="text-foreground text-2xl font-bold">{stats.platinum}</p>
+                <p className="text-muted-foreground text-sm">Platinum</p>
               </div>
             </div>
           </CardContent>
@@ -120,71 +118,82 @@ export default async function AdminCertificatesPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left p-4 font-medium text-muted-foreground">User</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Course</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Level</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Score</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Certificate #</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Issued</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Verification</th>
+                <tr className="border-border border-b">
+                  <th className="text-muted-foreground p-4 text-left font-medium">User</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Course</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Level</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Score</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Certificate #</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Issued</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Verification</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-border divide-y">
                 {certificates.map((cert) => (
                   <tr key={cert.id} className="hover:bg-muted/50">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
-                          <span className="text-sm font-bold text-secondary-foreground">
+                        <div className="bg-secondary flex h-10 w-10 items-center justify-center rounded-full">
+                          <span className="text-secondary-foreground text-sm font-bold">
                             {cert.user.name?.charAt(0) || cert.user.email.charAt(0).toUpperCase()}
                           </span>
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">{cert.user.name || "No name"}</p>
-                          <p className="text-sm text-muted-foreground">{cert.user.email}</p>
+                          <p className="text-foreground font-medium">
+                            {cert.user.name || "No name"}
+                          </p>
+                          <p className="text-muted-foreground text-sm">{cert.user.email}</p>
                         </div>
                       </div>
                     </td>
                     <td className="p-4">
                       <Link
                         href={`/courses/${cert.course.slug}`}
-                        className="text-primary hover:underline font-medium"
+                        className="text-primary font-medium hover:underline"
                       >
                         {cert.course.title}
                       </Link>
                     </td>
                     <td className="p-4">
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        cert.level === "PLATINUM" ? "bg-purple-100 text-purple-800" :
-                        cert.level === "GOLD" ? "bg-yellow-100 text-yellow-800" :
-                        cert.level === "SILVER" ? "bg-gray-100 text-gray-800" :
-                        "bg-amber-100 text-amber-800"
-                      }`}>
+                      <span
+                        className={`rounded-full px-2 py-1 text-xs ${
+                          cert.level === "PLATINUM"
+                            ? "bg-purple-100 text-purple-800"
+                            : cert.level === "GOLD"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : cert.level === "SILVER"
+                                ? "bg-gray-100 text-gray-800"
+                                : "bg-amber-100 text-amber-800"
+                        }`}
+                      >
                         {cert.level}
                       </span>
                     </td>
                     <td className="p-4">
-                      <span className="font-medium text-foreground">{Math.round(cert.examScore)}%</span>
+                      <span className="text-foreground font-medium">
+                        {Math.round(cert.examScore)}%
+                      </span>
                     </td>
                     <td className="p-4">
-                      <code className="text-xs bg-muted px-2 py-1 rounded">{cert.certificateNumber}</code>
+                      <code className="bg-muted rounded px-2 py-1 text-xs">
+                        {cert.certificateNumber}
+                      </code>
                     </td>
                     <td className="p-4">
-                      <span className="text-muted-foreground text-sm flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
+                      <span className="text-muted-foreground flex items-center gap-1 text-sm">
+                        <Calendar className="h-3 w-3" />
                         {new Date(cert.issueDate).toLocaleDateString()}
                       </span>
                     </td>
                     <td className="p-4">
                       {cert.blockchainHash ? (
-                        <span className="flex items-center gap-1 text-success text-sm">
-                          <CheckCircle className="w-4 h-4" />
+                        <span className="text-success flex items-center gap-1 text-sm">
+                          <CheckCircle className="h-4 w-4" />
                           Verified
                         </span>
                       ) : (
-                        <span className="flex items-center gap-1 text-muted-foreground text-sm">
-                          <XCircle className="w-4 h-4" />
+                        <span className="text-muted-foreground flex items-center gap-1 text-sm">
+                          <XCircle className="h-4 w-4" />
                           Not Verified
                         </span>
                       )}
@@ -197,7 +206,7 @@ export default async function AdminCertificatesPage() {
 
           {certificates.length === 0 && (
             <div className="py-12 text-center">
-              <Award className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <Award className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
               <p className="text-muted-foreground">No certificates issued yet</p>
             </div>
           )}
@@ -206,4 +215,3 @@ export default async function AdminCertificatesPage() {
     </div>
   );
 }
-

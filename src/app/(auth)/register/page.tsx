@@ -59,8 +59,7 @@ export default function RegisterPage() {
     if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters";
     } else if (!passwordRegex.test(formData.password)) {
-      newErrors.password =
-        "Password must contain uppercase, lowercase, and number";
+      newErrors.password = "Password must contain uppercase, lowercase, and number";
     }
 
     if (formData.password !== formData.confirmPassword) {
@@ -133,23 +132,20 @@ export default function RegisterPage() {
   if (isSuccess) {
     return (
       <Card variant="elevated" className="animate-fade-in">
-        <CardContent className="pt-8 pb-8 text-center space-y-4">
-          <div className="w-16 h-16 mx-auto rounded-full bg-success/10 flex items-center justify-center">
-            <CheckCircle2 className="w-8 h-8 text-success" />
+        <CardContent className="space-y-4 pt-8 pb-8 text-center">
+          <div className="bg-success/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+            <CheckCircle2 className="text-success h-8 w-8" />
           </div>
-          <h2 className="text-2xl font-bold text-foreground">Check your email</h2>
+          <h2 className="text-foreground text-2xl font-bold">Check your email</h2>
           <p className="text-muted-foreground">
             We&apos;ve sent a verification link to{" "}
-            <span className="font-medium text-foreground">{formData.email}</span>
+            <span className="text-foreground font-medium">{formData.email}</span>
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             Click the link in the email to verify your account and get started.
           </p>
           <div className="pt-4">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/login")}
-            >
+            <Button variant="outline" onClick={() => router.push("/login")}>
               Back to Sign In
             </Button>
           </div>
@@ -162,15 +158,13 @@ export default function RegisterPage() {
     <Card variant="elevated" className="animate-fade-in">
       <CardHeader className="space-y-1 text-center">
         <CardTitle className="text-2xl">Create an account</CardTitle>
-        <CardDescription>
-          Start your journey to finding the perfect career
-        </CardDescription>
+        <CardDescription>Start your journey to finding the perfect career</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
         {/* Error message */}
         {formError && (
-          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+          <div className="bg-destructive/10 border-destructive/20 text-destructive rounded-lg border p-3 text-sm">
             {formError}
           </div>
         )}
@@ -182,7 +176,7 @@ export default function RegisterPage() {
           onClick={handleGoogleSignIn}
           isLoading={isGoogleLoading}
           leftIcon={
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
                 fill="currentColor"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -208,12 +202,10 @@ export default function RegisterPage() {
         {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
+            <span className="border-border w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">
-              Or register with email
-            </span>
+            <span className="bg-card text-muted-foreground px-2">Or register with email</span>
           </div>
         </div>
 
@@ -226,7 +218,7 @@ export default function RegisterPage() {
             placeholder="Enter your full name"
             value={formData.name}
             onChange={handleChange}
-            leftIcon={<User className="w-5 h-5" />}
+            leftIcon={<User className="h-5 w-5" />}
             error={errors.name}
             required
           />
@@ -238,7 +230,7 @@ export default function RegisterPage() {
             placeholder="Enter your email"
             value={formData.email}
             onChange={handleChange}
-            leftIcon={<Mail className="w-5 h-5" />}
+            leftIcon={<Mail className="h-5 w-5" />}
             error={errors.email}
             required
           />
@@ -270,13 +262,13 @@ export default function RegisterPage() {
             type="submit"
             fullWidth
             isLoading={isLoading}
-            rightIcon={<ArrowRight className="w-4 h-4" />}
+            rightIcon={<ArrowRight className="h-4 w-4" />}
           >
             Create Account
           </Button>
         </form>
 
-        <p className="text-xs text-center text-muted-foreground">
+        <p className="text-muted-foreground text-center text-xs">
           By creating an account, you agree to our{" "}
           <Link href="/terms" className="text-primary hover:underline">
             Terms of Service
@@ -289,7 +281,7 @@ export default function RegisterPage() {
       </CardContent>
 
       <CardFooter className="justify-center">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Already have an account?{" "}
           <Link href="/login" className="text-primary font-medium hover:underline">
             Sign in
@@ -299,4 +291,3 @@ export default function RegisterPage() {
     </Card>
   );
 }
-

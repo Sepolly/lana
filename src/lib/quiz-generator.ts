@@ -22,7 +22,7 @@ const GEMINI_MODEL_NAME = "gemini-2.0-flash";
 /**
  * Calculate the number of questions to generate based on text content length.
  * More content = more questions, up to a maximum of 10.
- * 
+ *
  * @param textContent - The text content to analyze
  * @returns Number of questions to generate (between 3 and 10)
  */
@@ -30,9 +30,9 @@ export function calculateQuestionCount(textContent: string): number {
   if (!textContent || textContent.trim().length < 100) {
     return 3; // Minimum questions for very short content
   }
-  
+
   const length = textContent.trim().length;
-  
+
   // Scale questions based on content length:
   // - 100-500 chars: 3 questions
   // - 500-1000 chars: 5 questions
@@ -40,7 +40,7 @@ export function calculateQuestionCount(textContent: string): number {
   // - 2000-3000 chars: 8 questions
   // - 3000-5000 chars: 9 questions
   // - 5000+ chars: 10 questions (maximum)
-  
+
   if (length < 500) return 3;
   if (length < 1000) return 5;
   if (length < 2000) return 7;
@@ -77,15 +77,20 @@ async function callGemini(prompt: string): Promise<string> {
       throw new Error("Empty response from Gemini");
     }
     return text;
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Handle specific Gemini API errors
-    if (error?.status === 429) {
-      throw new Error("API_RATE_LIMIT_EXCEEDED: Gemini API rate limit exceeded. Please try again later.");
+    const errorWithStatus = error as { status?: number };
+    if (errorWithStatus?.status === 429) {
+      throw new Error(
+        "API_RATE_LIMIT_EXCEEDED: Gemini API rate limit exceeded. Please try again later."
+      );
     }
-    if (error?.status === 403) {
-      throw new Error("API_QUOTA_EXCEEDED: Gemini API quota exceeded. Please check your API key and billing.");
+    if (errorWithStatus?.status === 403) {
+      throw new Error(
+        "API_QUOTA_EXCEEDED: Gemini API quota exceeded. Please check your API key and billing."
+      );
     }
-    if (error?.status === 500) {
+    if (errorWithStatus?.status === 500) {
       throw new Error("API_SERVER_ERROR: Gemini API server error. Please try again later.");
     }
     // Re-throw other errors
@@ -136,7 +141,7 @@ export async function generateQuizFromTranscript(
 ): Promise<GeneratedQuiz> {
   // If numQuestions not provided, calculate based on transcript length
   const questionCount = numQuestions ?? calculateQuestionCount(transcript);
-  
+
   const prompt = `You are an expert educational quiz creator. Your task is to generate ${questionCount} high-quality multiple-choice quiz questions based DIRECTLY on the specific content from this video transcript.
 
 TOPIC: "${topicTitle}"
@@ -184,20 +189,20 @@ Return ONLY valid JSON, no other text.`;
 
     // Parse the response robustly
     const quizData = safeParseQuizJson(responseText);
-    
+
     // Validate the structure
     if (!quizData.questions || !Array.isArray(quizData.questions)) {
       throw new Error("Invalid quiz structure: missing questions array");
     }
-    
+
     // Validate each question
     const validatedQuestions: GeneratedQuestion[] = quizData.questions
       .filter((q: Record<string, unknown>) => {
         return (
-          typeof q.question === 'string' &&
+          typeof q.question === "string" &&
           Array.isArray(q.options) &&
           q.options.length === 4 &&
-          typeof q.correctAnswer === 'number' &&
+          typeof q.correctAnswer === "number" &&
           q.correctAnswer >= 0 &&
           q.correctAnswer <= 3
         );
@@ -208,18 +213,18 @@ Return ONLY valid JSON, no other text.`;
         correctAnswer: q.correctAnswer as number,
         explanation: (q.explanation as string) || "No explanation provided.",
       }));
-    
+
     if (validatedQuestions.length === 0) {
       throw new Error("No valid questions generated");
     }
-    
+
     return {
       questions: validatedQuestions,
       passingScore: quizData.passingScore || 70,
     };
   } catch (error) {
     console.error("Failed to generate quiz:", error);
-    
+
     // Return fallback quiz
     return createFallbackQuiz(topicTitle, questionCount);
   }
@@ -275,18 +280,18 @@ Return ONLY valid JSON, no other text.`;
 
     // Parse the response robustly
     const quizData = safeParseQuizJson(responseText);
-    
+
     if (!quizData.questions || !Array.isArray(quizData.questions)) {
       throw new Error("Invalid quiz structure");
     }
-    
+
     const validatedQuestions: GeneratedQuestion[] = quizData.questions
       .filter((q: Record<string, unknown>) => {
         return (
-          typeof q.question === 'string' &&
+          typeof q.question === "string" &&
           Array.isArray(q.options) &&
           q.options.length === 4 &&
-          typeof q.correctAnswer === 'number' &&
+          typeof q.correctAnswer === "number" &&
           q.correctAnswer >= 0 &&
           q.correctAnswer <= 3
         );
@@ -297,11 +302,11 @@ Return ONLY valid JSON, no other text.`;
         correctAnswer: q.correctAnswer as number,
         explanation: (q.explanation as string) || "No explanation provided.",
       }));
-    
+
     if (validatedQuestions.length === 0) {
       throw new Error("No valid questions generated");
     }
-    
+
     return {
       questions: validatedQuestions,
       passingScore: quizData.passingScore || 70,
@@ -323,10 +328,10 @@ function createFallbackQuiz(topicTitle: string, numQuestions: number): Generated
         "To understand fundamental concepts",
         "To skip other learning requirements",
         "To avoid practical applications",
-        "To focus only on theory"
+        "To focus only on theory",
       ],
       correctAnswer: 0,
-      explanation: "Understanding fundamental concepts is key to mastering any topic."
+      explanation: "Understanding fundamental concepts is key to mastering any topic.",
     },
     {
       question: `Which approach is best when studying ${topicTitle}?`,
@@ -334,10 +339,10 @@ function createFallbackQuiz(topicTitle: string, numQuestions: number): Generated
         "Memorizing without understanding",
         "Skipping practice exercises",
         "Combining theory with hands-on practice",
-        "Avoiding related topics"
+        "Avoiding related topics",
       ],
       correctAnswer: 2,
-      explanation: "Combining theory with practice leads to better learning outcomes."
+      explanation: "Combining theory with practice leads to better learning outcomes.",
     },
     {
       question: `What skill is most important when working with ${topicTitle}?`,
@@ -345,10 +350,10 @@ function createFallbackQuiz(topicTitle: string, numQuestions: number): Generated
         "Speed over accuracy",
         "Attention to detail",
         "Avoiding feedback",
-        "Working in isolation"
+        "Working in isolation",
       ],
       correctAnswer: 1,
-      explanation: "Attention to detail is crucial for quality work in any field."
+      explanation: "Attention to detail is crucial for quality work in any field.",
     },
     {
       question: `How can you improve your understanding of ${topicTitle}?`,
@@ -356,10 +361,10 @@ function createFallbackQuiz(topicTitle: string, numQuestions: number): Generated
         "Avoid asking questions",
         "Only read theory",
         "Practice regularly and seek feedback",
-        "Skip foundational concepts"
+        "Skip foundational concepts",
       ],
       correctAnswer: 2,
-      explanation: "Regular practice and feedback help reinforce learning."
+      explanation: "Regular practice and feedback help reinforce learning.",
     },
     {
       question: `What is a key benefit of mastering ${topicTitle}?`,
@@ -367,13 +372,13 @@ function createFallbackQuiz(topicTitle: string, numQuestions: number): Generated
         "Fewer career opportunities",
         "Enhanced problem-solving abilities",
         "Limited skill development",
-        "Reduced creativity"
+        "Reduced creativity",
       ],
       correctAnswer: 1,
-      explanation: "Mastering topics enhances your overall problem-solving abilities."
-    }
+      explanation: "Mastering topics enhances your overall problem-solving abilities.",
+    },
   ];
-  
+
   return {
     questions: fallbackQuestions.slice(0, numQuestions),
     passingScore: 70,
@@ -402,16 +407,18 @@ export async function generateExamQuestions(
   minQuestions: number = 50
 ): Promise<GeneratedQuestion[]> {
   // Collect all available content from topics
-  const allContent = topics.map(topic => {
-    const transcript = topic.videoTranscript || "";
-    const textContent = topic.textContent || "";
-    return {
-      topicId: topic.id,
-      topicTitle: topic.title,
-      content: transcript + (textContent ? "\n\n" + textContent : ""),
-      existingQuestions: topic.quiz?.questions.map(q => q.question.toLowerCase()) || []
-    };
-  }).filter(item => item.content.trim().length > 0);
+  const allContent = topics
+    .map((topic) => {
+      const transcript = topic.videoTranscript || "";
+      const textContent = topic.textContent || "";
+      return {
+        topicId: topic.id,
+        topicTitle: topic.title,
+        content: transcript + (textContent ? "\n\n" + textContent : ""),
+        existingQuestions: topic.quiz?.questions.map((q) => q.question.toLowerCase()) || [],
+      };
+    })
+    .filter((item) => item.content.trim().length > 0);
 
   if (allContent.length === 0) {
     throw new Error("No content available to generate exam questions");
@@ -419,7 +426,7 @@ export async function generateExamQuestions(
 
   // Calculate questions per topic to ensure we reach at least minQuestions
   // Aim for more questions per topic to guarantee minimum total
-  const questionsPerTopic = Math.max(8, Math.ceil(minQuestions * 1.5 / allContent.length));
+  const questionsPerTopic = Math.max(8, Math.ceil((minQuestions * 1.5) / allContent.length));
 
   const allExamQuestions: GeneratedQuestion[] = [];
 
@@ -494,13 +501,14 @@ Return ONLY valid JSON, no additional text or commentary.`;
       // Validate and filter questions
       const validatedQuestions: GeneratedQuestion[] = quizData.questions
         .filter((q: Record<string, unknown>) => {
-          if (!q.question || typeof q.question !== 'string') return false;
+          if (!q.question || typeof q.question !== "string") return false;
           if (!Array.isArray(q.options) || q.options.length !== 4) return false;
-          if (typeof q.correctAnswer !== 'number' || q.correctAnswer < 0 || q.correctAnswer > 3) return false;
+          if (typeof q.correctAnswer !== "number" || q.correctAnswer < 0 || q.correctAnswer > 3)
+            return false;
 
           // Enhanced duplicate detection using multiple similarity checks
           const questionLower = q.question.toLowerCase().trim();
-          const isDuplicate = topicContent.existingQuestions.some(existing => {
+          const isDuplicate = topicContent.existingQuestions.some((existing) => {
             const existingLower = existing.toLowerCase().trim();
 
             // Exact match check
@@ -509,19 +517,22 @@ Return ONLY valid JSON, no additional text or commentary.`;
             // Substring similarity (80% overlap minimum)
             const minLength = Math.min(questionLower.length, existingLower.length);
             const maxLength = Math.max(questionLower.length, existingLower.length);
-            if (minLength > 20 && (minLength / maxLength) > 0.8) {
+            if (minLength > 20 && minLength / maxLength > 0.8) {
               // Check for significant word overlap
-              const questionWords = questionLower.split(/\s+/).filter(word => word.length > 3);
-              const existingWords = existingLower.split(/\s+/).filter(word => word.length > 3);
-              const commonWords = questionWords.filter(word => existingWords.includes(word));
-              if (commonWords.length >= Math.min(questionWords.length, existingWords.length) * 0.7) {
+              const questionWords = questionLower.split(/\s+/).filter((word) => word.length > 3);
+              const existingWords = existingLower.split(/\s+/).filter((word) => word.length > 3);
+              const commonWords = questionWords.filter((word) => existingWords.includes(word));
+              if (
+                commonWords.length >=
+                Math.min(questionWords.length, existingWords.length) * 0.7
+              ) {
                 return true;
               }
             }
 
             // Key phrase similarity (first 10-15 words)
-            const questionPhrase = questionLower.split(/\s+/).slice(0, 12).join(' ');
-            const existingPhrase = existingLower.split(/\s+/).slice(0, 12).join(' ');
+            const questionPhrase = questionLower.split(/\s+/).slice(0, 12).join(" ");
+            const existingPhrase = existingLower.split(/\s+/).slice(0, 12).join(" ");
             if (questionPhrase === existingPhrase && questionPhrase.length > 30) {
               return true;
             }
@@ -532,36 +543,92 @@ Return ONLY valid JSON, no additional text or commentary.`;
           // Comprehensive filtering of personal/presenter content
           const personalKeywords = [
             // Presenter/instructor references
-            'presenter', 'instructor', 'lecturer', 'speaker', 'professor', 'teacher',
-            'educator', 'expert', 'specialist', 'authority', 'researcher',
+            "presenter",
+            "instructor",
+            "lecturer",
+            "speaker",
+            "professor",
+            "teacher",
+            "educator",
+            "expert",
+            "specialist",
+            "authority",
+            "researcher",
 
             // Personal pronouns and experiences
-            'i think', 'i believe', 'i feel', 'i would', 'i have', 'i\'ve',
-            'my experience', 'my opinion', 'my view', 'my perspective', 'my approach',
-            'in my opinion', 'from my experience', 'i recommend', 'i suggest',
+            "i think",
+            "i believe",
+            "i feel",
+            "i would",
+            "i have",
+            "i've",
+            "my experience",
+            "my opinion",
+            "my view",
+            "my perspective",
+            "my approach",
+            "in my opinion",
+            "from my experience",
+            "i recommend",
+            "i suggest",
 
             // Platform/channel content
-            'youtube', 'channel', 'subscribe', 'subscription', 'video', 'video series',
-            'playlist', 'episode', 'series', 'tutorial', 'course on youtube',
+            "youtube",
+            "channel",
+            "subscribe",
+            "subscription",
+            "video",
+            "video series",
+            "playlist",
+            "episode",
+            "series",
+            "tutorial",
+            "course on youtube",
 
             // Social media and promotion
-            'follow me', 'follow us', 'like and subscribe', 'hit the bell',
-            'social media', 'twitter', 'instagram', 'facebook', 'linkedin',
+            "follow me",
+            "follow us",
+            "like and subscribe",
+            "hit the bell",
+            "social media",
+            "twitter",
+            "instagram",
+            "facebook",
+            "linkedin",
 
             // Personal biographical content
-            'my background', 'my career', 'my work', 'my research', 'my study',
-            'my university', 'my degree', 'my qualification', 'my expertise',
+            "my background",
+            "my career",
+            "my work",
+            "my research",
+            "my study",
+            "my university",
+            "my degree",
+            "my qualification",
+            "my expertise",
 
             // Channel/personal branding
-            'welcome back', 'welcome to', 'thank you for watching', 'thanks for watching',
-            'if you enjoyed', 'please like', 'comment below', 'share this',
+            "welcome back",
+            "welcome to",
+            "thank you for watching",
+            "thanks for watching",
+            "if you enjoyed",
+            "please like",
+            "comment below",
+            "share this",
 
             // Time/engagement references
-            'in this video', 'today we', 'let\'s talk about', 'we\'re going to',
-            'i\'ll show you', 'we\'ll cover', 'we\'ll discuss', 'we\'ll learn'
+            "in this video",
+            "today we",
+            "let's talk about",
+            "we're going to",
+            "i'll show you",
+            "we'll cover",
+            "we'll discuss",
+            "we'll learn",
           ];
 
-          const hasPersonalContent = personalKeywords.some(keyword =>
+          const hasPersonalContent = personalKeywords.some((keyword) =>
             questionLower.includes(keyword.toLowerCase())
           );
 
@@ -571,18 +638,23 @@ Return ONLY valid JSON, no additional text or commentary.`;
           question: q.question as string,
           options: q.options as string[],
           correctAnswer: q.correctAnswer as number,
-          explanation: (q.explanation as string) || "Based on the academic content presented in the course material.",
+          explanation:
+            (q.explanation as string) ||
+            "Based on the academic content presented in the course material.",
         }));
 
       allExamQuestions.push(...validatedQuestions);
-
-    } catch (error: any) {
-      const errorMessage = error?.message || 'Unknown error';
-      console.error(`Failed to generate exam questions for topic ${topicContent.topicTitle}:`, errorMessage);
+    } catch (error: unknown) {
+      const errorObj = error instanceof Error ? error : new Error(String(error));
+      const errorMessage = errorObj.message || "Unknown error";
+      console.error(
+        `Failed to generate exam questions for topic ${topicContent.topicTitle}:`,
+        errorMessage
+      );
 
       // If it's a rate limit error, we should stop trying to avoid wasting API calls
-      if (errorMessage.includes('API_RATE_LIMIT_EXCEEDED') || errorMessage.includes('429')) {
-        console.warn('Rate limit exceeded, skipping remaining topic question generation');
+      if (errorMessage.includes("API_RATE_LIMIT_EXCEEDED") || errorMessage.includes("429")) {
+        console.warn("Rate limit exceeded, skipping remaining topic question generation");
         break; // Stop processing other topics to avoid further rate limit hits
       }
 
@@ -596,7 +668,9 @@ Return ONLY valid JSON, no additional text or commentary.`;
 
   if (allExamQuestions.length < targetQuestions) {
     const remainingQuestions = Math.min(targetQuestions - allExamQuestions.length, 30); // Cap additional questions
-    const combinedContent = allContent.map(item => `${item.topicTitle}:\n${item.content}`).join('\n\n---\n\n');
+    const combinedContent = allContent
+      .map((item) => `${item.topicTitle}:\n${item.content}`)
+      .join("\n\n---\n\n");
 
     const prompt = `Generate ${remainingQuestions} additional comprehensive exam questions from the combined course content below. Follow the same rigorous academic standards as Stanford/Cambridge final exams.
 
@@ -616,13 +690,14 @@ Return ONLY valid JSON with questions array.`;
       if (quizData.questions && Array.isArray(quizData.questions)) {
         const additionalQuestions: GeneratedQuestion[] = quizData.questions
           .filter((q: Record<string, unknown>) => {
-            if (!q.question || typeof q.question !== 'string') return false;
+            if (!q.question || typeof q.question !== "string") return false;
             if (!Array.isArray(q.options) || q.options.length !== 4) return false;
-            if (typeof q.correctAnswer !== 'number' || q.correctAnswer < 0 || q.correctAnswer > 3) return false;
+            if (typeof q.correctAnswer !== "number" || q.correctAnswer < 0 || q.correctAnswer > 3)
+              return false;
 
             // Enhanced duplicate detection for additional questions
             const questionLower = q.question.toLowerCase().trim();
-            const isDuplicate = allExamQuestions.some(existing => {
+            const isDuplicate = allExamQuestions.some((existing) => {
               const existingLower = existing.question.toLowerCase().trim();
 
               // Exact match check
@@ -631,19 +706,22 @@ Return ONLY valid JSON with questions array.`;
               // Substring similarity (80% overlap minimum)
               const minLength = Math.min(questionLower.length, existingLower.length);
               const maxLength = Math.max(questionLower.length, existingLower.length);
-              if (minLength > 20 && (minLength / maxLength) > 0.8) {
+              if (minLength > 20 && minLength / maxLength > 0.8) {
                 // Check for significant word overlap
-                const questionWords = questionLower.split(/\s+/).filter(word => word.length > 3);
-                const existingWords = existingLower.split(/\s+/).filter(word => word.length > 3);
-                const commonWords = questionWords.filter(word => existingWords.includes(word));
-                if (commonWords.length >= Math.min(questionWords.length, existingWords.length) * 0.7) {
+                const questionWords = questionLower.split(/\s+/).filter((word) => word.length > 3);
+                const existingWords = existingLower.split(/\s+/).filter((word) => word.length > 3);
+                const commonWords = questionWords.filter((word) => existingWords.includes(word));
+                if (
+                  commonWords.length >=
+                  Math.min(questionWords.length, existingWords.length) * 0.7
+                ) {
                   return true;
                 }
               }
 
               // Key phrase similarity (first 10-15 words)
-              const questionPhrase = questionLower.split(/\s+/).slice(0, 12).join(' ');
-              const existingPhrase = existingLower.split(/\s+/).slice(0, 12).join(' ');
+              const questionPhrase = questionLower.split(/\s+/).slice(0, 12).join(" ");
+              const existingPhrase = existingLower.split(/\s+/).slice(0, 12).join(" ");
               if (questionPhrase === existingPhrase && questionPhrase.length > 30) {
                 return true;
               }
@@ -654,36 +732,92 @@ Return ONLY valid JSON with questions array.`;
             // Comprehensive filtering of personal/presenter content for additional questions
             const personalKeywords = [
               // Presenter/instructor references
-              'presenter', 'instructor', 'lecturer', 'speaker', 'professor', 'teacher',
-              'educator', 'expert', 'specialist', 'authority', 'researcher',
+              "presenter",
+              "instructor",
+              "lecturer",
+              "speaker",
+              "professor",
+              "teacher",
+              "educator",
+              "expert",
+              "specialist",
+              "authority",
+              "researcher",
 
               // Personal pronouns and experiences
-              'i think', 'i believe', 'i feel', 'i would', 'i have', 'i\'ve',
-              'my experience', 'my opinion', 'my view', 'my perspective', 'my approach',
-              'in my opinion', 'from my experience', 'i recommend', 'i suggest',
+              "i think",
+              "i believe",
+              "i feel",
+              "i would",
+              "i have",
+              "i've",
+              "my experience",
+              "my opinion",
+              "my view",
+              "my perspective",
+              "my approach",
+              "in my opinion",
+              "from my experience",
+              "i recommend",
+              "i suggest",
 
               // Platform/channel content
-              'youtube', 'channel', 'subscribe', 'subscription', 'video', 'video series',
-              'playlist', 'episode', 'series', 'tutorial', 'course on youtube',
+              "youtube",
+              "channel",
+              "subscribe",
+              "subscription",
+              "video",
+              "video series",
+              "playlist",
+              "episode",
+              "series",
+              "tutorial",
+              "course on youtube",
 
               // Social media and promotion
-              'follow me', 'follow us', 'like and subscribe', 'hit the bell',
-              'social media', 'twitter', 'instagram', 'facebook', 'linkedin',
+              "follow me",
+              "follow us",
+              "like and subscribe",
+              "hit the bell",
+              "social media",
+              "twitter",
+              "instagram",
+              "facebook",
+              "linkedin",
 
               // Personal biographical content
-              'my background', 'my career', 'my work', 'my research', 'my study',
-              'my university', 'my degree', 'my qualification', 'my expertise',
+              "my background",
+              "my career",
+              "my work",
+              "my research",
+              "my study",
+              "my university",
+              "my degree",
+              "my qualification",
+              "my expertise",
 
               // Channel/personal branding
-              'welcome back', 'welcome to', 'thank you for watching', 'thanks for watching',
-              'if you enjoyed', 'please like', 'comment below', 'share this',
+              "welcome back",
+              "welcome to",
+              "thank you for watching",
+              "thanks for watching",
+              "if you enjoyed",
+              "please like",
+              "comment below",
+              "share this",
 
               // Time/engagement references
-              'in this video', 'today we', 'let\'s talk about', 'we\'re going to',
-              'i\'ll show you', 'we\'ll cover', 'we\'ll discuss', 'we\'ll learn'
+              "in this video",
+              "today we",
+              "let's talk about",
+              "we're going to",
+              "i'll show you",
+              "we'll cover",
+              "we'll discuss",
+              "we'll learn",
             ];
 
-            const hasPersonalContent = personalKeywords.some(keyword =>
+            const hasPersonalContent = personalKeywords.some((keyword) =>
               questionLower.includes(keyword.toLowerCase())
             );
 
@@ -693,7 +827,9 @@ Return ONLY valid JSON with questions array.`;
             question: q.question as string,
             options: q.options as string[],
             correctAnswer: q.correctAnswer as number,
-            explanation: (q.explanation as string) || "Based on the academic content presented in the course material.",
+            explanation:
+              (q.explanation as string) ||
+              "Based on the academic content presented in the course material.",
           }));
 
         allExamQuestions.push(...additionalQuestions);
@@ -748,4 +884,3 @@ type PrismaClientType = {
     create: (args: { data: Record<string, unknown> }) => Promise<unknown>;
   };
 };
-

@@ -40,11 +40,7 @@ export default auth((req) => {
   }
 
   // Static files and images
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/static") ||
-    pathname.includes(".")
-  ) {
+  if (pathname.startsWith("/_next") || pathname.startsWith("/static") || pathname.includes(".")) {
     return NextResponse.next();
   }
 
@@ -57,17 +53,15 @@ export default auth((req) => {
   if (isAdminRoute) {
     if (!isLoggedIn) {
       const callbackUrl = encodeURIComponent(pathname);
-      return NextResponse.redirect(
-        new URL(`/login?callbackUrl=${callbackUrl}`, nextUrl)
-      );
+      return NextResponse.redirect(new URL(`/login?callbackUrl=${callbackUrl}`, nextUrl));
     }
-    
+
     // Check if user has ADMIN role
     if (userRole !== "ADMIN") {
       // Redirect non-admin users to login page
       return NextResponse.redirect(new URL("/login?error=unauthorized", nextUrl));
     }
-    
+
     // Allow access to admin routes if user is authenticated and has ADMIN role
     return NextResponse.next();
   }
@@ -75,9 +69,7 @@ export default auth((req) => {
   // If user is not logged in and tries to access protected routes
   if (!isLoggedIn && !isPublicRoute) {
     const callbackUrl = encodeURIComponent(pathname);
-    return NextResponse.redirect(
-      new URL(`/login?callbackUrl=${callbackUrl}`, nextUrl)
-    );
+    return NextResponse.redirect(new URL(`/login?callbackUrl=${callbackUrl}`, nextUrl));
   }
 
   // Create response
@@ -105,4 +97,3 @@ export const config = {
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
-

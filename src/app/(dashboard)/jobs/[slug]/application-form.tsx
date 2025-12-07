@@ -50,9 +50,9 @@ export function JobApplicationForm({ jobId, jobTitle }: JobApplicationFormProps)
     return (
       <Card className="bg-success/5 border-success/20">
         <CardContent className="pt-6 text-center">
-          <CheckCircle2 className="w-12 h-12 text-success mx-auto" />
-          <h3 className="font-semibold text-foreground mt-4">Application Sent!</h3>
-          <p className="text-sm text-muted-foreground mt-2">
+          <CheckCircle2 className="text-success mx-auto h-12 w-12" />
+          <h3 className="text-foreground mt-4 font-semibold">Application Sent!</h3>
+          <p className="text-muted-foreground mt-2 text-sm">
             Your application for {jobTitle} has been submitted successfully.
           </p>
         </CardContent>
@@ -68,33 +68,31 @@ export function JobApplicationForm({ jobId, jobTitle }: JobApplicationFormProps)
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-2">
+            <label className="text-foreground mb-2 block text-sm font-medium">
               Cover Letter (Optional)
             </label>
             <textarea
               value={coverLetter}
               onChange={(e) => setCoverLetter(e.target.value)}
               placeholder="Tell the employer why you're a great fit for this role..."
-              className="w-full h-32 p-3 rounded-xl border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              className="border-border bg-card focus:ring-primary h-32 w-full resize-none rounded-xl border p-3 text-sm focus:ring-2 focus:outline-none"
             />
           </div>
 
           {error && (
-            <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-              {error}
-            </div>
+            <div className="bg-destructive/10 text-destructive rounded-lg p-3 text-sm">{error}</div>
           )}
 
           <Button
             type="submit"
             fullWidth
             isLoading={isSubmitting}
-            leftIcon={<Send className="w-4 h-4" />}
+            leftIcon={<Send className="h-4 w-4" />}
           >
             Submit Application
           </Button>
 
-          <p className="text-xs text-center text-muted-foreground">
+          <p className="text-muted-foreground text-center text-xs">
             Your certificates will be shared with the employer
           </p>
         </form>
@@ -102,4 +100,3 @@ export function JobApplicationForm({ jobId, jobTitle }: JobApplicationFormProps)
     </Card>
   );
 }
-

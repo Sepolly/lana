@@ -21,10 +21,7 @@ const reorderTopicsSchema = z.object({
  * POST /api/admin/courses/[courseId]/topics/reorder
  * Reorder topics within a course
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { courseId } = await params;
     const body = await request.json();
@@ -32,10 +29,10 @@ export async function POST(
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid reorder data",
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 }
       );
@@ -48,10 +45,7 @@ export async function POST(
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     // Update all topics in a transaction
@@ -73,10 +67,7 @@ export async function POST(
       where: { id: courseId },
       include: {
         topics: {
-          orderBy: [
-            { sectionOrder: "asc" },
-            { order: "asc" },
-          ],
+          orderBy: [{ sectionOrder: "asc" }, { order: "asc" }],
         },
       },
     });
@@ -89,12 +80,11 @@ export async function POST(
   } catch (error) {
     console.error("Error reordering topics:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to reorder topics" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to reorder topics",
       },
       { status: 500 }
     );
   }
 }
-

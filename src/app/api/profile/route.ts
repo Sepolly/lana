@@ -18,10 +18,7 @@ export async function GET() {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Fetch user data
@@ -36,10 +33,7 @@ export async function GET() {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
     }
 
     // Fetch student profile
@@ -68,8 +62,8 @@ export async function GET() {
         phoneNumber: profile?.phoneNumber || null,
         address: profile?.address || null,
         school: profile?.school || null,
-        dateOfBirth: profile?.dateOfBirth 
-          ? profile.dateOfBirth.toISOString().split('T')[0] // Format as YYYY-MM-DD
+        dateOfBirth: profile?.dateOfBirth
+          ? profile.dateOfBirth.toISOString().split("T")[0] // Format as YYYY-MM-DD
           : null,
         learningStyle: profile?.learningStyle || null,
         interests: profile?.interests || [],
@@ -81,10 +75,7 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Profile fetch error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch profile" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to fetch profile" }, { status: 500 });
   }
 }
 
@@ -94,10 +85,7 @@ export async function PUT(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Ensure user exists in database
@@ -129,9 +117,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update or create student profile
-    const dateOfBirthDate = dateOfBirth 
-      ? new Date(dateOfBirth) 
-      : null;
+    const dateOfBirthDate = dateOfBirth ? new Date(dateOfBirth) : null;
 
     const updatedProfile = await db.studentProfile.upsert({
       where: { userId: session.user.id },
@@ -168,8 +154,8 @@ export async function PUT(request: NextRequest) {
         phoneNumber: updatedProfile.phoneNumber,
         address: updatedProfile.address,
         school: updatedProfile.school,
-        dateOfBirth: updatedProfile.dateOfBirth 
-          ? updatedProfile.dateOfBirth.toISOString().split('T')[0]
+        dateOfBirth: updatedProfile.dateOfBirth
+          ? updatedProfile.dateOfBirth.toISOString().split("T")[0]
           : null,
       },
     });
@@ -186,4 +172,3 @@ export async function PUT(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   return PUT(request);
 }
-

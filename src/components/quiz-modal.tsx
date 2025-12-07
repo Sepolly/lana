@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import * as React from "react";
 import { Button, Progress, Mascot } from "@/components/ui";
@@ -63,17 +63,17 @@ export function QuizModal({
   const totalQuestions = quiz.questions.length;
 
   // Check if element is visible in viewport
-  const isElementVisible = (element: HTMLElement | null, container: HTMLElement | null): boolean => {
+  const isElementVisible = (
+    element: HTMLElement | null,
+    container: HTMLElement | null
+  ): boolean => {
     if (!element || !container) return false;
-    
+
     const elementRect = element.getBoundingClientRect();
     const containerRect = container.getBoundingClientRect();
-    
+
     // Check if element is within container's visible area
-    return (
-      elementRect.top >= containerRect.top &&
-      elementRect.bottom <= containerRect.bottom
-    );
+    return elementRect.top >= containerRect.top && elementRect.bottom <= containerRect.bottom;
   };
 
   // Reset state when modal opens
@@ -97,16 +97,16 @@ export function QuizModal({
   // Handle scrolling when question changes - only scroll if question is not visible
   React.useEffect(() => {
     if (result || !questionRef.current || !contentRef.current) return;
-    
+
     // Use requestAnimationFrame to ensure DOM has updated
     requestAnimationFrame(() => {
       if (questionRef.current && contentRef.current) {
         // Only scroll if the question is not fully visible
         if (!isElementVisible(questionRef.current, contentRef.current)) {
-          questionRef.current.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start',
-            inline: 'nearest'
+          questionRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+            inline: "nearest",
           });
         }
       }
@@ -127,7 +127,7 @@ export function QuizModal({
             isCorrect: boolean;
             correctAnswer: number;
           }> = [];
-          
+
           data.quiz.questions.forEach((q: QuizQuestion) => {
             const userAnswer = data.attempt.answers[q.id];
             feedback.push({
@@ -136,7 +136,7 @@ export function QuizModal({
               correctAnswer: q.correctAnswer,
             });
           });
-          
+
           setResult({
             score: Math.round(data.attempt.score),
             passed: data.attempt.passed,
@@ -159,9 +159,9 @@ export function QuizModal({
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden">
-            <div className="p-12 flex flex-col items-center justify-center gap-4">
-              <Loader2 className="w-12 h-12 text-primary animate-spin" />
+          <div className="relative mx-4 max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex flex-col items-center justify-center gap-4 p-12">
+              <Loader2 className="text-primary h-12 w-12 animate-spin" />
               <p className="text-muted-foreground">Loading quiz performance...</p>
             </div>
           </div>
@@ -173,24 +173,26 @@ export function QuizModal({
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-border bg-gradient-to-r from-primary/5 to-secondary/20">
+          <div className="relative mx-4 max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="border-border from-primary/5 to-secondary/20 border-b bg-gradient-to-r p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">Quiz Performance</h2>
-                  <p className="text-sm text-muted-foreground">Topic Completed</p>
+                  <h2 className="text-foreground text-xl font-bold">Quiz Performance</h2>
+                  <p className="text-muted-foreground text-sm">Topic Completed</p>
                 </div>
                 <button
                   onClick={onClose}
-                  className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors"
+                  className="bg-muted/50 hover:bg-muted flex h-10 w-10 items-center justify-center rounded-full transition-colors"
                 >
-                  <X className="w-5 h-5 text-muted-foreground" />
+                  <X className="text-muted-foreground h-5 w-5" />
                 </button>
               </div>
             </div>
             <div className="p-6 text-center">
               <p className="text-muted-foreground">No quiz attempt found</p>
-              <Button onClick={onClose} className="mt-4">Close</Button>
+              <Button onClick={onClose} className="mt-4">
+                Close
+              </Button>
             </div>
           </div>
         </div>
@@ -200,12 +202,12 @@ export function QuizModal({
 
   const handleSelectAnswer = (answerIndex: number) => {
     if (showExplanation || isSubmitting) return; // Don't allow changing after showing explanation or during submission
-    
+
     setSelectedAnswer(answerIndex);
     const correct = answerIndex === question.correctAnswer;
     setIsCorrect(correct);
     setShowExplanation(true);
-    
+
     setAnswers((prev) => ({
       ...prev,
       [question.id]: answerIndex,
@@ -216,7 +218,7 @@ export function QuizModal({
     setShowExplanation(false);
     setSelectedAnswer(null);
     setIsCorrect(null);
-    
+
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion((prev) => prev + 1);
     } else {
@@ -230,9 +232,9 @@ export function QuizModal({
     if (hasQuizAttempt) {
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const response = await fetch("/api/quiz/submit", {
         method: "POST",
@@ -276,92 +278,103 @@ export function QuizModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={result ? handleContinue : undefined}
       />
-      
+
       {/* Modal */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-hidden animate-fade-in">
+      <div className="animate-fade-in relative mx-4 max-h-[90vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border bg-gradient-to-r from-primary/5 to-secondary/20">
+        <div className="border-border from-primary/5 to-secondary/20 flex items-center justify-between border-b bg-gradient-to-r p-6">
           <div>
-            <h2 className="text-xl font-bold text-foreground">
+            <h2 className="text-foreground text-xl font-bold">
               {isTopicCompleted || hasQuizAttempt ? "Quiz Performance" : "Topic Quiz"}
             </h2>
-            <p className="text-sm text-muted-foreground">
-              {isTopicCompleted || hasQuizAttempt ? (isTopicCompleted ? "Topic Completed" : "View Results") : result ? "Quiz Complete!" : `Question ${currentQuestion + 1} of ${totalQuestions}`}
+            <p className="text-muted-foreground text-sm">
+              {isTopicCompleted || hasQuizAttempt
+                ? isTopicCompleted
+                  ? "Topic Completed"
+                  : "View Results"
+                : result
+                  ? "Quiz Complete!"
+                  : `Question ${currentQuestion + 1} of ${totalQuestions}`}
             </p>
           </div>
           <button
             onClick={onClose}
             disabled={isSubmitting}
-            className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-muted/50 hover:bg-muted flex h-10 w-10 items-center justify-center rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <X className="w-5 h-5 text-muted-foreground" />
+            <X className="text-muted-foreground h-5 w-5" />
           </button>
         </div>
 
         {/* Content */}
-        <div ref={contentRef} className="p-6 overflow-y-auto max-h-[calc(90vh-180px)] relative">
+        <div ref={contentRef} className="relative max-h-[calc(90vh-180px)] overflow-y-auto p-6">
           {/* Loading Overlay - shown when submitting quiz */}
           {isSubmitting && !isTopicCompleted && (
-            <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center rounded-lg">
+            <div className="absolute inset-0 z-50 flex items-center justify-center rounded-lg bg-white/95 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-4">
-                <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                <Loader2 className="text-primary h-12 w-12 animate-spin" />
                 <div className="text-center">
-                  <p className="text-lg font-semibold text-foreground mb-1">
+                  <p className="text-foreground mb-1 text-lg font-semibold">
                     Calculating Your Results
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-muted-foreground text-sm">
                     Please wait while we grade your quiz...
                   </p>
                 </div>
               </div>
             </div>
           )}
-          
+
           {result ? (
             // Results View
-            <div className="text-center py-8 space-y-6">
-              <Mascot 
-                size="lg" 
-                mood={result.passed ? "celebrating" : "thinking"} 
+            <div className="space-y-6 py-8 text-center">
+              <Mascot
+                size="lg"
+                mood={result.passed ? "celebrating" : "thinking"}
                 animate={result.passed}
               />
-              
+
               <div>
-                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 ${
-                  result.passed ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-                }`}>
+                <div
+                  className={`mb-4 inline-flex items-center gap-2 rounded-full px-4 py-2 ${
+                    result.passed
+                      ? "bg-success/10 text-success"
+                      : "bg-destructive/10 text-destructive"
+                  }`}
+                >
                   {result.passed ? (
                     <>
-                      <Trophy className="w-5 h-5" />
+                      <Trophy className="h-5 w-5" />
                       <span className="font-semibold">Congratulations!</span>
                     </>
                   ) : (
                     <>
-                      <XCircle className="w-5 h-5" />
+                      <XCircle className="h-5 w-5" />
                       <span className="font-semibold">Keep Practicing!</span>
                     </>
                   )}
                 </div>
-                
-                <h3 className="text-3xl font-bold text-foreground mb-2">
+
+                <h3 className="text-foreground mb-2 text-3xl font-bold">
                   {Math.round(result.score)}%
                 </h3>
                 <p className="text-muted-foreground">
-                  You got {result.feedback.filter(f => f.isCorrect).length} out of {totalQuestions} questions correct
+                  You got {result.feedback.filter((f) => f.isCorrect).length} out of{" "}
+                  {totalQuestions} questions correct
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 text-sm">
                   Passing score: {quiz.passingScore}%
                 </p>
               </div>
 
               {/* Progress visualization */}
-              <div className="w-full max-w-xs mx-auto">
-                <Progress 
-                  value={result.score} 
+              <div className="mx-auto w-full max-w-xs">
+                <Progress
+                  value={result.score}
                   className={`h-3 ${result.passed ? "[&>div]:bg-success" : "[&>div]:bg-destructive"}`}
                 />
               </div>
@@ -369,25 +382,19 @@ export function QuizModal({
               {/* Action buttons */}
               <div className="flex items-center justify-center gap-4 pt-4">
                 {result.passed ? (
-                  <Button 
+                  <Button
                     onClick={handleContinue}
-                    rightIcon={<ChevronRight className="w-4 h-4" />}
+                    rightIcon={<ChevronRight className="h-4 w-4" />}
                     size="lg"
                   >
                     {isLastTopic ? "Take Final Exam" : "Next Topic"}
                   </Button>
                 ) : (
                   <>
-                    <Button 
-                      variant="outline" 
-                      onClick={onClose}
-                    >
+                    <Button variant="outline" onClick={onClose}>
                       Review Content
                     </Button>
-                    <Button 
-                      onClick={handleRetry}
-                      leftIcon={<RotateCcw className="w-4 h-4" />}
-                    >
+                    <Button onClick={handleRetry} leftIcon={<RotateCcw className="h-4 w-4" />}>
                       Try Again
                     </Button>
                   </>
@@ -400,7 +407,7 @@ export function QuizModal({
               {/* Progress bar */}
               <div className="space-y-2">
                 <Progress value={((currentQuestion + 1) / totalQuestions) * 100} className="h-2" />
-                <div className="flex justify-between text-xs text-muted-foreground">
+                <div className="text-muted-foreground flex justify-between text-xs">
                   <span>Progress</span>
                   <span>{Math.round(((currentQuestion + 1) / totalQuestions) * 100)}%</span>
                 </div>
@@ -408,17 +415,15 @@ export function QuizModal({
 
               {/* Question */}
               <div ref={questionRef}>
-                <h3 className="text-lg font-semibold text-foreground mb-6">
-                  {question.question}
-                </h3>
-                
+                <h3 className="text-foreground mb-6 text-lg font-semibold">{question.question}</h3>
+
                 <div className="space-y-3">
                   {options.map((option, index) => {
                     const isSelected = selectedAnswer === index;
                     const isCorrectAnswer = index === question.correctAnswer;
-                    
+
                     let buttonClass = "w-full p-4 rounded-xl border-2 text-left transition-all ";
-                    
+
                     if (showExplanation) {
                       if (isCorrectAnswer) {
                         buttonClass += "border-success bg-success/10 ";
@@ -432,7 +437,7 @@ export function QuizModal({
                     } else {
                       buttonClass += "border-border hover:border-primary/50 hover:bg-muted/30 ";
                     }
-                    
+
                     return (
                       <button
                         key={index}
@@ -441,19 +446,21 @@ export function QuizModal({
                         className={buttonClass}
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                            showExplanation && isCorrectAnswer
-                              ? "border-success bg-success text-white"
-                              : showExplanation && isSelected && !isCorrectAnswer
-                              ? "border-destructive bg-destructive text-white"
-                              : isSelected
-                              ? "border-primary bg-primary text-white"
-                              : "border-muted-foreground"
-                          }`}>
+                          <div
+                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 ${
+                              showExplanation && isCorrectAnswer
+                                ? "border-success bg-success text-white"
+                                : showExplanation && isSelected && !isCorrectAnswer
+                                  ? "border-destructive bg-destructive text-white"
+                                  : isSelected
+                                    ? "border-primary bg-primary text-white"
+                                    : "border-muted-foreground"
+                            }`}
+                          >
                             {showExplanation && isCorrectAnswer ? (
-                              <CheckCircle2 className="w-5 h-5" />
+                              <CheckCircle2 className="h-5 w-5" />
                             ) : showExplanation && isSelected && !isCorrectAnswer ? (
-                              <XCircle className="w-5 h-5" />
+                              <XCircle className="h-5 w-5" />
                             ) : (
                               <span className="text-sm font-medium">
                                 {String.fromCharCode(65 + index)}
@@ -472,15 +479,17 @@ export function QuizModal({
 
               {/* Explanation */}
               {showExplanation && question.explanation && (
-                <div className={`p-4 rounded-xl ${
-                  isCorrect ? "bg-success/10 border border-success/20" : "bg-amber-50 border border-amber-200"
-                }`}>
-                  <p className="text-sm font-medium mb-1">
+                <div
+                  className={`rounded-xl p-4 ${
+                    isCorrect
+                      ? "bg-success/10 border-success/20 border"
+                      : "border border-amber-200 bg-amber-50"
+                  }`}
+                >
+                  <p className="mb-1 text-sm font-medium">
                     {isCorrect ? "✓ Correct!" : "✗ Incorrect"}
                   </p>
-                  <p className="text-sm text-muted-foreground">
-                    {question.explanation}
-                  </p>
+                  <p className="text-muted-foreground text-sm">{question.explanation}</p>
                 </div>
               )}
             </div>
@@ -489,16 +498,16 @@ export function QuizModal({
 
         {/* Footer */}
         {!result && showExplanation && !isTopicCompleted && (
-          <div className="p-6 border-t border-border bg-muted/30 relative">
+          <div className="border-border bg-muted/30 relative border-t p-6">
             {isSubmitting && (
-              <div className="absolute inset-0 bg-muted/30 backdrop-blur-sm z-10 rounded-b-2xl" />
+              <div className="bg-muted/30 absolute inset-0 z-10 rounded-b-2xl backdrop-blur-sm" />
             )}
             <Button
               onClick={handleNext}
               isLoading={isSubmitting}
               disabled={isSubmitting}
               fullWidth
-              rightIcon={<ChevronRight className="w-4 h-4" />}
+              rightIcon={<ChevronRight className="h-4 w-4" />}
             >
               {currentQuestion === totalQuestions - 1 ? "See Results" : "Next Question"}
             </Button>
@@ -508,4 +517,3 @@ export function QuizModal({
     </div>
   );
 }
-

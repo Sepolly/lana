@@ -46,24 +46,15 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
     }
 
     if (user.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, error: "User is not an admin" },
-        { status: 403 }
-      );
+      return NextResponse.json({ success: false, error: "User is not an admin" }, { status: 403 });
     }
 
     if (user.passwordHash) {
-      return NextResponse.json(
-        { success: false, error: "Password already set" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Password already set" }, { status: 400 });
     }
 
     const passwordHash = await hashPassword(password);
@@ -95,4 +86,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

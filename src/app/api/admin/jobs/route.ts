@@ -26,12 +26,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching jobs:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to fetch jobs" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch jobs",
       },
       { status: 500 }
     );
   }
 }
-

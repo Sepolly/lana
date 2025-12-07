@@ -28,10 +28,7 @@ const updateTopicSchema = createTopicSchema.partial().extend({
  * POST /api/admin/courses/[courseId]/topics
  * Add a new topic to a course
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { courseId } = await params;
     const body = await request.json();
@@ -39,10 +36,10 @@ export async function POST(
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid topic data",
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 }
       );
@@ -55,10 +52,7 @@ export async function POST(
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     const data = validationResult.data;
@@ -66,20 +60,17 @@ export async function POST(
     // Determine order if not provided
     let order = data.order;
     if (!order) {
-      const maxOrder = course.topics.reduce((max, topic) => 
-        Math.max(max, topic.order), 0
-      );
+      const maxOrder = course.topics.reduce((max, topic) => Math.max(max, topic.order), 0);
       order = maxOrder + 1;
     }
 
     // Determine section order if not provided
     let sectionOrder = data.sectionOrder;
     if (!sectionOrder && data.section) {
-      const topicsInSection = course.topics.filter(
-        t => t.section === data.section
-      );
-      const maxSectionOrder = topicsInSection.reduce((max, topic) => 
-        Math.max(max, topic.sectionOrder || 0), 0
+      const topicsInSection = course.topics.filter((t) => t.section === data.section);
+      const maxSectionOrder = topicsInSection.reduce(
+        (max, topic) => Math.max(max, topic.sectionOrder || 0),
+        0
       );
       sectionOrder = maxSectionOrder + 1;
     }
@@ -135,9 +126,9 @@ export async function POST(
   } catch (error) {
     console.error("Error creating topic:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to create topic" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to create topic",
       },
       { status: 500 }
     );
@@ -148,10 +139,7 @@ export async function POST(
  * PUT /api/admin/courses/[courseId]/topics
  * Update an existing topic
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { courseId } = await params;
     const body = await request.json();
@@ -160,11 +148,13 @@ export async function PUT(
     if (!validationResult.success) {
       console.error("Topic update validation errors:", validationResult.error.issues);
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid topic data",
           details: validationResult.error.issues,
-          message: validationResult.error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ')
+          message: validationResult.error.issues
+            .map((e) => `${e.path.join(".")}: ${e.message}`)
+            .join(", "),
         },
         { status: 400 }
       );
@@ -178,10 +168,7 @@ export async function PUT(
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     const topic = await db.topic.findUnique({
@@ -189,10 +176,7 @@ export async function PUT(
     });
 
     if (!topic || topic.courseId !== courseId) {
-      return NextResponse.json(
-        { success: false, error: "Topic not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Topic not found" }, { status: 404 });
     }
 
     // Clean up empty strings to null and validate URLs
@@ -245,9 +229,9 @@ export async function PUT(
   } catch (error) {
     console.error("Error updating topic:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to update topic" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to update topic",
       },
       { status: 500 }
     );
@@ -258,20 +242,14 @@ export async function PUT(
  * DELETE /api/admin/courses/[courseId]/topics
  * Delete a topic
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { courseId } = await params;
     const searchParams = request.nextUrl.searchParams;
     const topicId = searchParams.get("topicId");
 
     if (!topicId) {
-      return NextResponse.json(
-        { success: false, error: "Topic ID is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Topic ID is required" }, { status: 400 });
     }
 
     // Verify course and topic exist
@@ -280,10 +258,7 @@ export async function DELETE(
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     const topic = await db.topic.findUnique({
@@ -291,10 +266,7 @@ export async function DELETE(
     });
 
     if (!topic || topic.courseId !== courseId) {
-      return NextResponse.json(
-        { success: false, error: "Topic not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Topic not found" }, { status: 404 });
     }
 
     // Delete topic (cascade will handle related data)
@@ -322,12 +294,11 @@ export async function DELETE(
   } catch (error) {
     console.error("Error deleting topic:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to delete topic" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to delete topic",
       },
       { status: 500 }
     );
   }
 }
-

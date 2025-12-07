@@ -3,7 +3,14 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent, Button, ConfirmDialog, useErrorToast, useSuccessToast } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  Button,
+  ConfirmDialog,
+  useErrorToast,
+  useSuccessToast,
+} from "@/components/ui";
 import { Plus, Building2, Briefcase, Edit2, Trash2, Loader2, Globe, MapPin } from "lucide-react";
 
 interface Company {
@@ -24,7 +31,10 @@ export default function AdminCompaniesPage() {
   const [companies, setCompanies] = React.useState<Company[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [deletingCompanyId, setDeletingCompanyId] = React.useState<string | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState<{ id: string; name: string } | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const errorToast = useErrorToast();
   const successToast = useSuccessToast();
 
@@ -78,8 +88,8 @@ export default function AdminCompaniesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -89,40 +99,36 @@ export default function AdminCompaniesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Companies</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage companies and partners
-          </p>
+          <h1 className="text-foreground text-3xl font-bold">Companies</h1>
+          <p className="text-muted-foreground mt-1">Manage companies and partners</p>
         </div>
         <Link href="/admin/companies/new">
-          <Button leftIcon={<Plus className="w-4 h-4" />}>
-            Add Company
-          </Button>
+          <Button leftIcon={<Plus className="h-4 w-4" />}>Add Company</Button>
         </Link>
       </div>
 
       {/* Companies Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {companies.map((company) => (
           <Card key={company.id}>
             <CardContent className="p-6">
-              <div className="flex items-start justify-between mb-4">
+              <div className="mb-4 flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                  <div className="bg-secondary flex h-12 w-12 shrink-0 items-center justify-center rounded-lg">
                     {company.logo ? (
                       <img
                         src={company.logo}
                         alt={company.name}
-                        className="w-full h-full rounded-lg object-cover"
+                        className="h-full w-full rounded-lg object-cover"
                       />
                     ) : (
-                      <Building2 className="w-6 h-6 text-primary" />
+                      <Building2 className="text-primary h-6 w-6" />
                     )}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-foreground">{company.name}</h3>
+                    <h3 className="text-foreground font-semibold">{company.name}</h3>
                     {company.isPartner && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+                      <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs">
                         Partner
                       </span>
                     )}
@@ -131,20 +137,20 @@ export default function AdminCompaniesPage() {
                 <div className="flex items-center gap-1">
                   <Link href={`/admin/companies/${company.id}/edit`}>
                     <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <Edit2 className="w-4 h-4" />
+                      <Edit2 className="h-4 w-4" />
                     </Button>
                   </Link>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-destructive hover:text-destructive"
+                    className="text-destructive hover:text-destructive h-8 w-8"
                     onClick={() => handleDeleteCompany(company.id, company.name)}
                     disabled={deletingCompanyId === company.id}
                   >
                     {deletingCompanyId === company.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="h-4 w-4" />
                     )}
                   </Button>
                 </div>
@@ -152,20 +158,22 @@ export default function AdminCompaniesPage() {
 
               <div className="space-y-2 text-sm">
                 {company.industry && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Building2 className="w-4 h-4" />
+                  <div className="text-muted-foreground flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
                     <span>{company.industry}</span>
                   </div>
                 )}
                 {company.location && (
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
+                  <div className="text-muted-foreground flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
                     <span>{company.location}</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Briefcase className="w-4 h-4" />
-                  <span>{company._count.jobs} job{company._count.jobs !== 1 ? 's' : ''}</span>
+                <div className="text-muted-foreground flex items-center gap-2">
+                  <Briefcase className="h-4 w-4" />
+                  <span>
+                    {company._count.jobs} job{company._count.jobs !== 1 ? "s" : ""}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -176,9 +184,9 @@ export default function AdminCompaniesPage() {
       {companies.length === 0 && (
         <Card>
           <CardContent className="py-12 text-center">
-            <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <Building2 className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
             <p className="text-muted-foreground">No companies yet</p>
-            <Link href="/admin/companies/new" className="inline-block mt-4">
+            <Link href="/admin/companies/new" className="mt-4 inline-block">
               <Button size="sm">Add Your First Company</Button>
             </Link>
           </CardContent>
@@ -200,4 +208,3 @@ export default function AdminCompaniesPage() {
     </div>
   );
 }
-

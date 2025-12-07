@@ -20,10 +20,7 @@ export async function POST(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Check if courseWaitlist model is available
@@ -108,7 +105,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "You've been added to the waitlist! We'll notify you when this course becomes available.",
+      message:
+        "You've been added to the waitlist! We'll notify you when this course becomes available.",
       waitlist: {
         id: waitlist.id,
         careerPath: waitlist.careerPath,
@@ -116,7 +114,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error joining waitlist:", error);
-    
+
     // Provide more specific error message if it's a Prisma model issue
     if (error instanceof Error && error.message.includes("courseWaitlist")) {
       return NextResponse.json(
@@ -128,7 +126,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-    
+
     return NextResponse.json(
       {
         success: false,
@@ -138,4 +136,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

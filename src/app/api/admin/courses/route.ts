@@ -27,12 +27,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching courses:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to fetch courses" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch courses",
       },
       { status: 500 }
     );
   }
 }
-

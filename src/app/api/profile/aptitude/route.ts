@@ -4,10 +4,10 @@ import { db } from "@/lib/db";
 import { ensureUserExists } from "@/lib/ensure-user";
 import { z } from "zod";
 import { LearningStyle } from "@prisma/client";
-import { 
-  getCareerRecommendationsRAG, 
+import {
+  getCareerRecommendationsRAG,
   type UserAptitudeProfile,
-  type RecommendedCareer 
+  type RecommendedCareer,
 } from "@/lib/career-recommendation-engine";
 
 const aptitudeSchema = z.object({
@@ -20,10 +20,7 @@ export async function POST(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Ensure user exists in database (important for OAuth users)
@@ -38,10 +35,7 @@ export async function POST(request: NextRequest) {
     const validationResult = aptitudeSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        { success: false, error: "Invalid request data" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Invalid request data" }, { status: 400 });
     }
 
     const { answers } = validationResult.data;
@@ -49,25 +43,34 @@ export async function POST(request: NextRequest) {
     // Extract learning style from answers
     const learningStyleAnswer = answers.learning_style as string | undefined;
     let learningStyle: LearningStyle | null = null;
-    
-    if (learningStyleAnswer && ["VISUAL", "AUDITORY", "READING_WRITING", "KINESTHETIC"].includes(learningStyleAnswer)) {
+
+    if (
+      learningStyleAnswer &&
+      ["VISUAL", "AUDITORY", "READING_WRITING", "KINESTHETIC"].includes(learningStyleAnswer)
+    ) {
       learningStyle = learningStyleAnswer as LearningStyle;
     }
 
     // Extract interests (multiple choice)
-    const interests = Array.isArray(answers.interests) 
-      ? answers.interests 
-      : answers.interests ? [answers.interests] : [];
+    const interests = Array.isArray(answers.interests)
+      ? answers.interests
+      : answers.interests
+        ? [answers.interests]
+        : [];
 
     // Extract strengths (multiple choice)
     const strengths = Array.isArray(answers.strengths)
       ? answers.strengths
-      : answers.strengths ? [answers.strengths] : [];
+      : answers.strengths
+        ? [answers.strengths]
+        : [];
 
     // Extract goals (multiple choice)
     const goals = Array.isArray(answers.goals)
       ? answers.goals
-      : answers.goals ? [answers.goals] : [];
+      : answers.goals
+        ? [answers.goals]
+        : [];
 
     // Extract education level
     const education = answers.education as string | undefined;
@@ -135,14 +138,11 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Aptitude save error:", error);
-    
+
     // Return more specific error message
     const errorMessage = error instanceof Error ? error.message : "Failed to save aptitude results";
-    
-    return NextResponse.json(
-      { success: false, error: errorMessage },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
   }
 }
 
@@ -151,10 +151,7 @@ export async function GET() {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const profile = await db.studentProfile.findUnique({

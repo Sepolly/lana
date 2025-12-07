@@ -16,38 +16,31 @@ export async function GET(request: NextRequest) {
     // If query provided, search by embedding similarity
     // Otherwise, get all careers
     let results;
-    
+
     if (query.trim()) {
       // Generate embedding for search query
       const queryVector = await generateEmbedding(query);
-      
+
       // Query Pinecone for similar careers
-      results = await querySimilar(
-        queryVector,
-        limit,
-        undefined,
-        { userType: "Employed" }
-      );
+      results = await querySimilar(queryVector, limit, undefined, { userType: "Employed" });
     } else {
       // Get all careers by querying with a generic embedding
       const genericQuery = "career job profession employment";
       const queryVector = await generateEmbedding(genericQuery);
-      
-      results = await querySimilar(
-        queryVector,
-        limit,
-        undefined,
-        { userType: "Employed" }
-      );
+
+      results = await querySimilar(queryVector, limit, undefined, { userType: "Employed" });
     }
 
     // Extract unique careers from results
-    const careersMap = new Map<string, {
-      field: string;
-      skills: string[];
-      id: string;
-      score: number;
-    }>();
+    const careersMap = new Map<
+      string,
+      {
+        field: string;
+        skills: string[];
+        id: string;
+        score: number;
+      }
+    >();
 
     results.forEach((result) => {
       const field = (result.metadata?.field as string)?.trim();
@@ -55,8 +48,11 @@ export async function GET(request: NextRequest) {
 
       const skillsRaw = result.metadata?.skills as string | string[] | undefined;
       let skills: string[] = [];
-      if (typeof skillsRaw === 'string') {
-        skills = skillsRaw.split(',').map(s => s.trim()).filter(Boolean);
+      if (typeof skillsRaw === "string") {
+        skills = skillsRaw
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
       } else if (Array.isArray(skillsRaw)) {
         skills = skillsRaw;
       }
@@ -89,12 +85,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching careers from Pinecone:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to fetch careers" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch careers",
       },
       { status: 500 }
     );
   }
 }
-

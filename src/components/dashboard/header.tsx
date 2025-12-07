@@ -5,16 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import {
-  Bell,
-  Search,
-  Menu,
-  X,
-  LogOut,
-  User,
-  Settings,
-  ChevronDown,
-} from "lucide-react";
+import { Bell, Search, Menu, X, LogOut, User, Settings, ChevronDown } from "lucide-react";
 
 interface DashboardHeaderProps {
   user: {
@@ -33,10 +24,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
   // Close profile dropdown when clicking outside
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        profileRef.current &&
-        !profileRef.current.contains(event.target as Node)
-      ) {
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
       }
     }
@@ -56,41 +44,37 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-card">
+    <header className="border-border bg-card sticky top-0 z-40 w-full border-b">
       <div className="flex h-16 items-center justify-between px-4 lg:px-8">
         {/* Logo */}
         <div className="flex items-center gap-4">
           <button
-            className="lg:hidden p-2 hover:bg-muted rounded-lg"
+            className="hover:bg-muted rounded-lg p-2 lg:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isMobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-          
+
           <Link href="/dashboard" className="flex items-center">
-            <Image 
-                src="/lana_logo.jpg" 
-                alt="Lana Logo" 
-                width={72}
-                height={72}
-                className="object-contain"
-                priority
-              />
+            <Image
+              src="/lana_logo.jpg"
+              alt="Lana Logo"
+              width={72}
+              height={72}
+              className="object-contain"
+              priority
+            />
           </Link>
         </div>
 
         {/* Search Bar */}
-        <div className="hidden md:flex flex-1 max-w-md mx-8">
+        <div className="mx-8 hidden max-w-md flex-1 md:flex">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search courses, careers..."
-              className="w-full h-10 pl-10 pr-4 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="border-border bg-background focus:ring-primary h-10 w-full rounded-xl border pr-4 pl-10 text-sm focus:ring-2 focus:outline-none"
             />
           </div>
         </div>
@@ -98,16 +82,16 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
         {/* Right side */}
         <div className="flex items-center gap-2">
           {/* Notifications */}
-          <button className="relative p-2 hover:bg-muted rounded-lg">
-            <Bell className="h-5 w-5 text-muted-foreground" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full" />
+          <button className="hover:bg-muted relative rounded-lg p-2">
+            <Bell className="text-muted-foreground h-5 w-5" />
+            <span className="bg-destructive absolute top-1 right-1 h-2 w-2 rounded-full" />
           </button>
 
           {/* Profile dropdown */}
           <div className="relative" ref={profileRef}>
             <button
               onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="flex items-center gap-2 p-1.5 hover:bg-muted rounded-lg"
+              className="hover:bg-muted flex items-center gap-2 rounded-lg p-1.5"
             >
               {user.image ? (
                 <Image
@@ -115,16 +99,16 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                   alt={user.name || "User"}
                   width={32}
                   height={32}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="h-8 w-8 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
+                <div className="bg-primary flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium text-white">
                   {getInitials(user.name)}
                 </div>
               )}
               <ChevronDown
                 className={cn(
-                  "h-4 w-4 text-muted-foreground transition-transform hidden sm:block",
+                  "text-muted-foreground hidden h-4 w-4 transition-transform sm:block",
                   isProfileOpen && "rotate-180"
                 )}
               />
@@ -132,19 +116,15 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
 
             {/* Dropdown menu */}
             {isProfileOpen && (
-              <div className="absolute right-0 mt-2 w-56 rounded-xl border border-border bg-card shadow-lg animate-fade-in">
-                <div className="p-3 border-b border-border">
-                  <p className="font-medium text-foreground truncate">
-                    {user.name}
-                  </p>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {user.email}
-                  </p>
+              <div className="border-border bg-card animate-fade-in absolute right-0 mt-2 w-56 rounded-xl border shadow-lg">
+                <div className="border-border border-b p-3">
+                  <p className="text-foreground truncate font-medium">{user.name}</p>
+                  <p className="text-muted-foreground truncate text-sm">{user.email}</p>
                 </div>
                 <div className="p-2">
                   <Link
                     href="/profile"
-                    className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-muted"
+                    className="hover:bg-muted flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
                     onClick={() => setIsProfileOpen(false)}
                   >
                     <User className="h-4 w-4" />
@@ -152,17 +132,17 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                   </Link>
                   <Link
                     href="/settings"
-                    className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-muted"
+                    className="hover:bg-muted flex items-center gap-2 rounded-lg px-3 py-2 text-sm"
                     onClick={() => setIsProfileOpen(false)}
                   >
                     <Settings className="h-4 w-4" />
                     Settings
                   </Link>
                 </div>
-                <div className="p-2 border-t border-border">
+                <div className="border-border border-t p-2">
                   <button
                     onClick={() => signOut({ callbackUrl: "/login" })}
-                    className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-muted w-full text-left text-destructive"
+                    className="hover:bg-muted text-destructive flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm"
                   >
                     <LogOut className="h-4 w-4" />
                     Sign Out
@@ -176,15 +156,15 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
 
       {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden border-t border-border bg-card animate-slide-up">
-          <div className="p-4 space-y-4">
+        <div className="border-border bg-card animate-slide-up border-t lg:hidden">
+          <div className="space-y-4 p-4">
             {/* Mobile search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search courses, careers..."
-                className="w-full h-10 pl-10 pr-4 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="border-border bg-background focus:ring-primary h-10 w-full rounded-xl border pr-4 pl-10 text-sm focus:ring-2 focus:outline-none"
               />
             </div>
 
@@ -225,11 +205,10 @@ function MobileNavLink({
   return (
     <Link
       href={href}
-      className="block px-4 py-2 rounded-lg hover:bg-muted text-foreground"
+      className="hover:bg-muted text-foreground block rounded-lg px-4 py-2"
       onClick={onClick}
     >
       {children}
     </Link>
   );
 }
-

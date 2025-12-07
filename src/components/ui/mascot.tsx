@@ -25,28 +25,18 @@ const Mascot = React.forwardRef<HTMLDivElement, MascotProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          sizeClasses[size],
-          animate && "animate-bounce",
-          className
-        )}
+        className={cn(sizeClasses[size], animate && "animate-bounce", className)}
         {...props}
       >
         <svg
           viewBox="0 0 120 120"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full"
+          className="h-full w-full"
         >
           {/* Body */}
-          <ellipse
-            cx="60"
-            cy="75"
-            rx="35"
-            ry="30"
-            className="fill-secondary"
-          />
-          
+          <ellipse cx="60" cy="75" rx="35" ry="30" className="fill-secondary" />
+
           {/* Body outline/shadow */}
           <ellipse
             cx="60"
@@ -59,20 +49,8 @@ const Mascot = React.forwardRef<HTMLDivElement, MascotProps>(
           />
 
           {/* Head */}
-          <circle
-            cx="60"
-            cy="40"
-            r="28"
-            className="fill-white"
-          />
-          <circle
-            cx="60"
-            cy="40"
-            r="28"
-            className="stroke-primary"
-            strokeWidth="2"
-            fill="none"
-          />
+          <circle cx="60" cy="40" r="28" className="fill-white" />
+          <circle cx="60" cy="40" r="28" className="stroke-primary" strokeWidth="2" fill="none" />
 
           {/* Helmet/Visor top */}
           <path
@@ -84,36 +62,14 @@ const Mascot = React.forwardRef<HTMLDivElement, MascotProps>(
           />
 
           {/* Left eye */}
-          <ellipse
-            cx="48"
-            cy="42"
-            rx="6"
-            ry="7"
-            className="fill-primary"
-          />
+          <ellipse cx="48" cy="42" rx="6" ry="7" className="fill-primary" />
           {/* Left eye shine */}
-          <circle
-            cx="46"
-            cy="40"
-            r="2"
-            className="fill-white"
-          />
+          <circle cx="46" cy="40" r="2" className="fill-white" />
 
           {/* Right eye */}
-          <ellipse
-            cx="72"
-            cy="42"
-            rx="6"
-            ry="7"
-            className="fill-primary"
-          />
+          <ellipse cx="72" cy="42" rx="6" ry="7" className="fill-primary" />
           {/* Right eye shine */}
-          <circle
-            cx="70"
-            cy="40"
-            r="2"
-            className="fill-white"
-          />
+          <circle cx="70" cy="40" r="2" className="fill-white" />
 
           {/* Mouth - changes based on mood */}
           {mood === "happy" && (
@@ -126,13 +82,7 @@ const Mascot = React.forwardRef<HTMLDivElement, MascotProps>(
             />
           )}
           {mood === "thinking" && (
-            <ellipse
-              cx="60"
-              cy="54"
-              rx="4"
-              ry="3"
-              className="fill-primary"
-            />
+            <ellipse cx="60" cy="54" rx="4" ry="3" className="fill-primary" />
           )}
           {mood === "celebrating" && (
             <>
@@ -161,21 +111,8 @@ const Mascot = React.forwardRef<HTMLDivElement, MascotProps>(
           )}
 
           {/* Antenna */}
-          <line
-            x1="60"
-            y1="12"
-            x2="60"
-            y2="5"
-            className="stroke-primary"
-            strokeWidth="2"
-          />
-          <circle
-            cx="60"
-            cy="4"
-            r="3"
-            className="fill-tertiary stroke-primary"
-            strokeWidth="1"
-          />
+          <line x1="60" y1="12" x2="60" y2="5" className="stroke-primary" strokeWidth="2" />
+          <circle cx="60" cy="4" r="3" className="fill-tertiary stroke-primary" strokeWidth="1" />
 
           {/* Left arm */}
           <ellipse
@@ -207,12 +144,7 @@ const Mascot = React.forwardRef<HTMLDivElement, MascotProps>(
             className="fill-tertiary stroke-primary"
             strokeWidth="1.5"
           />
-          <text
-            x="60"
-            y="82"
-            textAnchor="middle"
-            className="fill-primary text-[8px] font-bold"
-          >
+          <text x="60" y="82" textAnchor="middle" className="fill-primary text-[8px] font-bold">
             L
           </text>
         </svg>
@@ -224,4 +156,3 @@ const Mascot = React.forwardRef<HTMLDivElement, MascotProps>(
 Mascot.displayName = "Mascot";
 
 export { Mascot };
-

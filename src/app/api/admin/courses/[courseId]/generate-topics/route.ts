@@ -30,10 +30,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     const careerPath = course.careerPaths[0] || course.title;
@@ -111,7 +108,8 @@ IMPORTANT:
     const messages: Message[] = [
       {
         role: "system",
-        content: "You are an expert curriculum designer from top universities (MIT, Stanford, Harvard). You create well-structured, progressive learning paths that match industry standards. Always respond with valid JSON only, no markdown code blocks.",
+        content:
+          "You are an expert curriculum designer from top universities (MIT, Stanford, Harvard). You create well-structured, progressive learning paths that match industry standards. Always respond with valid JSON only, no markdown code blocks.",
       },
       {
         role: "user",
@@ -127,9 +125,9 @@ IMPORTANT:
 
     try {
       // Extract JSON from response (remove markdown code blocks if present)
-      let cleanedResponse = response
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
+      const cleanedResponse = response
+        .replace(/```json\n?/g, "")
+        .replace(/```\n?/g, "")
         .trim();
 
       // Find JSON object
@@ -149,13 +147,13 @@ IMPORTANT:
       const validatedTopics = parsed.topics
         .filter((t: Record<string, unknown>) => {
           return (
-            typeof t.title === 'string' &&
+            typeof t.title === "string" &&
             t.title.trim().length > 0 &&
-            typeof t.description === 'string' &&
-            typeof t.section === 'string' &&
-            typeof t.sectionOrder === 'number' &&
-            typeof t.order === 'number' &&
-            typeof t.duration === 'number'
+            typeof t.description === "string" &&
+            typeof t.section === "string" &&
+            typeof t.sectionOrder === "number" &&
+            typeof t.order === "number" &&
+            typeof t.duration === "number"
           );
         })
         .map((t: Record<string, unknown>, idx: number) => ({
@@ -163,7 +161,7 @@ IMPORTANT:
           description: (t.description as string).trim(),
           section: (t.section as string).trim(),
           sectionOrder: t.sectionOrder as number,
-          order: t.order as number || idx + 1,
+          order: (t.order as number) || idx + 1,
           duration: Math.max(30, Math.min(120, t.duration as number)), // Clamp between 30-120 minutes
         }));
 
@@ -202,4 +200,3 @@ IMPORTANT:
     );
   }
 }
-

@@ -3,13 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Button,
-  Card,
-  CardContent,
-  Spinner,
-  Mascot,
-} from "@/components/ui";
+import { Button, Card, CardContent, Spinner, Mascot } from "@/components/ui";
 import { CheckCircle2, XCircle, Mail, ArrowRight } from "lucide-react";
 
 type VerificationStatus = "loading" | "success" | "error" | "no-token";
@@ -19,9 +13,7 @@ function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const [status, setStatus] = React.useState<VerificationStatus>(
-    token ? "loading" : "no-token"
-  );
+  const [status, setStatus] = React.useState<VerificationStatus>(token ? "loading" : "no-token");
   const [message, setMessage] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [isResending, setIsResending] = React.useState(false);
@@ -87,12 +79,10 @@ function VerifyEmailContent() {
   if (status === "loading") {
     return (
       <Card variant="elevated" className="animate-fade-in">
-        <CardContent className="py-12 text-center space-y-6">
+        <CardContent className="space-y-6 py-12 text-center">
           <Spinner size="xl" />
           <div>
-            <h2 className="text-xl font-semibold text-foreground">
-              Verifying your email...
-            </h2>
+            <h2 className="text-foreground text-xl font-semibold">Verifying your email...</h2>
             <p className="text-muted-foreground mt-2">
               Please wait while we verify your email address.
             </p>
@@ -106,23 +96,21 @@ function VerifyEmailContent() {
   if (status === "success") {
     return (
       <Card variant="elevated" className="animate-fade-in">
-        <CardContent className="py-8 text-center space-y-6">
+        <CardContent className="space-y-6 py-8 text-center">
           <Mascot size="lg" mood="celebrating" animate={false} />
-          
-          <div className="w-16 h-16 mx-auto rounded-full bg-success/10 flex items-center justify-center">
-            <CheckCircle2 className="w-8 h-8 text-success" />
+
+          <div className="bg-success/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+            <CheckCircle2 className="text-success h-8 w-8" />
           </div>
-          
+
           <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              Email Verified!
-            </h2>
+            <h2 className="text-foreground text-2xl font-bold">Email Verified!</h2>
             <p className="text-muted-foreground mt-2">{message}</p>
           </div>
 
           <Button
             onClick={() => router.push("/login")}
-            rightIcon={<ArrowRight className="w-4 h-4" />}
+            rightIcon={<ArrowRight className="h-4 w-4" />}
           >
             Continue to Sign In
           </Button>
@@ -135,54 +123,43 @@ function VerifyEmailContent() {
   if (status === "error") {
     return (
       <Card variant="elevated" className="animate-fade-in">
-        <CardContent className="py-8 text-center space-y-6">
+        <CardContent className="space-y-6 py-8 text-center">
           <Mascot size="lg" mood="thinking" animate={false} />
-          
-          <div className="w-16 h-16 mx-auto rounded-full bg-destructive/10 flex items-center justify-center">
-            <XCircle className="w-8 h-8 text-destructive" />
+
+          <div className="bg-destructive/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+            <XCircle className="text-destructive h-8 w-8" />
           </div>
-          
+
           <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              Verification Failed
-            </h2>
+            <h2 className="text-foreground text-2xl font-bold">Verification Failed</h2>
             <p className="text-muted-foreground mt-2">{message}</p>
           </div>
 
-          <div className="space-y-4 w-full max-w-xs mx-auto">
-            <p className="text-sm text-muted-foreground">
-              Need a new verification link?
-            </p>
-            
+          <div className="mx-auto w-full max-w-xs space-y-4">
+            <p className="text-muted-foreground text-sm">Need a new verification link?</p>
+
             <div className="flex gap-2">
               <input
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 h-11 px-4 rounded-xl border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="border-border bg-input focus:ring-primary h-11 flex-1 rounded-xl border px-4 text-sm focus:ring-2 focus:outline-none"
               />
-              <Button
-                onClick={handleResend}
-                isLoading={isResending}
-                disabled={!email}
-              >
+              <Button onClick={handleResend} isLoading={isResending} disabled={!email}>
                 Resend
               </Button>
             </div>
 
             {resendSuccess && (
-              <p className="text-sm text-success">
+              <p className="text-success text-sm">
                 If an account exists, a new verification email has been sent.
               </p>
             )}
           </div>
 
           <div className="pt-4">
-            <Link
-              href="/login"
-              className="text-sm text-primary hover:underline"
-            >
+            <Link href="/login" className="text-primary text-sm hover:underline">
               Back to Sign In
             </Link>
           </div>
@@ -194,60 +171,47 @@ function VerifyEmailContent() {
   // No token state - show instructions
   return (
     <Card variant="elevated" className="animate-fade-in">
-      <CardContent className="py-8 text-center space-y-6">
+      <CardContent className="space-y-6 py-8 text-center">
         <Mascot size="lg" mood="happy" animate={false} />
-        
-        <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
-          <Mail className="w-8 h-8 text-primary" />
+
+        <div className="bg-primary/10 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
+          <Mail className="text-primary h-8 w-8" />
         </div>
-        
+
         <div>
-          <h2 className="text-2xl font-bold text-foreground">
-            Check Your Email
-          </h2>
-          <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
-            We&apos;ve sent you a verification email. Click the link in the email to
-            verify your account.
+          <h2 className="text-foreground text-2xl font-bold">Check Your Email</h2>
+          <p className="text-muted-foreground mx-auto mt-2 max-w-sm">
+            We&apos;ve sent you a verification email. Click the link in the email to verify your
+            account.
           </p>
         </div>
 
-        <div className="space-y-4 w-full max-w-xs mx-auto">
-          <p className="text-sm text-muted-foreground">
-            Didn&apos;t receive the email?
-          </p>
-          
+        <div className="mx-auto w-full max-w-xs space-y-4">
+          <p className="text-muted-foreground text-sm">Didn&apos;t receive the email?</p>
+
           <div className="flex gap-2">
             <input
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="flex-1 h-11 px-4 rounded-xl border border-border bg-input text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="border-border bg-input focus:ring-primary h-11 flex-1 rounded-xl border px-4 text-sm focus:ring-2 focus:outline-none"
             />
-            <Button
-              onClick={handleResend}
-              isLoading={isResending}
-              disabled={!email}
-            >
+            <Button onClick={handleResend} isLoading={isResending} disabled={!email}>
               Resend
             </Button>
           </div>
 
           {resendSuccess && (
-            <p className="text-sm text-success">
+            <p className="text-success text-sm">
               If an account exists, a new verification email has been sent.
             </p>
           )}
         </div>
 
-        <div className="pt-4 space-y-2">
-          <p className="text-xs text-muted-foreground">
-            Make sure to check your spam folder
-          </p>
-          <Link
-            href="/login"
-            className="text-sm text-primary hover:underline inline-block"
-          >
+        <div className="space-y-2 pt-4">
+          <p className="text-muted-foreground text-xs">Make sure to check your spam folder</p>
+          <Link href="/login" className="text-primary inline-block text-sm hover:underline">
             Back to Sign In
           </Link>
         </div>
@@ -258,13 +222,15 @@ function VerifyEmailContent() {
 
 export default function VerifyEmailPage() {
   return (
-    <React.Suspense fallback={
-      <Card variant="elevated" className="animate-fade-in">
-        <CardContent className="py-12 flex justify-center">
-          <Spinner size="lg" />
-        </CardContent>
-      </Card>
-    }>
+    <React.Suspense
+      fallback={
+        <Card variant="elevated" className="animate-fade-in">
+          <CardContent className="flex justify-center py-12">
+            <Spinner size="lg" />
+          </CardContent>
+        </Card>
+      }
+    >
       <VerifyEmailContent />
     </React.Suspense>
   );

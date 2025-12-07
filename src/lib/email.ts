@@ -279,7 +279,6 @@ const templates = {
   }),
 };
 
-
 export function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
@@ -332,10 +331,11 @@ export async function verifySMTPConnection(): Promise<boolean> {
     await transporter.verify();
     return true;
   } catch (error: unknown) {
-    const errorObj = error instanceof Error 
-      ? { code: (error as { code?: string }).code, message: error.message }
-      : { code: undefined, message: String(error) };
-    
+    const errorObj =
+      error instanceof Error
+        ? { code: (error as { code?: string }).code, message: error.message }
+        : { code: undefined, message: String(error) };
+
     if (isDevelopment) {
       console.error("SMTP connection verification failed:", {
         code: errorObj.code,
@@ -373,9 +373,10 @@ export async function sendVerificationEmail(
       html: template.html,
     });
   } catch (error: unknown) {
-    const errorObj = error instanceof Error 
-      ? { code: (error as { code?: string }).code, message: error.message }
-      : { code: undefined, message: String(error) };
+    const errorObj =
+      error instanceof Error
+        ? { code: (error as { code?: string }).code, message: error.message }
+        : { code: undefined, message: String(error) };
 
     if (isDevelopment) {
       console.error("Failed to send verification email:", {
@@ -428,9 +429,10 @@ export async function sendPasswordResetEmail(
       html: template.html,
     });
   } catch (error: unknown) {
-    const errorObj = error instanceof Error 
-      ? { code: (error as { code?: string }).code, message: error.message }
-      : { code: undefined, message: String(error) };
+    const errorObj =
+      error instanceof Error
+        ? { code: (error as { code?: string }).code, message: error.message }
+        : { code: undefined, message: String(error) };
 
     if (isDevelopment) {
       console.error("Failed to send password reset email:", {
@@ -465,19 +467,20 @@ export async function sendCourseAvailableEmail(
   const courseUrl = `${baseUrl}/courses/${courseSlug}`;
   const template = templates.courseAvailable(name, courseTitle, courseUrl);
   const emailFrom = process.env.EMAIL_FROM || "Lana <noreply@lana.com>";
-  
+
   try {
     await transporter.sendMail({
-      from: emailFrom, 
+      from: emailFrom,
       to: email,
       subject: template.subject,
       text: template.text,
       html: template.html,
     });
   } catch (error: unknown) {
-    const errorObj = error instanceof Error 
-      ? { code: (error as { code?: string }).code, message: error.message }
-      : { code: undefined, message: String(error) };
+    const errorObj =
+      error instanceof Error
+        ? { code: (error as { code?: string }).code, message: error.message }
+        : { code: undefined, message: String(error) };
 
     if (isDevelopment) {
       console.error("Failed to send course available email:", {
@@ -522,9 +525,10 @@ export async function sendAdminInvitationEmail(
       html: template.html,
     });
   } catch (error: unknown) {
-    const errorObj = error instanceof Error 
-      ? { code: (error as { code?: string }).code, message: error.message }
-      : { code: undefined, message: String(error) };
+    const errorObj =
+      error instanceof Error
+        ? { code: (error as { code?: string }).code, message: error.message }
+        : { code: undefined, message: String(error) };
 
     if (isDevelopment) {
       console.error("Failed to send admin invitation email:", {

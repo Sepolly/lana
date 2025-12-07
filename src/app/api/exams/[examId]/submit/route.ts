@@ -21,20 +21,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { examId } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const validationResult = submitSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        { success: false, error: "Invalid request data" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Invalid request data" }, { status: 400 });
     }
 
     const { answers } = validationResult.data;
@@ -44,10 +38,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!exam || exam.userId !== session.user.id) {
-      return NextResponse.json(
-        { success: false, error: "Exam not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Exam not found" }, { status: 404 });
     }
 
     if (exam.status !== "IN_PROGRESS") {
@@ -138,10 +129,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error("Exam submit error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to submit exam" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to submit exam" }, { status: 500 });
   }
 }
-

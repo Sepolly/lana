@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, useErrorToast, useSuccessToast } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  useErrorToast,
+  useSuccessToast,
+} from "@/components/ui";
 import { ArrowLeft, Loader2, Save, X, Building2 } from "lucide-react";
 import Link from "next/link";
 
@@ -170,15 +179,15 @@ export default function EditJobPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   if (!job) {
     return (
-      <div className="text-center py-12">
+      <div className="py-12 text-center">
         <p className="text-muted-foreground">Job not found</p>
         <Link href="/admin/jobs">
           <Button className="mt-4">Back to Jobs</Button>
@@ -194,18 +203,22 @@ export default function EditJobPage() {
         <div className="flex items-center gap-4">
           <Link href="/admin/jobs">
             <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">{job.title}</h1>
+            <h1 className="text-foreground text-3xl font-bold">{job.title}</h1>
             <p className="text-muted-foreground mt-1">
               {job.company.name} • {job.location || "Remote"}
             </p>
           </div>
         </div>
         {!editingJob && (
-          <Button onClick={() => setEditingJob(true)} variant="outline" leftIcon={<Save className="w-4 h-4" />}>
+          <Button
+            onClick={() => setEditingJob(true)}
+            variant="outline"
+            leftIcon={<Save className="h-4 w-4" />}
+          >
             Edit
           </Button>
         )}
@@ -218,7 +231,12 @@ export default function EditJobPage() {
             <CardTitle>Job Information</CardTitle>
             {editingJob && (
               <div className="flex gap-2">
-                <Button onClick={handleUpdateJob} disabled={isSaving} size="sm" leftIcon={<Save className="w-4 h-4" />}>
+                <Button
+                  onClick={handleUpdateJob}
+                  disabled={isSaving}
+                  size="sm"
+                  leftIcon={<Save className="h-4 w-4" />}
+                >
                   {isSaving ? "Saving..." : "Save"}
                 </Button>
                 <Button
@@ -242,7 +260,7 @@ export default function EditJobPage() {
                   }}
                   variant="outline"
                   size="sm"
-                  leftIcon={<X className="w-4 h-4" />}
+                  leftIcon={<X className="h-4 w-4" />}
                 >
                   Cancel
                 </Button>
@@ -254,11 +272,11 @@ export default function EditJobPage() {
           {editingJob ? (
             <>
               <div>
-                <label className="text-sm font-medium text-foreground">Company *</label>
+                <label className="text-foreground text-sm font-medium">Company *</label>
                 <select
                   value={formData.companyId}
                   onChange={(e) => setFormData({ ...formData, companyId: e.target.value })}
-                  className="w-full mt-1 p-2 border border-border rounded-lg"
+                  className="border-border mt-1 w-full rounded-lg border p-2"
                   required
                 >
                   {companies.map((company) => (
@@ -270,7 +288,7 @@ export default function EditJobPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground">Job Title *</label>
+                <label className="text-foreground text-sm font-medium">Job Title *</label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -280,29 +298,29 @@ export default function EditJobPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground">Description *</label>
+                <label className="text-foreground text-sm font-medium">Description *</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full mt-1 p-2 border border-border rounded-lg resize-none"
+                  className="border-border mt-1 w-full resize-none rounded-lg border p-2"
                   rows={6}
                   required
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground">Requirements</label>
+                <label className="text-foreground text-sm font-medium">Requirements</label>
                 <textarea
                   value={formData.requirements}
                   onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-                  className="w-full mt-1 p-2 border border-border rounded-lg resize-none"
+                  className="border-border mt-1 w-full resize-none rounded-lg border p-2"
                   rows={4}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground">Location</label>
+                  <label className="text-foreground text-sm font-medium">Location</label>
                   <Input
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -310,11 +328,11 @@ export default function EditJobPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Job Type</label>
+                  <label className="text-foreground text-sm font-medium">Job Type</label>
                   <select
                     value={formData.jobType}
                     onChange={(e) => setFormData({ ...formData, jobType: e.target.value })}
-                    className="w-full mt-1 p-2 border border-border rounded-lg"
+                    className="border-border mt-1 w-full rounded-lg border p-2"
                   >
                     <option value="Full-time">Full-time</option>
                     <option value="Part-time">Part-time</option>
@@ -326,7 +344,7 @@ export default function EditJobPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground">Salary Range</label>
+                <label className="text-foreground text-sm font-medium">Salary Range</label>
                 <Input
                   value={formData.salaryRange}
                   onChange={(e) => setFormData({ ...formData, salaryRange: e.target.value })}
@@ -339,10 +357,12 @@ export default function EditJobPage() {
                   type="checkbox"
                   id="isDirectPlacement"
                   checked={formData.isDirectPlacement}
-                  onChange={(e) => setFormData({ ...formData, isDirectPlacement: e.target.checked })}
-                  className="w-4 h-4"
+                  onChange={(e) =>
+                    setFormData({ ...formData, isDirectPlacement: e.target.checked })
+                  }
+                  className="h-4 w-4"
                 />
-                <label htmlFor="isDirectPlacement" className="text-sm font-medium text-foreground">
+                <label htmlFor="isDirectPlacement" className="text-foreground text-sm font-medium">
                   Direct Placement Opportunity
                 </label>
               </div>
@@ -353,9 +373,9 @@ export default function EditJobPage() {
                   id="isActive"
                   checked={formData.isActive}
                   onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                  className="w-4 h-4"
+                  className="h-4 w-4"
                 />
-                <label htmlFor="isActive" className="text-sm font-medium text-foreground">
+                <label htmlFor="isActive" className="text-foreground text-sm font-medium">
                   Active (visible to users)
                 </label>
               </div>
@@ -363,28 +383,30 @@ export default function EditJobPage() {
           ) : (
             <>
               <div>
-                <label className="text-sm font-medium text-foreground">Description</label>
+                <label className="text-foreground text-sm font-medium">Description</label>
                 <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{job.description}</p>
               </div>
               {job.requirements && (
                 <div>
-                  <label className="text-sm font-medium text-foreground">Requirements</label>
-                  <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{job.requirements}</p>
+                  <label className="text-foreground text-sm font-medium">Requirements</label>
+                  <p className="text-muted-foreground mt-1 whitespace-pre-wrap">
+                    {job.requirements}
+                  </p>
                 </div>
               )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground">Location</label>
+                  <label className="text-foreground text-sm font-medium">Location</label>
                   <p className="text-muted-foreground mt-1">{job.location || "Remote"}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Job Type</label>
+                  <label className="text-foreground text-sm font-medium">Job Type</label>
                   <p className="text-muted-foreground mt-1">{job.jobType || "Full-time"}</p>
                 </div>
               </div>
               {job.salaryRange && (
                 <div>
-                  <label className="text-sm font-medium text-foreground">Salary Range</label>
+                  <label className="text-foreground text-sm font-medium">Salary Range</label>
                   <p className="text-muted-foreground mt-1">{job.salaryRange}</p>
                 </div>
               )}
@@ -418,7 +440,7 @@ export default function EditJobPage() {
                   {formData.requiredSkills.map((skill, idx) => (
                     <span
                       key={idx}
-                      className="text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground flex items-center gap-1"
+                      className="bg-secondary text-secondary-foreground flex items-center gap-1 rounded-full px-2 py-1 text-xs"
                     >
                       {skill}
                       <button
@@ -439,7 +461,7 @@ export default function EditJobPage() {
                 job.requiredSkills.map((skill, idx) => (
                   <span
                     key={idx}
-                    className="text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground"
+                    className="bg-secondary text-secondary-foreground rounded-full px-2 py-1 text-xs"
                   >
                     {skill}
                   </span>
@@ -477,7 +499,7 @@ export default function EditJobPage() {
                   {formData.requiredCourses.map((course, idx) => (
                     <span
                       key={idx}
-                      className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary flex items-center gap-1"
+                      className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2 py-1 text-xs"
                     >
                       {course}
                       <button
@@ -498,7 +520,7 @@ export default function EditJobPage() {
                 job.requiredCourses.map((course, idx) => (
                   <span
                     key={idx}
-                    className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary"
+                    className="bg-primary/10 text-primary rounded-full px-2 py-1 text-xs"
                   >
                     {course}
                   </span>
@@ -513,4 +535,3 @@ export default function EditJobPage() {
     </div>
   );
 }
-

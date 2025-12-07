@@ -84,7 +84,7 @@ const nextConfig: NextConfig = {
 
   // Bundle analyzer (only when ANALYZE=true)
   ...(isAnalyze && {
-    webpack: (config: any, { isServer }: { isServer: boolean }) => {
+    webpack: (config: { plugins: unknown[] }, { isServer }: { isServer: boolean }) => {
       if (!isServer) {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const { BundleAnalyzerPlugin } = require("@next/bundle-analyzer");

@@ -15,10 +15,7 @@ export async function GET(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const admins = await db.user.findMany({
@@ -44,10 +41,7 @@ export async function GET(request: NextRequest) {
         message: error instanceof Error ? error.message : String(error),
       });
     }
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch admins" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to fetch admins" }, { status: 500 });
   }
 }
 
@@ -56,10 +50,7 @@ export async function POST(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -113,12 +104,7 @@ export async function POST(request: NextRequest) {
     });
 
     try {
-      await sendAdminInvitationEmail(
-        email,
-        name,
-        token,
-        session.user.name || "Admin"
-      );
+      await sendAdminInvitationEmail(email, name, token, session.user.name || "Admin");
     } catch (emailError: unknown) {
       const isDevelopment = process.env.NODE_ENV === "development";
       if (isDevelopment) {
@@ -147,10 +133,6 @@ export async function POST(request: NextRequest) {
         message: error instanceof Error ? error.message : String(error),
       });
     }
-    return NextResponse.json(
-      { success: false, error: "Failed to add admin" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to add admin" }, { status: 500 });
   }
 }
-

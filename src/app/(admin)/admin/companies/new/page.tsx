@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, useErrorToast, useSuccessToast } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  useErrorToast,
+  useSuccessToast,
+} from "@/components/ui";
 import { ArrowLeft, Loader2, Save } from "lucide-react";
 import Link from "next/link";
 
@@ -53,14 +62,12 @@ export default function NewCompanyPage() {
       <div className="flex items-center gap-4">
         <Link href="/admin/companies">
           <Button variant="ghost" size="icon">
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Create New Company</h1>
-          <p className="text-muted-foreground mt-1">
-            Add a new company to the platform
-          </p>
+          <h1 className="text-foreground text-3xl font-bold">Create New Company</h1>
+          <p className="text-muted-foreground mt-1">Add a new company to the platform</p>
         </div>
       </div>
 
@@ -71,7 +78,7 @@ export default function NewCompanyPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-foreground">Company Name *</label>
+              <label className="text-foreground text-sm font-medium">Company Name *</label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -82,11 +89,11 @@ export default function NewCompanyPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-foreground">Description</label>
+              <label className="text-foreground text-sm font-medium">Description</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full mt-1 p-2 border border-border rounded-lg resize-none"
+                className="border-border mt-1 w-full resize-none rounded-lg border p-2"
                 rows={4}
                 placeholder="Company description..."
               />
@@ -94,7 +101,7 @@ export default function NewCompanyPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-foreground">Website</label>
+                <label className="text-foreground text-sm font-medium">Website</label>
                 <Input
                   type="url"
                   value={formData.website}
@@ -104,7 +111,7 @@ export default function NewCompanyPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Industry</label>
+                <label className="text-foreground text-sm font-medium">Industry</label>
                 <Input
                   value={formData.industry}
                   onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
@@ -116,7 +123,7 @@ export default function NewCompanyPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-foreground">Location</label>
+                <label className="text-foreground text-sm font-medium">Location</label>
                 <Input
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -125,7 +132,7 @@ export default function NewCompanyPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Logo URL</label>
+                <label className="text-foreground text-sm font-medium">Logo URL</label>
                 <Input
                   type="url"
                   value={formData.logo}
@@ -142,9 +149,9 @@ export default function NewCompanyPage() {
                 id="isPartner"
                 checked={formData.isPartner}
                 onChange={(e) => setFormData({ ...formData, isPartner: e.target.checked })}
-                className="w-4 h-4"
+                className="h-4 w-4"
               />
-              <label htmlFor="isPartner" className="text-sm font-medium text-foreground">
+              <label htmlFor="isPartner" className="text-foreground text-sm font-medium">
                 Partner Company
               </label>
             </div>
@@ -152,7 +159,7 @@ export default function NewCompanyPage() {
         </Card>
 
         <div className="flex items-center gap-4">
-          <Button type="submit" disabled={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+          <Button type="submit" disabled={isSaving} leftIcon={<Save className="h-4 w-4" />}>
             {isSaving ? "Creating..." : "Create Company"}
           </Button>
           <Link href="/admin/companies">
@@ -165,4 +172,3 @@ export default function NewCompanyPage() {
     </div>
   );
 }
-

@@ -106,12 +106,12 @@ export default function AdminSettingsPage() {
         });
       } else {
         const errorMessage = result.error || "Failed to update password";
-        addToast({ 
-          type: "error", 
+        addToast({
+          type: "error",
           title: errorMessage,
-          description: errorMessage.includes("incorrect") 
-            ? "Please verify your current password is correct" 
-            : undefined
+          description: errorMessage.includes("incorrect")
+            ? "Please verify your current password is correct"
+            : undefined,
         });
       }
     } catch (error) {
@@ -128,24 +128,22 @@ export default function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage your profile and account settings
-        </p>
+        <h1 className="text-foreground text-3xl font-bold">Settings</h1>
+        <p className="text-muted-foreground mt-1">Manage your profile and account settings</p>
       </div>
 
       <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5 text-primary" />
+              <User className="text-primary h-5 w-5" />
               Profile Information
             </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleUpdateProfile} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
+                <label className="mb-1 block text-sm font-medium">Name</label>
                 <Input
                   type="text"
                   value={profileData.name}
@@ -155,7 +153,7 @@ export default function AdminSettingsPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
+                <label className="mb-1 block text-sm font-medium">Email</label>
                 <Input
                   type="email"
                   value={profileData.email}
@@ -173,15 +171,12 @@ export default function AdminSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5 text-primary" />
+              <Lock className="text-primary h-5 w-5" />
               Password
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Button
-              variant="outline"
-              onClick={() => setPasswordDialogOpen(true)}
-            >
+            <Button variant="outline" onClick={() => setPasswordDialogOpen(true)}>
               Change Password
             </Button>
             <Dialog
@@ -191,9 +186,7 @@ export default function AdminSettingsPage() {
             >
               <form onSubmit={handleUpdatePassword} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Current Password
-                  </label>
+                  <label className="mb-1 block text-sm font-medium">Current Password</label>
                   <Input
                     type="password"
                     value={passwordData.currentPassword}
@@ -204,9 +197,7 @@ export default function AdminSettingsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    New Password
-                  </label>
+                  <label className="mb-1 block text-sm font-medium">New Password</label>
                   <Input
                     type="password"
                     value={passwordData.newPassword}
@@ -216,14 +207,12 @@ export default function AdminSettingsPage() {
                     required
                     minLength={8}
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-muted-foreground mt-1 text-xs">
                     Must be at least 8 characters with uppercase, lowercase, and number
                   </p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Confirm New Password
-                  </label>
+                  <label className="mb-1 block text-sm font-medium">Confirm New Password</label>
                   <Input
                     type="password"
                     value={passwordData.confirmPassword}
@@ -234,7 +223,7 @@ export default function AdminSettingsPage() {
                     minLength={8}
                   />
                 </div>
-                <div className="flex justify-end gap-2 mt-6">
+                <div className="mt-6 flex justify-end gap-2">
                   <Button
                     type="button"
                     variant="outline"
@@ -254,22 +243,22 @@ export default function AdminSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Database className="w-5 h-5 text-primary" />
+              <Database className="text-primary h-5 w-5" />
               Platform Configuration
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-muted-foreground mb-4 text-sm">
               Platform settings are configured via environment variables.
             </p>
             <div className="space-y-2">
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="bg-muted/50 flex items-center justify-between rounded-lg p-3">
                 <span className="text-sm font-medium">Database Provider</span>
-                <span className="text-sm text-muted-foreground">NeonDB (PostgreSQL)</span>
+                <span className="text-muted-foreground text-sm">NeonDB (PostgreSQL)</span>
               </div>
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="bg-muted/50 flex items-center justify-between rounded-lg p-3">
                 <span className="text-sm font-medium">Vector Database</span>
-                <span className="text-sm text-muted-foreground">Pinecone</span>
+                <span className="text-muted-foreground text-sm">Pinecone</span>
               </div>
             </div>
           </CardContent>

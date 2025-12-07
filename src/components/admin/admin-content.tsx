@@ -28,7 +28,7 @@ export function AdminContent({ children }: { children: React.ReactNode }) {
 
     window.addEventListener("admin-sidebar-toggle", handleToggle as EventListener);
     window.addEventListener("storage", handleStorageChange);
-    
+
     return () => {
       window.removeEventListener("admin-sidebar-toggle", handleToggle as EventListener);
       window.removeEventListener("storage", handleStorageChange);
@@ -38,7 +38,7 @@ export function AdminContent({ children }: { children: React.ReactNode }) {
   // Prevent hydration mismatch
   if (!mounted) {
     return (
-      <main className="flex-1 ml-20 overflow-auto">
+      <main className="ml-20 flex-1 overflow-auto">
         <div className="p-8">{children}</div>
       </main>
     );
@@ -54,4 +54,3 @@ export function AdminContent({ children }: { children: React.ReactNode }) {
     </main>
   );
 }
-

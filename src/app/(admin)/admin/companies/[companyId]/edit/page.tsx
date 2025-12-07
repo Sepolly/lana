@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, useErrorToast, useSuccessToast } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  useErrorToast,
+  useSuccessToast,
+} from "@/components/ui";
 import { ArrowLeft, Loader2, Save, X, Building2 } from "lucide-react";
 import Link from "next/link";
 
@@ -100,15 +109,15 @@ export default function EditCompanyPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   if (!company) {
     return (
-      <div className="text-center py-12">
+      <div className="py-12 text-center">
         <p className="text-muted-foreground">Company not found</p>
         <Link href="/admin/companies">
           <Button className="mt-4">Back to Companies</Button>
@@ -124,7 +133,7 @@ export default function EditCompanyPage() {
         <div className="flex items-center gap-4">
           <Link href="/admin/companies">
             <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
           <div className="flex items-center gap-3">
@@ -132,19 +141,23 @@ export default function EditCompanyPage() {
               <img
                 src={company.logo}
                 alt={company.name}
-                className="w-12 h-12 rounded-lg object-cover"
+                className="h-12 w-12 rounded-lg object-cover"
               />
             )}
             <div>
-              <h1 className="text-3xl font-bold text-foreground">{company.name}</h1>
+              <h1 className="text-foreground text-3xl font-bold">{company.name}</h1>
               <p className="text-muted-foreground mt-1">
-                {company._count.jobs} job{company._count.jobs !== 1 ? 's' : ''}
+                {company._count.jobs} job{company._count.jobs !== 1 ? "s" : ""}
               </p>
             </div>
           </div>
         </div>
         {!editingCompany && (
-          <Button onClick={() => setEditingCompany(true)} variant="outline" leftIcon={<Save className="w-4 h-4" />}>
+          <Button
+            onClick={() => setEditingCompany(true)}
+            variant="outline"
+            leftIcon={<Save className="h-4 w-4" />}
+          >
             Edit
           </Button>
         )}
@@ -157,7 +170,12 @@ export default function EditCompanyPage() {
             <CardTitle>Company Information</CardTitle>
             {editingCompany && (
               <div className="flex gap-2">
-                <Button onClick={handleUpdateCompany} disabled={isSaving} size="sm" leftIcon={<Save className="w-4 h-4" />}>
+                <Button
+                  onClick={handleUpdateCompany}
+                  disabled={isSaving}
+                  size="sm"
+                  leftIcon={<Save className="h-4 w-4" />}
+                >
                   {isSaving ? "Saving..." : "Save"}
                 </Button>
                 <Button
@@ -177,7 +195,7 @@ export default function EditCompanyPage() {
                   }}
                   variant="outline"
                   size="sm"
-                  leftIcon={<X className="w-4 h-4" />}
+                  leftIcon={<X className="h-4 w-4" />}
                 >
                   Cancel
                 </Button>
@@ -189,7 +207,7 @@ export default function EditCompanyPage() {
           {editingCompany ? (
             <>
               <div>
-                <label className="text-sm font-medium text-foreground">Company Name *</label>
+                <label className="text-foreground text-sm font-medium">Company Name *</label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -199,18 +217,18 @@ export default function EditCompanyPage() {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-foreground">Description</label>
+                <label className="text-foreground text-sm font-medium">Description</label>
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full mt-1 p-2 border border-border rounded-lg resize-none"
+                  className="border-border mt-1 w-full resize-none rounded-lg border p-2"
                   rows={4}
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground">Website</label>
+                  <label className="text-foreground text-sm font-medium">Website</label>
                   <Input
                     type="url"
                     value={formData.website}
@@ -219,7 +237,7 @@ export default function EditCompanyPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Industry</label>
+                  <label className="text-foreground text-sm font-medium">Industry</label>
                   <Input
                     value={formData.industry}
                     onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
@@ -230,7 +248,7 @@ export default function EditCompanyPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground">Location</label>
+                  <label className="text-foreground text-sm font-medium">Location</label>
                   <Input
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -238,7 +256,7 @@ export default function EditCompanyPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Logo URL</label>
+                  <label className="text-foreground text-sm font-medium">Logo URL</label>
                   <Input
                     type="url"
                     value={formData.logo}
@@ -254,9 +272,9 @@ export default function EditCompanyPage() {
                   id="isPartner"
                   checked={formData.isPartner}
                   onChange={(e) => setFormData({ ...formData, isPartner: e.target.checked })}
-                  className="w-4 h-4"
+                  className="h-4 w-4"
                 />
-                <label htmlFor="isPartner" className="text-sm font-medium text-foreground">
+                <label htmlFor="isPartner" className="text-foreground text-sm font-medium">
                   Partner Company
                 </label>
               </div>
@@ -265,16 +283,23 @@ export default function EditCompanyPage() {
             <>
               {company.description && (
                 <div>
-                  <label className="text-sm font-medium text-foreground">Description</label>
-                  <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{company.description}</p>
+                  <label className="text-foreground text-sm font-medium">Description</label>
+                  <p className="text-muted-foreground mt-1 whitespace-pre-wrap">
+                    {company.description}
+                  </p>
                 </div>
               )}
               <div className="grid grid-cols-2 gap-4">
                 {company.website && (
                   <div>
-                    <label className="text-sm font-medium text-foreground">Website</label>
+                    <label className="text-foreground text-sm font-medium">Website</label>
                     <p className="text-muted-foreground mt-1">
-                      <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                      <a
+                        href={company.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
                         {company.website}
                       </a>
                     </p>
@@ -282,14 +307,14 @@ export default function EditCompanyPage() {
                 )}
                 {company.industry && (
                   <div>
-                    <label className="text-sm font-medium text-foreground">Industry</label>
+                    <label className="text-foreground text-sm font-medium">Industry</label>
                     <p className="text-muted-foreground mt-1">{company.industry}</p>
                   </div>
                 )}
               </div>
               {company.location && (
                 <div>
-                  <label className="text-sm font-medium text-foreground">Location</label>
+                  <label className="text-foreground text-sm font-medium">Location</label>
                   <p className="text-muted-foreground mt-1">{company.location}</p>
                 </div>
               )}
@@ -300,4 +325,3 @@ export default function EditCompanyPage() {
     </div>
   );
 }
-

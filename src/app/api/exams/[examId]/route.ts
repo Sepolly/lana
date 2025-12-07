@@ -13,10 +13,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { examId } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const exam = await db.examSchedule.findUnique({
@@ -24,10 +21,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!exam || exam.userId !== session.user.id) {
-      return NextResponse.json(
-        { success: false, error: "Exam not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Exam not found" }, { status: 404 });
     }
 
     // Remove correct answers if exam is still ongoing
@@ -51,10 +45,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error("Exam fetch error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch exam" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to fetch exam" }, { status: 500 });
   }
 }
-

@@ -29,10 +29,10 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid job data",
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 }
       );
@@ -44,10 +44,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!company) {
-      return NextResponse.json(
-        { success: false, error: "Company not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Company not found" }, { status: 404 });
     }
 
     const data = validationResult.data;
@@ -95,12 +92,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating job:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to create job" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to create job",
       },
       { status: 500 }
     );
   }
 }
-

@@ -24,10 +24,10 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid company data",
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 }
       );
@@ -72,12 +72,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating company:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to create company" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to create company",
       },
       { status: 500 }
     );
   }
 }
-

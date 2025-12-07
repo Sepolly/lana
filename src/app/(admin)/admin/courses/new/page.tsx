@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, useErrorToast, useSuccessToast } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  useErrorToast,
+  useSuccessToast,
+} from "@/components/ui";
 import { Search, BookOpen, Loader2, Plus, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -30,10 +39,10 @@ export default function NewCoursePage() {
       const url = query.trim()
         ? `/api/admin/careers/from-pinecone?q=${encodeURIComponent(query)}&limit=50`
         : `/api/admin/careers/from-pinecone?limit=50`;
-      
+
       const response = await fetch(url);
       const data = await response.json();
-      
+
       if (data.success) {
         setCareers(data.careers || []);
       } else {
@@ -61,7 +70,7 @@ export default function NewCoursePage() {
   const handleCreateCourse = async (career: Career) => {
     setSelectedCareer(career);
     setIsCreating(true);
-    
+
     try {
       const response = await fetch("/api/admin/courses/create", {
         method: "POST",
@@ -76,7 +85,7 @@ export default function NewCoursePage() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         successToast("Course Created", "Course has been created successfully");
         // Redirect to course edit page
@@ -100,11 +109,11 @@ export default function NewCoursePage() {
       <div className="flex items-center gap-4">
         <Link href="/admin/courses">
           <Button variant="ghost" size="icon">
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Create New Course</h1>
+          <h1 className="text-foreground text-3xl font-bold">Create New Course</h1>
           <p className="text-muted-foreground mt-1">
             Select a career from Pinecone to create a course
           </p>
@@ -115,8 +124,8 @@ export default function NewCoursePage() {
       <Card>
         <CardContent className="pt-6">
           <form onSubmit={handleSearch} className="flex gap-2">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <div className="relative flex-1">
+              <Search className="text-muted-foreground absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2" />
               <Input
                 type="text"
                 placeholder="Search careers (e.g., Computer Science, Graphics Design)..."
@@ -128,7 +137,7 @@ export default function NewCoursePage() {
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Searching...
                 </>
               ) : (
@@ -147,28 +156,26 @@ export default function NewCoursePage() {
         <CardContent>
           {isLoading ? (
             <div className="py-12 text-center">
-              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+              <Loader2 className="text-primary mx-auto mb-4 h-8 w-8 animate-spin" />
               <p className="text-muted-foreground">Loading careers from Pinecone...</p>
             </div>
           ) : careers.length === 0 ? (
             <div className="py-12 text-center">
-              <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
               <p className="text-muted-foreground">No careers found</p>
-              <p className="text-sm text-muted-foreground mt-2">
-                Try a different search query
-              </p>
+              <p className="text-muted-foreground mt-2 text-sm">Try a different search query</p>
             </div>
           ) : (
             <div className="space-y-2">
               {careers.map((career) => (
                 <div
                   key={career.id}
-                  className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors"
+                  className="border-border hover:bg-muted/50 flex items-center justify-between rounded-lg border p-4 transition-colors"
                 >
                   <div className="flex-1">
-                    <h3 className="font-semibold text-foreground">{career.title}</h3>
-                    <div className="flex items-center gap-4 mt-2">
-                      <span className="text-sm text-muted-foreground">
+                    <h3 className="text-foreground font-semibold">{career.title}</h3>
+                    <div className="mt-2 flex items-center gap-4">
+                      <span className="text-muted-foreground text-sm">
                         {career.skills.length} skills
                       </span>
                       {career.skills.length > 0 && (
@@ -176,13 +183,13 @@ export default function NewCoursePage() {
                           {career.skills.slice(0, 3).map((skill, idx) => (
                             <span
                               key={idx}
-                              className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground"
+                              className="bg-secondary text-secondary-foreground rounded-full px-2 py-0.5 text-xs"
                             >
                               {skill}
                             </span>
                           ))}
                           {career.skills.length > 3 && (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-muted-foreground text-xs">
                               +{career.skills.length - 3} more
                             </span>
                           )}
@@ -195,9 +202,9 @@ export default function NewCoursePage() {
                     disabled={isCreating && selectedCareer?.id === career.id}
                     leftIcon={
                       isCreating && selectedCareer?.id === career.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <Plus className="w-4 h-4" />
+                        <Plus className="h-4 w-4" />
                       )
                     }
                   >
@@ -214,4 +221,3 @@ export default function NewCoursePage() {
     </div>
   );
 }
-

@@ -11,10 +11,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const session = await auth();
 
     if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const { id } = await params;
@@ -37,22 +34,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!certificate) {
-      return NextResponse.json(
-        { success: false, error: "Certificate not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Certificate not found" }, { status: 404 });
     }
 
     // Verify ownership
     if (certificate.userId !== session.user.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 403 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 403 });
     }
 
     // Generate verification URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const baseUrl =
+      process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
     const verificationUrl = `${baseUrl}/verify/${certificate.certificateNumber}`;
 
     // Generate HTML for certificate
@@ -351,4 +343,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
   }
 }
-

@@ -15,20 +15,14 @@ export async function POST(request: NextRequest) {
     const session = await auth();
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const validationResult = submitSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        { success: false, error: "Invalid request data" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Invalid request data" }, { status: 400 });
     }
 
     const { quizId, topicId, enrollmentId, answers } = validationResult.data;
@@ -39,10 +33,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!enrollment || enrollment.userId !== session.user.id) {
-      return NextResponse.json(
-        { success: false, error: "Invalid enrollment" },
-        { status: 403 }
-      );
+      return NextResponse.json({ success: false, error: "Invalid enrollment" }, { status: 403 });
     }
 
     // Get quiz with questions
@@ -56,10 +47,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!quiz) {
-      return NextResponse.json(
-        { success: false, error: "Quiz not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Quiz not found" }, { status: 404 });
     }
 
     // Calculate score
@@ -74,7 +62,7 @@ export async function POST(request: NextRequest) {
     for (const question of quiz.questions) {
       const userAnswer = answers[question.id];
       const isCorrect = userAnswer === question.correctAnswer;
-      
+
       if (isCorrect) {
         correctCount++;
       }
@@ -168,10 +156,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Quiz submission error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to submit quiz" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to submit quiz" }, { status: 500 });
   }
 }
-

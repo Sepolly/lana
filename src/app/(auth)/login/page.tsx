@@ -4,7 +4,17 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Button, Input, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Spinner } from "@/components/ui";
+import {
+  Button,
+  Input,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  Spinner,
+} from "@/components/ui";
 import { Mail, ArrowRight } from "lucide-react";
 
 function LoginForm() {
@@ -68,7 +78,7 @@ function LoginForm() {
   // Map NextAuth error codes to user-friendly messages
   const getErrorMessage = (errorCode: string | null) => {
     if (!errorCode) return null;
-    
+
     const errorMessages: Record<string, string> = {
       CredentialsSignin: "Invalid email or password",
       EmailNotVerified: "Please verify your email before signing in",
@@ -83,15 +93,13 @@ function LoginForm() {
     <Card variant="elevated" className="animate-fade-in">
       <CardHeader className="space-y-1 text-center">
         <CardTitle className="text-2xl">Welcome back</CardTitle>
-        <CardDescription>
-          Sign in to continue your career journey
-        </CardDescription>
+        <CardDescription>Sign in to continue your career journey</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-4">
         {/* Error messages */}
         {(error || formError) && (
-          <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+          <div className="bg-destructive/10 border-destructive/20 text-destructive rounded-lg border p-3 text-sm">
             {getErrorMessage(error) || formError}
           </div>
         )}
@@ -103,7 +111,7 @@ function LoginForm() {
           onClick={handleGoogleSignIn}
           isLoading={isGoogleLoading}
           leftIcon={
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
                 fill="currentColor"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -129,12 +137,10 @@ function LoginForm() {
         {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
+            <span className="border-border w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">
-              Or continue with email
-            </span>
+            <span className="bg-card text-muted-foreground px-2">Or continue with email</span>
           </div>
         </div>
 
@@ -147,7 +153,7 @@ function LoginForm() {
             placeholder="Enter your email"
             value={formData.email}
             onChange={handleChange}
-            leftIcon={<Mail className="w-5 h-5" />}
+            leftIcon={<Mail className="h-5 w-5" />}
             required
           />
 
@@ -162,10 +168,7 @@ function LoginForm() {
           />
 
           <div className="flex justify-end">
-            <Link
-              href="/forgot-password"
-              className="text-sm text-primary hover:underline"
-            >
+            <Link href="/forgot-password" className="text-primary text-sm hover:underline">
               Forgot password?
             </Link>
           </div>
@@ -174,7 +177,7 @@ function LoginForm() {
             type="submit"
             fullWidth
             isLoading={isLoading}
-            rightIcon={<ArrowRight className="w-4 h-4" />}
+            rightIcon={<ArrowRight className="h-4 w-4" />}
           >
             Sign In
           </Button>
@@ -182,7 +185,7 @@ function LoginForm() {
       </CardContent>
 
       <CardFooter className="justify-center">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Don&apos;t have an account?{" "}
           <Link href="/register" className="text-primary font-medium hover:underline">
             Sign up
@@ -195,13 +198,15 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <React.Suspense fallback={
-      <Card variant="elevated" className="animate-fade-in">
-        <CardContent className="py-12 flex justify-center">
-          <Spinner size="lg" />
-        </CardContent>
-      </Card>
-    }>
+    <React.Suspense
+      fallback={
+        <Card variant="elevated" className="animate-fade-in">
+          <CardContent className="flex justify-center py-12">
+            <Spinner size="lg" />
+          </CardContent>
+        </Card>
+      }
+    >
       <LoginForm />
     </React.Suspense>
   );

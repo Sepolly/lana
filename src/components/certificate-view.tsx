@@ -62,7 +62,7 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
   const handleDownloadPDF = async () => {
     if (!certificateRef.current) return;
 
-    const button = document.querySelector('[data-pdf-button]') as HTMLButtonElement;
+    const button = document.querySelector("[data-pdf-button]") as HTMLButtonElement;
     const originalButtonText = button?.textContent || "Download PDF";
 
     try {
@@ -74,11 +74,11 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
 
       // Wait for QR code to be ready and ensure all images are loaded
       if (!isQRCodeReady) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
-      
+
       // Wait for all images to load
-      const images = certificateRef.current.querySelectorAll('img');
+      const images = certificateRef.current.querySelectorAll("img");
       await Promise.all(
         Array.from(images).map((img) => {
           if (img.complete) return Promise.resolve();
@@ -91,7 +91,7 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
       );
 
       // Additional wait to ensure rendering is complete
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       // Dynamic import to avoid SSR issues
       const html2canvas = (await import("html2canvas")).default;
@@ -99,25 +99,25 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
 
       // Helper function to convert any color format to hex
       const colorToHex = (color: string): string => {
-        if (!color || color === 'transparent' || color === 'none') return '#FFFFFF';
-        
+        if (!color || color === "transparent" || color === "none") return "#FFFFFF";
+
         // If already hex, return as is
-        if (color.startsWith('#')) return color;
-        
+        if (color.startsWith("#")) return color;
+
         // If rgb/rgba, convert to hex
         const rgbMatch = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
         if (rgbMatch) {
-          const r = parseInt(rgbMatch[1]).toString(16).padStart(2, '0');
-          const g = parseInt(rgbMatch[2]).toString(16).padStart(2, '0');
-          const b = parseInt(rgbMatch[3]).toString(16).padStart(2, '0');
+          const r = parseInt(rgbMatch[1]).toString(16).padStart(2, "0");
+          const g = parseInt(rgbMatch[2]).toString(16).padStart(2, "0");
+          const b = parseInt(rgbMatch[3]).toString(16).padStart(2, "0");
           return `#${r}${g}${b}`;
         }
-        
+
         // For lab(), oklch(), or other unsupported formats, return white
-        if (color.includes('lab(') || color.includes('oklch(') || color.includes('lch(')) {
-          return '#FFFFFF';
+        if (color.includes("lab(") || color.includes("oklch(") || color.includes("lch(")) {
+          return "#FFFFFF";
         }
-        
+
         return color;
       };
 
@@ -144,34 +144,34 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
         imageTimeout: 15000,
         onclone: (clonedDoc) => {
           // Ensure all images are loaded in the cloned document
-          const clonedImages = clonedDoc.querySelectorAll('img');
+          const clonedImages = clonedDoc.querySelectorAll("img");
           clonedImages.forEach((img) => {
             if (!img.complete) {
-              img.style.display = 'none';
+              img.style.display = "none";
             }
           });
 
           // Convert all computed styles to avoid lab() color issues
-          const allElements = clonedDoc.querySelectorAll('*');
+          const allElements = clonedDoc.querySelectorAll("*");
           allElements.forEach((el) => {
             const htmlEl = el as HTMLElement;
             const computedStyle = window.getComputedStyle(htmlEl);
-            
+
             // Convert background color
             const bgColor = computedStyle.backgroundColor;
-            if (bgColor && (bgColor.includes('lab(') || bgColor.includes('oklch('))) {
+            if (bgColor && (bgColor.includes("lab(") || bgColor.includes("oklch("))) {
               htmlEl.style.backgroundColor = colorToHex(bgColor);
             }
-            
+
             // Convert border color
             const borderColor = computedStyle.borderColor;
-            if (borderColor && (borderColor.includes('lab(') || borderColor.includes('oklch('))) {
+            if (borderColor && (borderColor.includes("lab(") || borderColor.includes("oklch("))) {
               htmlEl.style.borderColor = colorToHex(borderColor);
             }
-            
+
             // Convert color
             const textColor = computedStyle.color;
-            if (textColor && (textColor.includes('lab(') || textColor.includes('oklch('))) {
+            if (textColor && (textColor.includes("lab(") || textColor.includes("oklch("))) {
               htmlEl.style.color = colorToHex(textColor);
             }
           });
@@ -179,7 +179,7 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
       });
 
       const imgData = canvas.toDataURL("image/png", 1.0);
-      
+
       // Validate image data
       if (!imgData || imgData === "data:,") {
         throw new Error("Failed to generate image data");
@@ -188,14 +188,14 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
       // Calculate PDF dimensions preserving exact aspect ratio from canvas
       // Use canvas dimensions to maintain exact proportions
       const canvasAspectRatio = canvas.width / canvas.height;
-      
+
       // A4 landscape: 297mm x 210mm (aspect ratio ~1.414)
       // Use A4 landscape as base, but preserve exact certificate aspect ratio
       const a4LandscapeRatio = 297 / 210;
-      
+
       let pdfWidth: number;
       let pdfHeight: number;
-      
+
       // Preserve the exact aspect ratio from the canvas
       // If certificate aspect ratio matches or is close to A4 landscape, use A4
       if (Math.abs(canvasAspectRatio - a4LandscapeRatio) < 0.1) {
@@ -230,9 +230,8 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
         console.warn("First addImage attempt failed, trying alternative method:", imgError);
         pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
       }
-      
-      pdf.save(`LANA-Certificate-${certificate.certificateNumber}.pdf`);
 
+      pdf.save(`LANA-Certificate-${certificate.certificateNumber}.pdf`);
     } catch (error) {
       console.error("PDF generation error:", error);
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
@@ -257,25 +256,29 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
   // Calculate performance tier for visual gamification
   const score = Math.round(certificate.examScore);
   const getPerformanceTier = (score: number) => {
-    if (score >= 90) return { 
-      label: "Exceptional", 
-      color: "#10B981"
-    };
-    if (score >= 80) return { 
-      label: "Excellent", 
-      color: "#3B82F6"
-    };
-    if (score >= 70) return { 
-      label: "Very Good", 
-      color: "#8B5CF6"
-    };
-    if (score >= 60) return { 
-      label: "Good", 
-      color: "#F59E0B"
-    };
-    return { 
-      label: "Satisfactory", 
-      color: "#EF4444"
+    if (score >= 90)
+      return {
+        label: "Exceptional",
+        color: "#10B981",
+      };
+    if (score >= 80)
+      return {
+        label: "Excellent",
+        color: "#3B82F6",
+      };
+    if (score >= 70)
+      return {
+        label: "Very Good",
+        color: "#8B5CF6",
+      };
+    if (score >= 60)
+      return {
+        label: "Good",
+        color: "#F59E0B",
+      };
+    return {
+      label: "Satisfactory",
+      color: "#EF4444",
     };
   };
 
@@ -285,9 +288,9 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
     <div className="space-y-6">
       {/* Download Button */}
       <div className="flex justify-end">
-        <Button 
-          onClick={handleDownloadPDF} 
-          leftIcon={<Download className="w-4 h-4" />}
+        <Button
+          onClick={handleDownloadPDF}
+          leftIcon={<Download className="h-4 w-4" />}
           data-pdf-button
         >
           Download PDF
@@ -297,8 +300,8 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
       {/* Certificate - Landscape with LANA Branding */}
       <div
         ref={certificateRef}
-        className="w-full bg-white shadow-2xl relative overflow-hidden mx-auto border-4"
-        style={{ 
+        className="relative mx-auto w-full overflow-hidden border-4 bg-white shadow-2xl"
+        style={{
           aspectRatio: "297 / 210", // A4 landscape aspect ratio
           maxWidth: "297mm",
           minHeight: "210mm",
@@ -306,132 +309,144 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
         }}
       >
         {/* Top Border Accent */}
-        <div 
-          className="h-2 w-full"
-          style={{ backgroundColor: LANA_COLORS.primary }}
-        />
+        <div className="h-2 w-full" style={{ backgroundColor: LANA_COLORS.primary }} />
 
         {/* Certificate Number - Top Left Corner */}
-        <div className="absolute top-3 left-3 md:top-4 md:left-4 z-20">
+        <div className="absolute top-3 left-3 z-20 md:top-4 md:left-4">
           <div className="space-y-1">
             <p className="text-xs font-semibold" style={{ color: LANA_COLORS.primary }}>
               Certificate No.
             </p>
-            <p className="font-mono text-xs text-gray-700 break-all max-w-[120px] md:max-w-[150px]">
+            <p className="max-w-[120px] font-mono text-xs break-all text-gray-700 md:max-w-[150px]">
               {certificate.certificateNumber}
             </p>
           </div>
         </div>
 
         {/* QR Code - Top Right Corner */}
-        <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20">
+        <div className="absolute top-3 right-3 z-20 md:top-4 md:right-4">
           <div className="space-y-1">
-            <p className="text-xs font-semibold text-center" style={{ color: LANA_COLORS.primary }}>
+            <p className="text-center text-xs font-semibold" style={{ color: LANA_COLORS.primary }}>
               Verify
             </p>
             {qrCodeDataUrl ? (
-              <div 
-                className="p-1 rounded-lg border-2"
-                style={{ 
+              <div
+                className="rounded-lg border-2 p-1"
+                style={{
                   borderColor: LANA_COLORS.secondary,
-                  backgroundColor: "white"
+                  backgroundColor: "white",
                 }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={qrCodeDataUrl}
                   alt="Verification QR Code"
-                  className="w-16 h-16 md:w-20 md:h-20"
+                  className="h-16 w-16 md:h-20 md:w-20"
                 />
               </div>
             ) : (
-              <div 
-                className="w-16 h-16 md:w-20 md:h-20 rounded-lg border-2 flex items-center justify-center"
-                style={{ 
+              <div
+                className="flex h-16 w-16 items-center justify-center rounded-lg border-2 md:h-20 md:w-20"
+                style={{
                   borderColor: LANA_COLORS.secondary,
-                  backgroundColor: "white"
+                  backgroundColor: "white",
                 }}
               >
-                <div className="w-8 h-8 border-2 border-dashed rounded" style={{ borderColor: LANA_COLORS.secondary }} />
+                <div
+                  className="h-8 w-8 rounded border-2 border-dashed"
+                  style={{ borderColor: LANA_COLORS.secondary }}
+                />
               </div>
             )}
           </div>
         </div>
 
         {/* Decorative Background Elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 opacity-5 pointer-events-none">
-          <div 
-            className="w-full h-full rounded-full blur-3xl"
+        <div className="pointer-events-none absolute top-0 right-0 h-96 w-96 opacity-5">
+          <div
+            className="h-full w-full rounded-full blur-3xl"
             style={{ backgroundColor: LANA_COLORS.primary }}
           />
         </div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 opacity-5 pointer-events-none">
-          <div 
-            className="w-full h-full rounded-full blur-3xl"
+        <div className="pointer-events-none absolute bottom-0 left-0 h-96 w-96 opacity-5">
+          <div
+            className="h-full w-full rounded-full blur-3xl"
             style={{ backgroundColor: LANA_COLORS.secondary }}
           />
         </div>
 
         {/* Certificate Content - Optimized for Landscape */}
-        <div className="relative z-10 p-6 md:p-8 lg:p-10 flex flex-col" style={{ minHeight: "calc(210mm - 8px)" }}>
+        <div
+          className="relative z-10 flex flex-col p-6 md:p-8 lg:p-10"
+          style={{ minHeight: "calc(210mm - 8px)" }}
+        >
           {/* Header Section with LANA Logo */}
-          <div className="flex flex-col items-center space-y-4 pb-5 border-b-2 shrink-0" style={{ borderColor: LANA_COLORS.secondary }}>
+          <div
+            className="flex shrink-0 flex-col items-center space-y-4 border-b-2 pb-5"
+            style={{ borderColor: LANA_COLORS.secondary }}
+          >
             {/* LANA Logo */}
             <div className="flex items-center justify-center">
-              <div className="relative w-28 h-28 md:w-36 md:h-36 flex items-center justify-center">
+              <div className="relative flex h-28 w-28 items-center justify-center md:h-36 md:w-36">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/lana_logo.jpg"
                   alt="LANA Logo"
-                  className="max-w-full max-h-full object-contain"
+                  className="max-h-full max-w-full object-contain"
                 />
               </div>
             </div>
 
             {/* Certificate Title */}
-            <div className="text-center space-y-2">
-              <h1 
-                className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight"
+            <div className="space-y-2 text-center">
+              <h1
+                className="text-3xl font-bold tracking-tight md:text-4xl lg:text-5xl"
                 style={{ color: LANA_COLORS.primary }}
               >
                 Certificate of Completion
               </h1>
               <div className="flex items-center justify-center gap-3">
-                <div className="w-16 md:w-20 h-0.5" style={{ backgroundColor: LANA_COLORS.secondary }} />
-                <Award className="w-4 h-4 md:w-5 md:h-5" style={{ color: LANA_COLORS.primary }} />
-                <div className="w-16 md:w-20 h-0.5" style={{ backgroundColor: LANA_COLORS.secondary }} />
+                <div
+                  className="h-0.5 w-16 md:w-20"
+                  style={{ backgroundColor: LANA_COLORS.secondary }}
+                />
+                <Award className="h-4 w-4 md:h-5 md:w-5" style={{ color: LANA_COLORS.primary }} />
+                <div
+                  className="h-0.5 w-16 md:w-20"
+                  style={{ backgroundColor: LANA_COLORS.secondary }}
+                />
               </div>
             </div>
           </div>
 
           {/* Main Content Section - Centered */}
-          <div className="flex-1 flex flex-col justify-center items-center text-center space-y-5 py-4 min-h-0">
-            <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center space-y-5 py-4 text-center">
+            <p className="text-sm leading-relaxed text-gray-600 md:text-base">
               This is to certify that
             </p>
-            
+
             {/* Student Name - Prominent */}
             <div className="py-2">
-              <h2 
-                className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-wide"
+              <h2
+                className="text-2xl font-bold tracking-wide md:text-3xl lg:text-4xl"
                 style={{ color: LANA_COLORS.primary }}
               >
                 {certificate.user.name || certificate.user.email}
               </h2>
-              <div 
-                className="w-48 md:w-64 lg:w-80 h-1 mx-auto mt-3 rounded-full"
+              <div
+                className="mx-auto mt-3 h-1 w-48 rounded-full md:w-64 lg:w-80"
                 style={{ backgroundColor: LANA_COLORS.secondary }}
               />
             </div>
 
-            <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+            <p className="text-sm leading-relaxed text-gray-600 md:text-base">
               has successfully completed the online course
             </p>
 
             {/* Course Title */}
-            <div className="py-2 px-4 max-w-4xl">
-              <h3 
-                className="text-xl md:text-2xl lg:text-3xl font-semibold leading-tight"
+            <div className="max-w-4xl px-4 py-2">
+              <h3
+                className="text-xl leading-tight font-semibold md:text-2xl lg:text-3xl"
                 style={{ color: LANA_COLORS.foreground }}
               >
                 {certificate.course.title}
@@ -442,7 +457,7 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
             <div className="flex flex-col items-center gap-4 pt-4">
               {/* Performance Tier Label */}
               <div
-                className="px-6 py-2 rounded-full font-bold text-sm md:text-base border-2"
+                className="rounded-full border-2 px-6 py-2 text-sm font-bold md:text-base"
                 style={{
                   borderColor: performanceTier.color,
                   color: performanceTier.color,
@@ -455,59 +470,61 @@ export function CertificateView({ certificate, verificationUrl }: CertificateVie
 
             {/* Date Issued */}
             <div className="pt-2">
-              <p className="text-xs md:text-sm text-gray-600">
+              <p className="text-xs text-gray-600 md:text-sm">
                 Issued on <span className="font-semibold text-gray-800">{formattedDate}</span>
               </p>
             </div>
           </div>
 
           {/* Official Signatures Section */}
-          <div className="border-t-2 shrink-0 mt-auto" style={{ borderColor: LANA_COLORS.secondary }}>
+          <div
+            className="mt-auto shrink-0 border-t-2"
+            style={{ borderColor: LANA_COLORS.secondary }}
+          >
             <div className="grid grid-cols-2 gap-6 md:gap-8">
               {/* Ministry of Technical and Higher Education */}
-              <div className="text-center space-y-1.5">
-                <div 
-                  className="mt-8 border-b-2 mx-auto"
-                  style={{ 
+              <div className="space-y-1.5 text-center">
+                <div
+                  className="mx-auto mt-8 border-b-2"
+                  style={{
                     borderColor: LANA_COLORS.primary,
                     maxWidth: "180px",
-                    width: "100%"
+                    width: "100%",
                   }}
                 />
-                <p className="text-xs font-semibold leading-tight" style={{ color: LANA_COLORS.primary }}>
+                <p
+                  className="text-xs leading-tight font-semibold"
+                  style={{ color: LANA_COLORS.primary }}
+                >
                   Minister of Technical and Higher Education
                 </p>
-                <p className="text-xs text-gray-600">
-                  Republic of Sierra Leone
-                </p>
+                <p className="text-xs text-gray-600">Republic of Sierra Leone</p>
               </div>
 
               {/* Ministry of Communication and Technology Information */}
-              <div className="text-center space-y-1.5">
-                <div 
-                  className="mt-8 border-b-2 mx-auto mb-1.5"
-                  style={{ 
+              <div className="space-y-1.5 text-center">
+                <div
+                  className="mx-auto mt-8 mb-1.5 border-b-2"
+                  style={{
                     borderColor: LANA_COLORS.primary,
                     maxWidth: "180px",
-                    width: "100%"
+                    width: "100%",
                   }}
                 />
-                <p className="text-xs font-semibold leading-tight" style={{ color: LANA_COLORS.primary }}>
+                <p
+                  className="text-xs leading-tight font-semibold"
+                  style={{ color: LANA_COLORS.primary }}
+                >
                   Minister of Communication and Technology Information
                 </p>
-                <p className="text-xs text-gray-600">
-                  Republic of Sierra Leone
-                </p>
+                <p className="text-xs text-gray-600">Republic of Sierra Leone</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Bottom Border Accent */}
-        <div 
-          className="h-2 w-full"
-          style={{ backgroundColor: LANA_COLORS.primary }}
-        />
+        <div className="h-2 w-full" style={{ backgroundColor: LANA_COLORS.primary }} />
       </div>
     </div>
   );

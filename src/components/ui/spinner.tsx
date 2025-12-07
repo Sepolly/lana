@@ -45,14 +45,12 @@ interface LoadingOverlayProps {
   message?: string;
 }
 
-const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
-  message = "Loading...",
-}) => {
+const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ message = "Loading..." }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+    <div className="bg-background/80 fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm">
       <div className="flex flex-col items-center gap-4">
         <Spinner size="xl" />
-        <p className="text-lg font-medium text-foreground">{message}</p>
+        <p className="text-foreground text-lg font-medium">{message}</p>
       </div>
     </div>
   );
@@ -66,17 +64,14 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
-  (
-    { className, variant = "rectangular", width, height, style, ...props },
-    ref
-  ) => {
+  ({ className, variant = "rectangular", width, height, style, ...props }, ref) => {
     return (
       <div
         ref={ref}
         className={cn(
-          "animate-pulse bg-muted",
+          "bg-muted animate-pulse",
           variant === "circular" && "rounded-full",
-          variant === "text" && "rounded h-4",
+          variant === "text" && "h-4 rounded",
           variant === "rectangular" && "rounded-lg",
           className
         )}
@@ -94,4 +89,3 @@ const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
 Skeleton.displayName = "Skeleton";
 
 export { Spinner, LoadingOverlay, Skeleton };
-

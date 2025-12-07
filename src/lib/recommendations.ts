@@ -57,27 +57,27 @@ export interface HiringRole {
  */
 function buildProfileQuery(profile: AptitudeProfile): string {
   const parts: string[] = [];
-  
+
   if (profile.interests.length > 0) {
     parts.push(`Interests: ${profile.interests.join(", ")}`);
   }
-  
+
   if (profile.strengths.length > 0) {
     parts.push(`Strengths: ${profile.strengths.join(", ")}`);
   }
-  
+
   if (profile.goals && profile.goals.length > 0) {
     parts.push(`Goals: ${profile.goals.join(", ")}`);
   }
-  
+
   if (profile.education) {
     parts.push(`Education: ${profile.education}`);
   }
-  
+
   if (profile.learningStyle) {
     parts.push(`Learning style: ${profile.learningStyle}`);
   }
-  
+
   return parts.join(". ") || "Looking for career opportunities";
 }
 
@@ -92,17 +92,12 @@ export async function getCareerRecommendations(
   // Build query from profile
   const queryText = buildProfileQuery(profile);
   console.log("Profile query:", queryText);
-  
+
   // Generate embedding for semantic search
   const queryEmbedding = await generateEmbedding(queryText);
-  
+
   // Query Pinecone with userType: "Employed" filter
-  const results = await querySimilar(
-    queryEmbedding,
-    topK,
-    undefined,
-    { userType: "Employed" }
-  );
+  const results = await querySimilar(queryEmbedding, topK, undefined, { userType: "Employed" });
 
   console.log(`Found ${results.length} matching careers from Pinecone`);
 
@@ -115,7 +110,10 @@ export async function getCareerRecommendations(
     const skillsRaw = result.metadata?.skills as string | string[] | undefined;
     let skills: string[] = [];
     if (typeof skillsRaw === "string") {
-      skills = skillsRaw.split(",").map((s) => s.trim()).filter(Boolean);
+      skills = skillsRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     } else if (Array.isArray(skillsRaw)) {
       skills = skillsRaw;
     }
@@ -132,7 +130,7 @@ export async function getCareerRecommendations(
 
   // Use AI to analyze and enrich the career recommendations
   const enrichedCareers = await analyzeCareerMatches(profile, careers);
-  
+
   return enrichedCareers;
 }
 
@@ -186,8 +184,11 @@ Return ONLY valid JSON.`;
 
   try {
     const response = await chatCompletion([
-      { role: "system", content: "You are a career counselor AI. Always respond with valid JSON only." },
-      { role: "user", content: prompt }
+      {
+        role: "system",
+        content: "You are a career counselor AI. Always respond with valid JSON only.",
+      },
+      { role: "user", content: prompt },
     ]);
 
     // Parse response
@@ -197,7 +198,7 @@ Return ONLY valid JSON.`;
       .trim();
 
     const parsed = JSON.parse(cleanedResponse);
-    
+
     if (!parsed.careers || !Array.isArray(parsed.careers)) {
       throw new Error("Invalid AI response structure");
     }
@@ -217,7 +218,7 @@ Return ONLY valid JSON.`;
     }));
   } catch (error) {
     console.error("AI analysis failed:", error);
-    
+
     // If AI fails, use Pinecone scores directly (no hardcoded fallback)
     return careers.map((c) => ({
       id: c.id,
@@ -244,23 +245,21 @@ export async function getHiringRoles(
 ): Promise<HiringRole[]> {
   // Build query from company profile
   const queryText = `Hiring for roles requiring ${companyProfile.skills?.join(", ") || "various skills"} in ${companyProfile.industry || "any industry"}`;
-  
+
   // Generate embedding
   const queryEmbedding = await generateEmbedding(queryText);
-  
+
   // Query Pinecone for employer data
-  const results = await querySimilar(
-    queryEmbedding,
-    topK,
-    undefined,
-    { userType: "Employer" }
-  );
+  const results = await querySimilar(queryEmbedding, topK, undefined, { userType: "Employer" });
 
   return results.map((result) => {
     const hiringRolesRaw = result.metadata?.hiringRoles as string | string[] | undefined;
     let hiringRoles: string[] = [];
     if (typeof hiringRolesRaw === "string") {
-      hiringRoles = hiringRolesRaw.split(",").map((r) => r.trim()).filter(Boolean);
+      hiringRoles = hiringRolesRaw
+        .split(",")
+        .map((r) => r.trim())
+        .filter(Boolean);
     } else if (Array.isArray(hiringRolesRaw)) {
       hiringRoles = hiringRolesRaw;
     }
@@ -268,7 +267,10 @@ export async function getHiringRoles(
     const skillsRaw = result.metadata?.skills as string | string[] | undefined;
     let skills: string[] = [];
     if (typeof skillsRaw === "string") {
-      skills = skillsRaw.split(",").map((s) => s.trim()).filter(Boolean);
+      skills = skillsRaw
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
     } else if (Array.isArray(skillsRaw)) {
       skills = skillsRaw;
     }
@@ -296,10 +298,10 @@ export async function getCourseRecommendations(
   topK: number = 6
 ): Promise<CourseRecommendation[]> {
   // Build query
-  const queryText = careerPath 
+  const queryText = careerPath
     ? `Courses for ${careerPath} career with ${profile.interests.join(", ")} interests`
     : buildProfileQuery(profile);
-  
+
   // Generate embedding
   const queryEmbedding = await generateEmbedding(queryText);
 
@@ -308,12 +310,7 @@ export async function getCourseRecommendations(
     filter.careerPath = careerPath;
   }
 
-  const results = await querySimilar(
-    queryEmbedding,
-    topK,
-    "courses",
-    filter
-  );
+  const results = await querySimilar(queryEmbedding, topK, "courses", filter);
 
   return results.map((result) => ({
     id: result.id,
@@ -356,7 +353,7 @@ export async function generateRecommendations(
 
   // For job seekers - pure RAG recommendations
   const careers = await getCareerRecommendations(profile);
-  
+
   // Get courses based on top career match
   let courses: CourseRecommendation[] = [];
   if (careers.length > 0) {

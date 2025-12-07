@@ -9,7 +9,7 @@ export default function VerifyPage() {
   const router = useRouter();
   const [certificateNumber, setCertificateNumber] = React.useState("");
   const [isScanning, setIsScanning] = React.useState(false);
-  const scannerRef = React.useRef<any>(null);
+  const scannerRef = React.useRef<{ stop: () => Promise<void> } | null>(null);
   const [scanError, setScanError] = React.useState<string | null>(null);
 
   const handleManualVerify = () => {
@@ -38,7 +38,7 @@ export default function VerifyPage() {
           // Extract certificate number from URL if it's a full URL
           const match = decodedText.match(/\/verify\/([^\/]+)/);
           const certNumber = match ? match[1] : decodedText;
-          
+
           stopScanning();
           router.push(`/verify/${certNumber}`);
         },
@@ -77,13 +77,14 @@ export default function VerifyPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-muted/30 py-8">
-      <div className="max-w-2xl mx-auto px-4 space-y-6">
+    <div className="bg-muted/30 min-h-screen py-8">
+      <div className="mx-auto max-w-2xl space-y-6 px-4">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Verify Certificate</h1>
+          <h1 className="text-foreground mb-2 text-3xl font-bold">Verify Certificate</h1>
           <p className="text-muted-foreground">
-            Verify the authenticity of a certificate by scanning the QR code or entering the certificate number
+            Verify the authenticity of a certificate by scanning the QR code or entering the
+            certificate number
           </p>
         </div>
 
@@ -91,7 +92,7 @@ export default function VerifyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Search className="w-5 h-5 text-primary" />
+              <Search className="text-primary h-5 w-5" />
               Enter Certificate Number
             </CardTitle>
           </CardHeader>
@@ -118,20 +119,20 @@ export default function VerifyPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <QrCode className="w-5 h-5 text-primary" />
+              <QrCode className="text-primary h-5 w-5" />
               Scan QR Code
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {!isScanning ? (
-              <div className="text-center py-8">
-                <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <QrCode className="w-12 h-12 text-primary" />
+              <div className="py-8 text-center">
+                <div className="bg-primary/10 mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full">
+                  <QrCode className="text-primary h-12 w-12" />
                 </div>
                 <p className="text-muted-foreground mb-4">
                   Click the button below to start scanning the QR code on the certificate
                 </p>
-                <Button onClick={startScanning} leftIcon={<QrCode className="w-4 h-4" />}>
+                <Button onClick={startScanning} leftIcon={<QrCode className="h-4 w-4" />}>
                   Start Scanning
                 </Button>
               </div>
@@ -139,8 +140,8 @@ export default function VerifyPage() {
               <div className="space-y-4">
                 <div id="qr-reader" className="w-full" />
                 {scanError && (
-                  <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                    <p className="text-sm text-destructive">{scanError}</p>
+                  <div className="bg-destructive/10 border-destructive/20 rounded-lg border p-3">
+                    <p className="text-destructive text-sm">{scanError}</p>
                   </div>
                 )}
                 <Button onClick={stopScanning} variant="outline" fullWidth>
@@ -155,16 +156,19 @@ export default function VerifyPage() {
         <Card className="bg-tertiary/30">
           <CardContent className="py-6">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-primary" />
+              <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
+                <Shield className="text-primary h-6 w-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2">About Certificate Verification</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="text-foreground mb-2 font-semibold">
+                  About Certificate Verification
+                </h3>
+                <p className="text-muted-foreground text-sm">
                   All certificates issued by LANA are verified and authenticated. You can verify any
                   certificate by scanning its QR code or entering the certificate number. Verified
                   certificates are recognized by the Ministry of Technical and Higher Education and
-                  the Ministry of Communication and Technology Information, Republic of Sierra Leone.
+                  the Ministry of Communication and Technology Information, Republic of Sierra
+                  Leone.
                 </p>
               </div>
             </div>
@@ -174,4 +178,3 @@ export default function VerifyPage() {
     </div>
   );
 }
-

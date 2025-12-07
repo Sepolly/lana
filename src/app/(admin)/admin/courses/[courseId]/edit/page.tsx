@@ -2,7 +2,18 @@
 
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, Dialog, ConfirmDialog, useErrorToast, useSuccessToast } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  Dialog,
+  ConfirmDialog,
+  useErrorToast,
+  useSuccessToast,
+} from "@/components/ui";
 import {
   Plus,
   Save,
@@ -71,14 +82,16 @@ export default function EditCoursePage() {
   const successToast = useSuccessToast();
   const [showAIGenerateDialog, setShowAIGenerateDialog] = React.useState(false);
   const [isGeneratingTopics, setIsGeneratingTopics] = React.useState(false);
-  const [generatedTopics, setGeneratedTopics] = React.useState<Array<{
-    title: string;
-    description: string;
-    section: string;
-    sectionOrder: number;
-    order: number;
-    duration: number;
-  }>>([]);
+  const [generatedTopics, setGeneratedTopics] = React.useState<
+    Array<{
+      title: string;
+      description: string;
+      section: string;
+      sectionOrder: number;
+      order: number;
+      duration: number;
+    }>
+  >([]);
   const [numTopicsToGenerate, setNumTopicsToGenerate] = React.useState(20);
   const [isSavingGeneratedTopics, setIsSavingGeneratedTopics] = React.useState(false);
   const [courseFormData, setCourseFormData] = React.useState({
@@ -129,7 +142,7 @@ export default function EditCoursePage() {
   // Group topics by section and order sections by creation order (minimum order value in section)
   const groupedTopics = React.useMemo(() => {
     if (!course) return new Map<string, Topic[]>();
-    
+
     const groups = new Map<string, Topic[]>();
     course.topics.forEach((topic) => {
       const section = topic.section || "Uncategorized";
@@ -146,11 +159,13 @@ export default function EditCoursePage() {
 
     // Sort sections by the minimum order value of topics in each section (creation order)
     const sortedGroups = new Map<string, Topic[]>();
-    const sectionEntries = Array.from(groups.entries()).sort(([sectionA, topicsA], [sectionB, topicsB]) => {
-      const minOrderA = Math.min(...topicsA.map(t => t.order));
-      const minOrderB = Math.min(...topicsB.map(t => t.order));
-      return minOrderA - minOrderB;
-    });
+    const sectionEntries = Array.from(groups.entries()).sort(
+      ([sectionA, topicsA], [sectionB, topicsB]) => {
+        const minOrderA = Math.min(...topicsA.map((t) => t.order));
+        const minOrderB = Math.min(...topicsB.map((t) => t.order));
+        return minOrderA - minOrderB;
+      }
+    );
 
     sectionEntries.forEach(([section, topics]) => {
       sortedGroups.set(section, topics);
@@ -245,7 +260,9 @@ export default function EditCoursePage() {
               }
               return (a.sectionOrder || a.order) - (b.sectionOrder || b.order);
             }),
-            duration: data.topic.duration ? Math.ceil((prev.duration * 60 + data.topic.duration) / 60) : prev.duration,
+            duration: data.topic.duration
+              ? Math.ceil((prev.duration * 60 + data.topic.duration) / 60)
+              : prev.duration,
           };
         });
 
@@ -287,33 +304,40 @@ export default function EditCoursePage() {
         setCourse((prev) => {
           if (!prev) return prev;
           // Use the updated topic from the API response if available, otherwise merge updates
-          const updatedTopic = data.topic ? {
-            id: data.topic.id,
-            title: data.topic.title,
-            description: data.topic.description,
-            order: data.topic.order,
-            section: data.topic.section,
-            sectionOrder: data.topic.sectionOrder,
-            duration: data.topic.duration,
-            videoUrl: data.topic.videoUrl,
-            pdfUrl: data.topic.pdfUrl,
-            textContent: data.topic.textContent,
-            interactiveUrl: data.topic.interactiveUrl,
-          } : {
-            ...prev.topics.find(t => t.id === topicId)!,
-            ...updates,
-            section: updates.section ?? prev.topics.find(t => t.id === topicId)!.section,
-            sectionOrder: updates.sectionOrder ?? prev.topics.find(t => t.id === topicId)!.sectionOrder,
-          };
-          
+          const updatedTopic = data.topic
+            ? {
+                id: data.topic.id,
+                title: data.topic.title,
+                description: data.topic.description,
+                order: data.topic.order,
+                section: data.topic.section,
+                sectionOrder: data.topic.sectionOrder,
+                duration: data.topic.duration,
+                videoUrl: data.topic.videoUrl,
+                pdfUrl: data.topic.pdfUrl,
+                textContent: data.topic.textContent,
+                interactiveUrl: data.topic.interactiveUrl,
+              }
+            : {
+                ...prev.topics.find((t) => t.id === topicId)!,
+                ...updates,
+                section: updates.section ?? prev.topics.find((t) => t.id === topicId)!.section,
+                sectionOrder:
+                  updates.sectionOrder ?? prev.topics.find((t) => t.id === topicId)!.sectionOrder,
+              };
+
           return {
             ...prev,
-            topics: prev.topics.map((t) =>
-              t.id === topicId ? updatedTopic : t
-            ),
-            duration: data.topic ? Math.ceil(
-              prev.topics.reduce((sum, t) => sum + (t.id === topicId ? (data.topic.duration || t.duration) : t.duration), 0) / 60
-            ) : prev.duration,
+            topics: prev.topics.map((t) => (t.id === topicId ? updatedTopic : t)),
+            duration: data.topic
+              ? Math.ceil(
+                  prev.topics.reduce(
+                    (sum, t) =>
+                      sum + (t.id === topicId ? data.topic.duration || t.duration : t.duration),
+                    0
+                  ) / 60
+                )
+              : prev.duration,
           };
         });
         // Don't close the editor - preserve state
@@ -356,9 +380,9 @@ export default function EditCoursePage() {
           return {
             ...prev,
             topics: prev.topics.filter((t) => t.id !== topicToDelete),
-            duration: topic ? Math.ceil(
-              Math.max(0, (prev.duration * 60 - topic.duration) / 60)
-            ) : prev.duration,
+            duration: topic
+              ? Math.ceil(Math.max(0, (prev.duration * 60 - topic.duration) / 60))
+              : prev.duration,
           };
         });
         setShowDeleteTopicDialog(null);
@@ -482,7 +506,7 @@ export default function EditCoursePage() {
     try {
       // Save topics one by one
       const savedTopics: Topic[] = [];
-      
+
       for (const topicData of generatedTopics) {
         const response = await fetch(`/api/admin/courses/${courseId}/topics`, {
           method: "POST",
@@ -534,7 +558,7 @@ export default function EditCoursePage() {
       });
 
       // Expand all sections
-      const newSections = new Set<string>(generatedTopics.map(t => t.section));
+      const newSections = new Set<string>(generatedTopics.map((t) => t.section));
       setExpandedSections((prev) => new Set([...prev, ...newSections]));
 
       setShowAIGenerateDialog(false);
@@ -556,7 +580,7 @@ export default function EditCoursePage() {
     try {
       const endpoint = course.isPublished ? "unpublish" : "publish";
       const method = course.isPublished ? "DELETE" : "POST";
-      
+
       const response = await fetch(`/api/admin/courses/${courseId}/${endpoint}`, {
         method,
       });
@@ -574,7 +598,9 @@ export default function EditCoursePage() {
         });
         successToast(
           course.isPublished ? "Course Unpublished" : "Course Published",
-          course.isPublished ? "Course has been unpublished" : "Course has been published successfully"
+          course.isPublished
+            ? "Course has been unpublished"
+            : "Course has been published successfully"
         );
       } else {
         errorToast("Failed to Update Course", data.error || "Unknown error");
@@ -589,15 +615,15 @@ export default function EditCoursePage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="text-center py-12">
+      <div className="py-12 text-center">
         <p className="text-muted-foreground">Course not found</p>
         <Link href="/admin/courses">
           <Button className="mt-4">Back to Courses</Button>
@@ -613,11 +639,11 @@ export default function EditCoursePage() {
         <div className="flex items-center gap-4">
           <Link href="/admin/courses">
             <Button variant="ghost" size="icon">
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">{course.title}</h1>
+            <h1 className="text-foreground text-3xl font-bold">{course.title}</h1>
             <p className="text-muted-foreground mt-1">
               {course.careerPaths.join(", ")} • {course.topics.length} topics
             </p>
@@ -628,7 +654,9 @@ export default function EditCoursePage() {
             onClick={handlePublish}
             disabled={isSaving}
             variant={course.isPublished ? "outline" : "primary"}
-            leftIcon={course.isPublished ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            leftIcon={
+              course.isPublished ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />
+            }
           >
             {isSaving ? "Saving..." : course.isPublished ? "Unpublish" : "Publish"}
           </Button>
@@ -641,12 +669,22 @@ export default function EditCoursePage() {
           <div className="flex items-center justify-between">
             <CardTitle>Course Information</CardTitle>
             {!editingCourse ? (
-              <Button onClick={() => setEditingCourse(true)} variant="outline" size="sm" leftIcon={<Edit2 className="w-4 h-4" />}>
+              <Button
+                onClick={() => setEditingCourse(true)}
+                variant="outline"
+                size="sm"
+                leftIcon={<Edit2 className="h-4 w-4" />}
+              >
                 Edit
               </Button>
             ) : (
               <div className="flex gap-2">
-                <Button onClick={handleUpdateCourse} disabled={isSaving} size="sm" leftIcon={<Save className="w-4 h-4" />}>
+                <Button
+                  onClick={handleUpdateCourse}
+                  disabled={isSaving}
+                  size="sm"
+                  leftIcon={<Save className="h-4 w-4" />}
+                >
                   {isSaving ? "Saving..." : "Save"}
                 </Button>
                 <Button
@@ -665,7 +703,7 @@ export default function EditCoursePage() {
                   }}
                   variant="outline"
                   size="sm"
-                  leftIcon={<X className="w-4 h-4" />}
+                  leftIcon={<X className="h-4 w-4" />}
                 >
                   Cancel
                 </Button>
@@ -677,7 +715,7 @@ export default function EditCoursePage() {
           {editingCourse ? (
             <>
               <div>
-                <label className="text-sm font-medium text-foreground">Title *</label>
+                <label className="text-foreground text-sm font-medium">Title *</label>
                 <Input
                   value={courseFormData.title}
                   onChange={(e) => setCourseFormData({ ...courseFormData, title: e.target.value })}
@@ -686,18 +724,20 @@ export default function EditCoursePage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Description *</label>
+                <label className="text-foreground text-sm font-medium">Description *</label>
                 <textarea
                   value={courseFormData.description}
-                  onChange={(e) => setCourseFormData({ ...courseFormData, description: e.target.value })}
-                  className="w-full mt-1 p-2 border border-border rounded-lg resize-none"
+                  onChange={(e) =>
+                    setCourseFormData({ ...courseFormData, description: e.target.value })
+                  }
+                  className="border-border mt-1 w-full resize-none rounded-lg border p-2"
                   rows={4}
                   placeholder="Course description"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground">Level</label>
+                  <label className="text-foreground text-sm font-medium">Level</label>
                   <select
                     value={courseFormData.level}
                     onChange={(e) =>
@@ -706,7 +746,7 @@ export default function EditCoursePage() {
                         level: e.target.value as "BEGINNER" | "INTERMEDIATE" | "ADVANCED",
                       })
                     }
-                    className="w-full mt-1 p-2 border border-border rounded-lg"
+                    className="border-border mt-1 w-full rounded-lg border p-2"
                   >
                     <option value="BEGINNER">Beginner</option>
                     <option value="INTERMEDIATE">Intermediate</option>
@@ -714,13 +754,15 @@ export default function EditCoursePage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Duration</label>
-                  <p className="text-muted-foreground mt-1">{course.duration} hours (calculated from topics)</p>
+                  <label className="text-foreground text-sm font-medium">Duration</label>
+                  <p className="text-muted-foreground mt-1">
+                    {course.duration} hours (calculated from topics)
+                  </p>
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Skills</label>
-                <div className="flex gap-2 mt-1">
+                <label className="text-foreground text-sm font-medium">Skills</label>
+                <div className="mt-1 flex gap-2">
                   <Input
                     value={newSkill}
                     onChange={(e) => setNewSkill(e.target.value)}
@@ -728,16 +770,20 @@ export default function EditCoursePage() {
                     placeholder="Add skill"
                     className="flex-1"
                   />
-                  <Button onClick={handleAddSkill} size="sm" leftIcon={<Plus className="w-4 h-4" />}>
+                  <Button
+                    onClick={handleAddSkill}
+                    size="sm"
+                    leftIcon={<Plus className="h-4 w-4" />}
+                  >
                     Add
                   </Button>
                 </div>
                 {courseFormData.skills.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {courseFormData.skills.map((skill, idx) => (
                       <span
                         key={idx}
-                        className="text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground flex items-center gap-1"
+                        className="bg-secondary text-secondary-foreground flex items-center gap-1 rounded-full px-2 py-1 text-xs"
                       >
                         {skill}
                         <button
@@ -745,7 +791,7 @@ export default function EditCoursePage() {
                           className="hover:text-destructive"
                           type="button"
                         >
-                          <X className="w-3 h-3" />
+                          <X className="h-3 w-3" />
                         </button>
                       </span>
                     ))}
@@ -753,8 +799,8 @@ export default function EditCoursePage() {
                 )}
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Career Paths</label>
-                <div className="flex gap-2 mt-1">
+                <label className="text-foreground text-sm font-medium">Career Paths</label>
+                <div className="mt-1 flex gap-2">
                   <Input
                     value={newCareerPath}
                     onChange={(e) => setNewCareerPath(e.target.value)}
@@ -762,16 +808,20 @@ export default function EditCoursePage() {
                     placeholder="Add career path"
                     className="flex-1"
                   />
-                  <Button onClick={handleAddCareerPath} size="sm" leftIcon={<Plus className="w-4 h-4" />}>
+                  <Button
+                    onClick={handleAddCareerPath}
+                    size="sm"
+                    leftIcon={<Plus className="h-4 w-4" />}
+                  >
                     Add
                   </Button>
                 </div>
                 {courseFormData.careerPaths.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {courseFormData.careerPaths.map((path, idx) => (
                       <span
                         key={idx}
-                        className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary flex items-center gap-1"
+                        className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2 py-1 text-xs"
                       >
                         {path}
                         <button
@@ -779,7 +829,7 @@ export default function EditCoursePage() {
                           className="hover:text-destructive"
                           type="button"
                         >
-                          <X className="w-3 h-3" />
+                          <X className="h-3 w-3" />
                         </button>
                       </span>
                     ))}
@@ -790,27 +840,27 @@ export default function EditCoursePage() {
           ) : (
             <>
               <div>
-                <label className="text-sm font-medium text-foreground">Description</label>
+                <label className="text-foreground text-sm font-medium">Description</label>
                 <p className="text-muted-foreground mt-1">{course.description}</p>
               </div>
               <div className="flex gap-4">
                 <div>
-                  <label className="text-sm font-medium text-foreground">Level</label>
+                  <label className="text-foreground text-sm font-medium">Level</label>
                   <p className="text-muted-foreground mt-1">{course.level}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-foreground">Duration</label>
+                  <label className="text-foreground text-sm font-medium">Duration</label>
                   <p className="text-muted-foreground mt-1">{course.duration} hours</p>
                 </div>
               </div>
               {course.skills.length > 0 && (
                 <div>
-                  <label className="text-sm font-medium text-foreground">Skills</label>
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <label className="text-foreground text-sm font-medium">Skills</label>
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {course.skills.map((skill, idx) => (
                       <span
                         key={idx}
-                        className="text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground"
+                        className="bg-secondary text-secondary-foreground rounded-full px-2 py-1 text-xs"
                       >
                         {skill}
                       </span>
@@ -820,12 +870,12 @@ export default function EditCoursePage() {
               )}
               {course.careerPaths.length > 0 && (
                 <div>
-                  <label className="text-sm font-medium text-foreground">Career Paths</label>
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <label className="text-foreground text-sm font-medium">Career Paths</label>
+                  <div className="mt-2 flex flex-wrap gap-2">
                     {course.careerPaths.map((path, idx) => (
                       <span
                         key={idx}
-                        className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary"
+                        className="bg-primary/10 text-primary rounded-full px-2 py-1 text-xs"
                       >
                         {path}
                       </span>
@@ -844,11 +894,11 @@ export default function EditCoursePage() {
           <div className="flex items-center justify-between">
             <CardTitle>Sections & Topics</CardTitle>
             <div className="flex gap-2">
-              <Button 
-                onClick={() => setShowAIGenerateDialog(true)} 
-                size="sm" 
-                variant="primary" 
-                leftIcon={<Sparkles className="w-4 h-4" />}
+              <Button
+                onClick={() => setShowAIGenerateDialog(true)}
+                size="sm"
+                variant="primary"
+                leftIcon={<Sparkles className="h-4 w-4" />}
               >
                 Generate with AI
               </Button>
@@ -859,10 +909,15 @@ export default function EditCoursePage() {
                 onKeyPress={(e) => e.key === "Enter" && handleAddSection()}
                 className="w-48"
               />
-              <Button onClick={handleAddSection} size="sm" leftIcon={<Plus className="w-4 h-4" />}>
+              <Button onClick={handleAddSection} size="sm" leftIcon={<Plus className="h-4 w-4" />}>
                 Add Section
               </Button>
-              <Button onClick={() => handleAddTopic()} size="sm" variant="outline" leftIcon={<Plus className="w-4 h-4" />}>
+              <Button
+                onClick={() => handleAddTopic()}
+                size="sm"
+                variant="outline"
+                leftIcon={<Plus className="h-4 w-4" />}
+              >
                 Add Topic
               </Button>
             </div>
@@ -875,23 +930,23 @@ export default function EditCoursePage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => toggleSection(section)}
-                  className="flex-1 flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors text-left"
+                  className="bg-muted/50 hover:bg-muted flex flex-1 items-center justify-between rounded-lg p-3 text-left transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     {expandedSections.has(section) ? (
-                      <ChevronDown className="w-4 h-4" />
+                      <ChevronDown className="h-4 w-4" />
                     ) : (
-                      <ChevronUp className="w-4 h-4" />
+                      <ChevronUp className="h-4 w-4" />
                     )}
-                    <h3 className="font-semibold text-foreground">{section}</h3>
-                    <span className="text-sm text-muted-foreground">({topics.length} topics)</span>
+                    <h3 className="text-foreground font-semibold">{section}</h3>
+                    <span className="text-muted-foreground text-sm">({topics.length} topics)</span>
                   </div>
                 </button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => handleAddTopic(section)}
-                  leftIcon={<Plus className="w-3 h-3" />}
+                  leftIcon={<Plus className="h-3 w-3" />}
                 >
                   Add Topic
                 </Button>
@@ -918,9 +973,9 @@ export default function EditCoursePage() {
           ))}
 
           {groupedTopics.size === 0 && (
-            <div className="text-center py-12">
+            <div className="py-12 text-center">
               <p className="text-muted-foreground mb-4">No topics yet</p>
-              <Button onClick={() => handleAddTopic()} leftIcon={<Plus className="w-4 h-4" />}>
+              <Button onClick={() => handleAddTopic()} leftIcon={<Plus className="h-4 w-4" />}>
                 Add First Topic
               </Button>
             </div>
@@ -943,7 +998,7 @@ export default function EditCoursePage() {
           {generatedTopics.length === 0 ? (
             <>
               <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
+                <label className="text-foreground mb-2 block text-sm font-medium">
                   Number of Topics to Generate
                 </label>
                 <Input
@@ -954,7 +1009,7 @@ export default function EditCoursePage() {
                   onChange={(e) => setNumTopicsToGenerate(parseInt(e.target.value) || 20)}
                   className="w-full"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1 text-xs">
                   Recommended: 20-25 topics for a comprehensive course
                 </p>
               </div>
@@ -962,7 +1017,13 @@ export default function EditCoursePage() {
                 onClick={handleGenerateTopics}
                 disabled={isGeneratingTopics}
                 className="w-full"
-                leftIcon={isGeneratingTopics ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                leftIcon={
+                  isGeneratingTopics ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )
+                }
               >
                 {isGeneratingTopics ? "Generating Topics..." : "Generate Topics"}
               </Button>
@@ -971,8 +1032,9 @@ export default function EditCoursePage() {
             <>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">
-                    Review and customize the generated topics before saving. You can edit titles, descriptions, sections, and durations.
+                  <p className="text-muted-foreground text-sm">
+                    Review and customize the generated topics before saving. You can edit titles,
+                    descriptions, sections, and durations.
                   </p>
                   <Button
                     variant="outline"
@@ -989,11 +1051,20 @@ export default function EditCoursePage() {
                 {/* Group topics by section */}
                 {Array.from(
                   new Map(
-                    generatedTopics.map((t) => [t.section, generatedTopics.filter((topic) => topic.section === t.section)])
+                    generatedTopics.map((t) => [
+                      t.section,
+                      generatedTopics.filter((topic) => topic.section === t.section),
+                    ])
                   ).entries()
                 )
                   .sort(([a], [b]) => {
-                    const order = ["Introduction & Foundations", "Core Fundamentals", "Intermediate Skills", "Advanced & Professional", "Career Launch"];
+                    const order = [
+                      "Introduction & Foundations",
+                      "Core Fundamentals",
+                      "Intermediate Skills",
+                      "Advanced & Professional",
+                      "Career Launch",
+                    ];
                     const aIndex = order.indexOf(a);
                     const bIndex = order.indexOf(b);
                     if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
@@ -1002,19 +1073,25 @@ export default function EditCoursePage() {
                     return aIndex - bIndex;
                   })
                   .map(([section, topics]) => (
-                    <div key={section} className="border border-border rounded-lg p-4 space-y-3">
-                      <h3 className="font-semibold text-foreground text-lg">{section}</h3>
+                    <div key={section} className="border-border space-y-3 rounded-lg border p-4">
+                      <h3 className="text-foreground text-lg font-semibold">{section}</h3>
                       <div className="space-y-3">
                         {topics
                           .sort((a, b) => a.sectionOrder - b.sectionOrder)
                           .map((topic, topicIdx) => {
                             // Find the global index of this topic in generatedTopics array
                             const globalIndex = generatedTopics.findIndex(
-                              (t) => t.section === topic.section && t.sectionOrder === topic.sectionOrder && t.order === topic.order
+                              (t) =>
+                                t.section === topic.section &&
+                                t.sectionOrder === topic.sectionOrder &&
+                                t.order === topic.order
                             );
-                            
+
                             return (
-                              <div key={`${topic.section}-${topic.sectionOrder}-${topic.order}`} className="bg-muted/50 rounded-lg p-4 space-y-2">
+                              <div
+                                key={`${topic.section}-${topic.sectionOrder}-${topic.order}`}
+                                className="bg-muted/50 space-y-2 rounded-lg p-4"
+                              >
                                 <div className="flex items-start justify-between gap-4">
                                   <div className="flex-1 space-y-2">
                                     <Input
@@ -1037,7 +1114,7 @@ export default function EditCoursePage() {
                                           setGeneratedTopics(updated);
                                         }
                                       }}
-                                      className="w-full p-2 border border-border rounded-lg resize-none text-sm"
+                                      className="border-border w-full resize-none rounded-lg border p-2 text-sm"
                                       rows={2}
                                     />
                                   </div>
@@ -1050,23 +1127,26 @@ export default function EditCoursePage() {
                                       onChange={(e) => {
                                         const updated = [...generatedTopics];
                                         if (globalIndex !== -1) {
-                                          updated[globalIndex].duration = parseInt(e.target.value) || 30;
+                                          updated[globalIndex].duration =
+                                            parseInt(e.target.value) || 30;
                                           setGeneratedTopics(updated);
                                         }
                                       }}
                                       className="w-20"
                                     />
-                                    <span className="text-xs text-muted-foreground">min</span>
+                                    <span className="text-muted-foreground text-xs">min</span>
                                     <Button
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => {
                                         if (globalIndex !== -1) {
-                                          setGeneratedTopics(generatedTopics.filter((_, idx) => idx !== globalIndex));
+                                          setGeneratedTopics(
+                                            generatedTopics.filter((_, idx) => idx !== globalIndex)
+                                          );
                                         }
                                       }}
                                     >
-                                      <Trash2 className="w-4 h-4 text-destructive" />
+                                      <Trash2 className="text-destructive h-4 w-4" />
                                     </Button>
                                   </div>
                                 </div>
@@ -1078,7 +1158,7 @@ export default function EditCoursePage() {
                   ))}
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+              <div className="border-border flex items-center justify-end gap-3 border-t pt-4">
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -1092,9 +1172,17 @@ export default function EditCoursePage() {
                 <Button
                   onClick={handleSaveGeneratedTopics}
                   disabled={isSavingGeneratedTopics || generatedTopics.length === 0}
-                  leftIcon={isSavingGeneratedTopics ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  leftIcon={
+                    isSavingGeneratedTopics ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )
+                  }
                 >
-                  {isSavingGeneratedTopics ? `Saving ${generatedTopics.length} Topics...` : `Save ${generatedTopics.length} Topics`}
+                  {isSavingGeneratedTopics
+                    ? `Saving ${generatedTopics.length} Topics...`
+                    : `Save ${generatedTopics.length} Topics`}
                 </Button>
               </div>
             </>
@@ -1114,7 +1202,7 @@ export default function EditCoursePage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-foreground">Section Name</label>
+            <label className="text-foreground text-sm font-medium">Section Name</label>
             <Input
               value={newTopicData.section}
               onChange={(e) => setNewTopicData({ ...newTopicData, section: e.target.value })}
@@ -1123,7 +1211,7 @@ export default function EditCoursePage() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground">Topic Title *</label>
+            <label className="text-foreground text-sm font-medium">Topic Title *</label>
             <Input
               value={newTopicData.title}
               onChange={(e) => setNewTopicData({ ...newTopicData, title: e.target.value })}
@@ -1132,7 +1220,7 @@ export default function EditCoursePage() {
               required
             />
           </div>
-          <div className="flex items-center justify-end gap-3 mt-6">
+          <div className="mt-6 flex items-center justify-end gap-3">
             <Button
               variant="outline"
               onClick={() => {
@@ -1182,7 +1270,15 @@ interface TopicEditorProps {
   onDelete: () => void;
 }
 
-function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, onSave, onDelete }: TopicEditorProps) {
+function TopicEditor({
+  topic,
+  isEditing,
+  isUpdating = false,
+  onEdit,
+  onCancel,
+  onSave,
+  onDelete,
+}: TopicEditorProps) {
   const [formData, setFormData] = React.useState({
     title: topic.title,
     description: topic.description || "",
@@ -1212,7 +1308,18 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
     });
     // Reset previous URL ref when topic changes
     previousVideoUrlRef.current = topic.videoUrl || "";
-  }, [topic.id, topic.title, topic.description, topic.section, topic.sectionOrder, topic.duration, topic.videoUrl, topic.pdfUrl, topic.textContent, topic.interactiveUrl]);
+  }, [
+    topic.id,
+    topic.title,
+    topic.description,
+    topic.section,
+    topic.sectionOrder,
+    topic.duration,
+    topic.videoUrl,
+    topic.pdfUrl,
+    topic.textContent,
+    topic.interactiveUrl,
+  ]);
 
   // Track previous video URL to avoid refetching
   const previousVideoUrlRef = React.useRef<string>(topic.videoUrl || "");
@@ -1220,7 +1327,8 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
   // Fetch YouTube video info when URL is pasted/changed
   const fetchVideoInfo = React.useCallback(async (url: string) => {
     // Check if it's a YouTube URL and different from previous
-    const youtubeRegex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&?\s]+)/;
+    const youtubeRegex =
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&?\s]+)/;
     if (!youtubeRegex.test(url) || url === previousVideoUrlRef.current) {
       return; // Not a YouTube URL or same URL, skip
     }
@@ -1297,10 +1405,10 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
 
   if (isEditing) {
     return (
-      <Card className="border-2 border-primary">
-        <CardContent className="pt-6 space-y-4">
+      <Card className="border-primary border-2">
+        <CardContent className="space-y-4 pt-6">
           <div>
-            <label className="text-sm font-medium text-foreground">Title *</label>
+            <label className="text-foreground text-sm font-medium">Title *</label>
             <Input
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -1308,17 +1416,17 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground">Description</label>
+            <label className="text-foreground text-sm font-medium">Description</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full mt-1 p-2 border border-border rounded-lg resize-none"
+              className="border-border mt-1 w-full resize-none rounded-lg border p-2"
               rows={3}
             />
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="text-sm font-medium text-foreground">Section</label>
+              <label className="text-foreground text-sm font-medium">Section</label>
               <Input
                 value={formData.section}
                 onChange={(e) => setFormData({ ...formData, section: e.target.value })}
@@ -1327,32 +1435,37 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Section Order</label>
+              <label className="text-foreground text-sm font-medium">Section Order</label>
               <Input
                 type="number"
                 value={formData.sectionOrder || ""}
-                onChange={(e) => setFormData({ ...formData, sectionOrder: e.target.value ? parseInt(e.target.value) : null })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    sectionOrder: e.target.value ? parseInt(e.target.value) : null,
+                  })
+                }
                 className="mt-1"
                 placeholder="Order in section"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-foreground">Duration (minutes)</label>
+              <label className="text-foreground text-sm font-medium">Duration (minutes)</label>
               <Input
                 type="number"
                 value={formData.duration}
-                onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) || 30 })}
+                onChange={(e) =>
+                  setFormData({ ...formData, duration: parseInt(e.target.value) || 30 })
+                }
                 className="mt-1"
               />
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground flex items-center gap-2">
-              <Video className="w-4 h-4" />
+            <label className="text-foreground flex items-center gap-2 text-sm font-medium">
+              <Video className="h-4 w-4" />
               Video URL (YouTube or uploaded)
-              {isFetchingVideoInfo && (
-                <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              )}
+              {isFetchingVideoInfo && <Loader2 className="text-primary h-4 w-4 animate-spin" />}
             </label>
             <Input
               type="url"
@@ -1360,12 +1473,12 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
               onChange={(e) => {
                 const newUrl = e.target.value;
                 setFormData({ ...formData, videoUrl: newUrl });
-                
+
                 // Clear existing timeout
                 if (videoUrlTimeoutRef.current) {
                   clearTimeout(videoUrlTimeoutRef.current);
                 }
-                
+
                 // Set new timeout to fetch after user stops typing
                 videoUrlTimeoutRef.current = setTimeout(() => {
                   handleVideoUrlChange(newUrl);
@@ -1376,14 +1489,14 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
               placeholder="https://youtube.com/watch?v=... or uploaded video URL"
             />
             {isFetchingVideoInfo && (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-xs">
                 Fetching video duration and transcript...
               </p>
             )}
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground flex items-center gap-2">
-              <FileText className="w-4 h-4" />
+            <label className="text-foreground flex items-center gap-2 text-sm font-medium">
+              <FileText className="h-4 w-4" />
               PDF URL
             </label>
             <Input
@@ -1395,21 +1508,21 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground flex items-center gap-2">
-              <FileText className="w-4 h-4" />
+            <label className="text-foreground flex items-center gap-2 text-sm font-medium">
+              <FileText className="h-4 w-4" />
               Notes/Text Content
             </label>
             <textarea
               value={formData.textContent}
               onChange={(e) => setFormData({ ...formData, textContent: e.target.value })}
-              className="w-full mt-1 p-2 border border-border rounded-lg resize-none"
+              className="border-border mt-1 w-full resize-none rounded-lg border p-2"
               rows={4}
               placeholder="Additional notes, reading material, etc."
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-foreground flex items-center gap-2">
-              <LinkIcon className="w-4 h-4" />
+            <label className="text-foreground flex items-center gap-2 text-sm font-medium">
+              <LinkIcon className="h-4 w-4" />
               Interactive URL
             </label>
             <Input
@@ -1421,18 +1534,24 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
             />
           </div>
           <div className="flex items-center gap-2">
-            <Button 
-              onClick={handleSave} 
-              leftIcon={isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            <Button
+              onClick={handleSave}
+              leftIcon={
+                isUpdating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )
+              }
               disabled={isUpdating}
               isLoading={isUpdating}
             >
               {isUpdating ? "Saving..." : "Save"}
             </Button>
-            <Button 
-              onClick={onCancel} 
-              variant="outline" 
-              leftIcon={<X className="w-4 h-4" />}
+            <Button
+              onClick={onCancel}
+              variant="outline"
+              leftIcon={<X className="h-4 w-4" />}
               disabled={isUpdating}
             >
               Cancel
@@ -1441,7 +1560,7 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
               onClick={onDelete}
               variant="outline"
               className="text-destructive hover:text-destructive"
-              leftIcon={<Trash2 className="w-4 h-4" />}
+              leftIcon={<Trash2 className="h-4 w-4" />}
               disabled={isUpdating}
             >
               Delete
@@ -1453,41 +1572,40 @@ function TopicEditor({ topic, isEditing, isUpdating = false, onEdit, onCancel, o
   }
 
   return (
-    <div className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors">
+    <div className="border-border hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3 transition-colors">
       <div className="flex-1">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-muted-foreground">#{topic.order}</span>
-          <h4 className="font-medium text-foreground">{topic.title}</h4>
+          <span className="text-muted-foreground text-sm font-medium">#{topic.order}</span>
+          <h4 className="text-foreground font-medium">{topic.title}</h4>
         </div>
         {topic.description && (
-          <p className="text-sm text-muted-foreground mt-1">{topic.description}</p>
+          <p className="text-muted-foreground mt-1 text-sm">{topic.description}</p>
         )}
-        <div className="flex items-center gap-4 mt-2">
+        <div className="mt-2 flex items-center gap-4">
           {topic.videoUrl && (
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <Video className="w-3 h-3" />
+            <span className="text-muted-foreground flex items-center gap-1 text-xs">
+              <Video className="h-3 w-3" />
               Video
             </span>
           )}
           {topic.pdfUrl && (
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <FileText className="w-3 h-3" />
+            <span className="text-muted-foreground flex items-center gap-1 text-xs">
+              <FileText className="h-3 w-3" />
               PDF
             </span>
           )}
           {topic.textContent && (
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              <FileText className="w-3 h-3" />
+            <span className="text-muted-foreground flex items-center gap-1 text-xs">
+              <FileText className="h-3 w-3" />
               Notes
             </span>
           )}
-          <span className="text-xs text-muted-foreground">{topic.duration} min</span>
+          <span className="text-muted-foreground text-xs">{topic.duration} min</span>
         </div>
       </div>
       <Button onClick={onEdit} variant="ghost" size="icon">
-        <Edit2 className="w-4 h-4" />
+        <Edit2 className="h-4 w-4" />
       </Button>
     </div>
   );
 }
-

@@ -4,21 +4,21 @@
   /* Primary - Royal Blue */
   --primary: #162660;
   --primary-foreground: #ffffff;
-  
+
   /* Secondary - Powder Blue */
-  --secondary: #D0E6FD;
+  --secondary: #d0e6fd;
   --secondary-foreground: #162660;
-  
+
   /* Tertiary - Warm Beige */
-  --tertiary: #F1E4D1;
+  --tertiary: #f1e4d1;
   --tertiary-foreground: #162660;
-  
+
   /* Semantic Colors */
   --background: #f8fafc;
   --foreground: #162660;
   --muted: #e2e8f0;
   --muted-foreground: #64748b;
-  --accent: #D0E6FD;
+  --accent: #d0e6fd;
   --accent-foreground: #162660;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
@@ -26,14 +26,14 @@
   --success-foreground: #ffffff;
   --warning: #f59e0b;
   --warning-foreground: #ffffff;
-  
+
   /* Card & Input */
   --card: #ffffff;
   --card-foreground: #162660;
   --border: #e2e8f0;
   --input: #ffffff;
   --ring: #162660;
-  
+
   /* Radius */
   --radius: 0.75rem;
 }
@@ -63,11 +63,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  
+
   /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  
+
   /* Radius */
   --radius-sm: calc(var(--radius) - 0.25rem);
   --radius-md: var(--radius);
@@ -120,45 +120,63 @@ body {
 
 /* Animation keyframes */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(10px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes slideIn {
-  from { 
+  from {
     opacity: 0;
     transform: translateX(-10px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateX(0);
   }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-fade-in {

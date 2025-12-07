@@ -48,40 +48,36 @@ export function Dialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
+        className="animate-fade-in absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Dialog */}
       <div
         className={cn(
-          "relative bg-background rounded-2xl shadow-2xl w-full mx-4 max-h-[90vh] overflow-hidden animate-fade-in",
+          "bg-background animate-fade-in relative mx-4 max-h-[90vh] w-full overflow-hidden rounded-2xl shadow-2xl",
           sizeClasses[size]
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="border-border flex items-center justify-between border-b p-6">
           <div>
-            <h2 className="text-xl font-bold text-foreground">{title}</h2>
-            {description && (
-              <p className="text-sm text-muted-foreground mt-1">{description}</p>
-            )}
+            <h2 className="text-foreground text-xl font-bold">{title}</h2>
+            {description && <p className="text-muted-foreground mt-1 text-sm">{description}</p>}
           </div>
           {showCloseButton && (
             <button
               onClick={onClose}
-              className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors"
+              className="bg-muted/50 hover:bg-muted flex h-10 w-10 items-center justify-center rounded-full transition-colors"
             >
-              <X className="w-5 h-5 text-muted-foreground" />
+              <X className="text-muted-foreground h-5 w-5" />
             </button>
           )}
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
-          {children}
-        </div>
+        <div className="max-h-[calc(90vh-180px)] overflow-y-auto p-6">{children}</div>
       </div>
     </div>
   );
@@ -111,19 +107,9 @@ export function ConfirmDialog({
   isLoading = false,
 }: ConfirmDialogProps) {
   return (
-    <Dialog
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title}
-      description={description}
-      size="sm"
-    >
-      <div className="flex items-center justify-end gap-3 mt-6">
-        <Button
-          variant="outline"
-          onClick={onClose}
-          disabled={isLoading}
-        >
+    <Dialog isOpen={isOpen} onClose={onClose} title={title} description={description} size="sm">
+      <div className="mt-6 flex items-center justify-end gap-3">
+        <Button variant="outline" onClick={onClose} disabled={isLoading}>
           {cancelText}
         </Button>
         <Button
@@ -137,4 +123,3 @@ export function ConfirmDialog({
     </Dialog>
   );
 }
-

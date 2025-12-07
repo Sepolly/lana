@@ -26,10 +26,7 @@ const updateJobSchema = z.object({
  * GET /api/admin/jobs/[jobId]
  * Get job details
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { jobId } = await params;
 
@@ -46,10 +43,7 @@ export async function GET(
     });
 
     if (!job) {
-      return NextResponse.json(
-        { success: false, error: "Job not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Job not found" }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -59,9 +53,9 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching job:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to fetch job" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch job",
       },
       { status: 500 }
     );
@@ -72,10 +66,7 @@ export async function GET(
  * PUT /api/admin/jobs/[jobId]
  * Update job
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { jobId } = await params;
     const body = await request.json();
@@ -83,10 +74,10 @@ export async function PUT(
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid job data",
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 }
       );
@@ -98,10 +89,7 @@ export async function PUT(
     });
 
     if (!existingJob) {
-      return NextResponse.json(
-        { success: false, error: "Job not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Job not found" }, { status: 404 });
     }
 
     const updateData: {
@@ -130,13 +118,15 @@ export async function PUT(
           NOT: { id: jobId },
         },
       });
-      
+
       if (slugExists) {
         let finalSlug = newSlug;
         let counter = 1;
-        while (await db.job.findFirst({
-          where: { slug: finalSlug, NOT: { id: jobId } },
-        })) {
+        while (
+          await db.job.findFirst({
+            where: { slug: finalSlug, NOT: { id: jobId } },
+          })
+        ) {
           finalSlug = `${newSlug}-${counter}`;
           counter++;
         }
@@ -152,10 +142,7 @@ export async function PUT(
         where: { id: validationResult.data.companyId },
       });
       if (!company) {
-        return NextResponse.json(
-          { success: false, error: "Company not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ success: false, error: "Company not found" }, { status: 404 });
       }
       updateData.companyId = validationResult.data.companyId;
     }
@@ -188,7 +175,9 @@ export async function PUT(
       updateData.isActive = validationResult.data.isActive;
     }
     if (validationResult.data.expiresAt !== undefined) {
-      updateData.expiresAt = validationResult.data.expiresAt ? new Date(validationResult.data.expiresAt) : null;
+      updateData.expiresAt = validationResult.data.expiresAt
+        ? new Date(validationResult.data.expiresAt)
+        : null;
     }
 
     // Update job
@@ -213,9 +202,9 @@ export async function PUT(
   } catch (error) {
     console.error("Error updating job:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to update job" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to update job",
       },
       { status: 500 }
     );
@@ -226,10 +215,7 @@ export async function PUT(
  * DELETE /api/admin/jobs/[jobId]
  * Delete a job
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { jobId } = await params;
 
@@ -246,18 +232,15 @@ export async function DELETE(
     });
 
     if (!job) {
-      return NextResponse.json(
-        { success: false, error: "Job not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Job not found" }, { status: 404 });
     }
 
     // Check if job has applications
     if (job._count.applications > 0) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: "Cannot delete job with existing applications. Please deactivate the job instead." 
+        {
+          success: false,
+          error: "Cannot delete job with existing applications. Please deactivate the job instead.",
         },
         { status: 400 }
       );
@@ -275,12 +258,11 @@ export async function DELETE(
   } catch (error) {
     console.error("Error deleting job:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to delete job" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to delete job",
       },
       { status: 500 }
     );
   }
 }
-

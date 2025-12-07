@@ -2,7 +2,18 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Progress, Spinner, useSuccessToast, useErrorToast } from "@/components/ui";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Button,
+  Progress,
+  Spinner,
+  useSuccessToast,
+  useErrorToast,
+} from "@/components/ui";
 import { TrendingUp, ArrowRight, CheckCircle2, Loader2, Sparkles, BookOpen } from "lucide-react";
 import { WaitlistConsentDialog } from "@/components/waitlist-consent-dialog";
 
@@ -49,7 +60,7 @@ export function CareerSelectionCards({ careers }: CareerSelectionCardsProps) {
 
   const handleSelectCareer = async (career: CareerRecommendation) => {
     if (isLoading) return;
-    
+
     setSelectedCareer(career.id);
     setIsLoading(true);
     setError(null);
@@ -76,12 +87,11 @@ export function CareerSelectionCards({ careers }: CareerSelectionCardsProps) {
       }
 
       setGeneratedCourse(data.data.course);
-      
+
       // Navigate to the course after a short delay
       setTimeout(() => {
         router.push(`/courses/${data.data.course.slug}`);
       }, 2000);
-
     } catch (err) {
       console.error("Career selection error:", err);
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -142,28 +152,27 @@ export function CareerSelectionCards({ careers }: CareerSelectionCardsProps) {
     return (
       <Card className="bg-success/5 border-success/20">
         <CardContent className="py-12 text-center">
-          <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8 text-success" />
+          <div className="bg-success/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+            <CheckCircle2 className="text-success h-8 w-8" />
           </div>
-          <h3 className="text-xl font-bold text-foreground">
+          <h3 className="text-foreground text-xl font-bold">
             {generatedCourse.isNew ? "Course Created!" : "Course Found!"}
           </h3>
           <p className="text-muted-foreground mt-2">
-            {generatedCourse.isNew 
+            {generatedCourse.isNew
               ? `We've generated "${generatedCourse.title}" just for you with YouTube tutorials!`
-              : `"${generatedCourse.title}" is ready for you to start learning.`
-            }
+              : `"${generatedCourse.title}" is ready for you to start learning.`}
           </p>
-          <div className="flex items-center justify-center gap-2 mt-4 text-primary">
-            <BookOpen className="w-5 h-5" />
+          <div className="text-primary mt-4 flex items-center justify-center gap-2">
+            <BookOpen className="h-5 w-5" />
             <span>{generatedCourse.skills.length} skills</span>
             <span>•</span>
             <span>{generatedCourse.duration}h</span>
             <span>•</span>
             <span>{generatedCourse.level}</span>
           </div>
-          <div className="flex items-center justify-center gap-2 mt-6 text-sm text-muted-foreground">
-            <Loader2 className="w-4 h-4 animate-spin" />
+          <div className="text-muted-foreground mt-6 flex items-center justify-center gap-2 text-sm">
+            <Loader2 className="h-4 w-4 animate-spin" />
             <span>Redirecting to course...</span>
           </div>
         </CardContent>
@@ -172,45 +181,45 @@ export function CareerSelectionCards({ careers }: CareerSelectionCardsProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {careers.slice(0, 6).map((career, index) => {
         const isSelected = selectedCareer === career.id;
         // Use index as part of key to ensure uniqueness even if career.id has duplicates
         const uniqueKey = `${career.id}-${index}`;
-        
+
         return (
-          <Card 
-            key={uniqueKey} 
-            variant="interactive" 
+          <Card
+            key={uniqueKey}
+            variant="interactive"
             className={`overflow-hidden transition-all duration-300 ${
-              isSelected ? "ring-2 ring-primary" : ""
+              isSelected ? "ring-primary ring-2" : ""
             } ${isLoading && !isSelected ? "opacity-50" : ""}`}
           >
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-white text-sm font-bold">
+                  <span className="bg-primary flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold text-white">
                     {index + 1}
                   </span>
-                  <span className="text-xs font-medium px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
+                  <span className="bg-secondary text-secondary-foreground rounded-full px-2 py-1 text-xs font-medium">
                     {career.category || "General"}
                   </span>
                 </div>
                 <div className="text-right">
-                  <p className="text-2xl font-bold text-primary">{career.matchScore}%</p>
-                  <p className="text-xs text-muted-foreground">Match</p>
+                  <p className="text-primary text-2xl font-bold">{career.matchScore}%</p>
+                  <p className="text-muted-foreground text-xs">Match</p>
                 </div>
               </div>
-              <CardTitle className="text-xl mt-3">{career.title}</CardTitle>
+              <CardTitle className="mt-3 text-xl">{career.title}</CardTitle>
               <CardDescription className="line-clamp-2">
                 {career.reasoning || career.description}
               </CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               {/* Match Progress */}
               <div>
-                <div className="flex items-center justify-between text-sm mb-1">
+                <div className="mb-1 flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Career Match</span>
                   <span className="text-primary font-medium">{career.matchScore}%</span>
                 </div>
@@ -220,32 +229,36 @@ export function CareerSelectionCards({ careers }: CareerSelectionCardsProps) {
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4 py-2">
                 <div>
-                  <p className="text-xs text-muted-foreground">Growth Outlook</p>
+                  <p className="text-muted-foreground text-xs">Growth Outlook</p>
                   <div className="flex items-center gap-1">
-                    <TrendingUp className="w-4 h-4 text-success" />
-                    <span className="font-medium text-foreground">{career.growthOutlook || "High"}</span>
+                    <TrendingUp className="text-success h-4 w-4" />
+                    <span className="text-foreground font-medium">
+                      {career.growthOutlook || "High"}
+                    </span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Salary Range</p>
-                  <p className="font-medium text-foreground">{career.averageSalary || "$40k-80k"}</p>
+                  <p className="text-muted-foreground text-xs">Salary Range</p>
+                  <p className="text-foreground font-medium">
+                    {career.averageSalary || "$40k-80k"}
+                  </p>
                 </div>
               </div>
 
               {/* Skills */}
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Skills You'll Learn</p>
+                <p className="text-muted-foreground mb-2 text-xs">Skills You'll Learn</p>
                 <div className="flex flex-wrap gap-1">
                   {career.skills.slice(0, 4).map((skill) => (
                     <span
                       key={skill}
-                      className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground"
+                      className="bg-muted text-muted-foreground rounded-full px-2 py-1 text-xs"
                     >
                       {skill}
                     </span>
                   ))}
                   {career.skills.length > 4 && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                    <span className="bg-muted text-muted-foreground rounded-full px-2 py-1 text-xs">
                       +{career.skills.length - 4} more
                     </span>
                   )}
@@ -258,13 +271,10 @@ export function CareerSelectionCards({ careers }: CareerSelectionCardsProps) {
                 onClick={() => handleSelectCareer(career)}
                 disabled={isLoading}
                 isLoading={isSelected && isLoading}
-                rightIcon={!isLoading && <ArrowRight className="w-4 h-4" />}
-                leftIcon={!isLoading && <Sparkles className="w-4 h-4" />}
+                rightIcon={!isLoading && <ArrowRight className="h-4 w-4" />}
+                leftIcon={!isLoading && <Sparkles className="h-4 w-4" />}
               >
-                {isSelected && isLoading 
-                  ? "Generating Course..." 
-                  : "Choose This Career"
-                }
+                {isSelected && isLoading ? "Generating Course..." : "Choose This Career"}
               </Button>
             </CardContent>
           </Card>
@@ -272,7 +282,7 @@ export function CareerSelectionCards({ careers }: CareerSelectionCardsProps) {
       })}
 
       {error && (
-        <div className="lg:col-span-2 p-4 rounded-xl bg-destructive/10 text-destructive text-center">
+        <div className="bg-destructive/10 text-destructive rounded-xl p-4 text-center lg:col-span-2">
           {error}. Please try again.
         </div>
       )}
@@ -291,4 +301,3 @@ export function CareerSelectionCards({ careers }: CareerSelectionCardsProps) {
     </div>
   );
 }
-

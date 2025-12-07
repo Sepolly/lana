@@ -20,9 +20,7 @@ interface ToastContextType {
   removeToast: (id: string) => void;
 }
 
-const ToastContext = React.createContext<ToastContextType | undefined>(
-  undefined
-);
+const ToastContext = React.createContext<ToastContextType | undefined>(undefined);
 
 export function useToast() {
   const context = React.useContext(ToastContext);
@@ -35,22 +33,19 @@ export function useToast() {
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<Toast[]>([]);
 
-  const addToast = React.useCallback(
-    (toast: Omit<Toast, "id">) => {
-      const id = Math.random().toString(36).substring(2, 9);
-      const newToast = { ...toast, id };
-      setToasts((prev) => [...prev, newToast]);
+  const addToast = React.useCallback((toast: Omit<Toast, "id">) => {
+    const id = Math.random().toString(36).substring(2, 9);
+    const newToast = { ...toast, id };
+    setToasts((prev) => [...prev, newToast]);
 
-      // Auto remove after duration
-      const duration = toast.duration ?? 5000;
-      if (duration > 0) {
-        setTimeout(() => {
-          setToasts((prev) => prev.filter((t) => t.id !== id));
-        }, duration);
-      }
-    },
-    []
-  );
+    // Auto remove after duration
+    const duration = toast.duration ?? 5000;
+    if (duration > 0) {
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, duration);
+    }
+  }, []);
 
   const removeToast = React.useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -72,7 +67,7 @@ function ToastContainer({
   removeToast: (id: string) => void;
 }) {
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-md">
+    <div className="fixed right-4 bottom-4 z-50 flex max-w-md flex-col gap-2">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
       ))}
@@ -80,18 +75,12 @@ function ToastContainer({
   );
 }
 
-function ToastItem({
-  toast,
-  onClose,
-}: {
-  toast: Toast;
-  onClose: () => void;
-}) {
+function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
   const icons = {
-    success: <CheckCircle2 className="h-5 w-5 text-success" />,
-    error: <AlertCircle className="h-5 w-5 text-destructive" />,
-    warning: <AlertTriangle className="h-5 w-5 text-warning" />,
-    info: <Info className="h-5 w-5 text-primary" />,
+    success: <CheckCircle2 className="text-success h-5 w-5" />,
+    error: <AlertCircle className="text-destructive h-5 w-5" />,
+    warning: <AlertTriangle className="text-warning h-5 w-5" />,
+    info: <Info className="text-primary h-5 w-5" />,
   };
 
   const backgrounds = {
@@ -104,18 +93,16 @@ function ToastItem({
   return (
     <div
       className={cn(
-        "flex items-start gap-3 p-4 rounded-xl border shadow-lg animate-slide-up",
+        "animate-slide-up flex items-start gap-3 rounded-xl border p-4 shadow-lg",
         "bg-card",
         backgrounds[toast.type]
       )}
     >
       {icons[toast.type]}
-      <div className="flex-1 min-w-0">
-        <p className="font-semibold text-foreground">{toast.title}</p>
+      <div className="min-w-0 flex-1">
+        <p className="text-foreground font-semibold">{toast.title}</p>
         {toast.description && (
-          <p className="text-sm text-muted-foreground mt-1">
-            {toast.description}
-          </p>
+          <p className="text-muted-foreground mt-1 text-sm">{toast.description}</p>
         )}
       </div>
       <button
@@ -131,25 +118,20 @@ function ToastItem({
 // Convenience hooks for different toast types
 export function useSuccessToast() {
   const { addToast } = useToast();
-  return (title: string, description?: string) =>
-    addToast({ type: "success", title, description });
+  return (title: string, description?: string) => addToast({ type: "success", title, description });
 }
 
 export function useErrorToast() {
   const { addToast } = useToast();
-  return (title: string, description?: string) =>
-    addToast({ type: "error", title, description });
+  return (title: string, description?: string) => addToast({ type: "error", title, description });
 }
 
 export function useWarningToast() {
   const { addToast } = useToast();
-  return (title: string, description?: string) =>
-    addToast({ type: "warning", title, description });
+  return (title: string, description?: string) => addToast({ type: "warning", title, description });
 }
 
 export function useInfoToast() {
   const { addToast } = useToast();
-  return (title: string, description?: string) =>
-    addToast({ type: "info", title, description });
+  return (title: string, description?: string) => addToast({ type: "info", title, description });
 }
-

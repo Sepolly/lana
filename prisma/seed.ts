@@ -17,7 +17,8 @@ async function main() {
     create: {
       title: "Web Development Fundamentals",
       slug: "web-development-fundamentals",
-      description: "Learn the fundamentals of web development including HTML, CSS, and JavaScript. Build responsive websites and understand how the web works.",
+      description:
+        "Learn the fundamentals of web development including HTML, CSS, and JavaScript. Build responsive websites and understand how the web works.",
       level: "BEGINNER",
       duration: 20,
       careerPaths: ["Software Developer", "Frontend Developer", "Web Designer"],
@@ -32,7 +33,8 @@ async function main() {
             order: 1,
             duration: 30,
             videoUrl: "https://example.com/videos/html-intro",
-            textContent: "HTML (HyperText Markup Language) is the standard markup language for creating web pages. It describes the structure of a web page and consists of a series of elements that tell the browser how to display content.",
+            textContent:
+              "HTML (HyperText Markup Language) is the standard markup language for creating web pages. It describes the structure of a web page and consists of a series of elements that tell the browser how to display content.",
             quiz: {
               create: {
                 title: "HTML Basics Quiz",
@@ -41,7 +43,12 @@ async function main() {
                   create: [
                     {
                       question: "What does HTML stand for?",
-                      options: ["Hyper Text Markup Language", "Home Tool Markup Language", "Hyperlinks and Text Markup Language", "Hyperlinking Text Marking Language"],
+                      options: [
+                        "Hyper Text Markup Language",
+                        "Home Tool Markup Language",
+                        "Hyperlinks and Text Markup Language",
+                        "Hyperlinking Text Marking Language",
+                      ],
                       correctAnswer: 0,
                       order: 1,
                     },
@@ -68,7 +75,8 @@ async function main() {
             order: 2,
             duration: 45,
             videoUrl: "https://example.com/videos/css-basics",
-            textContent: "CSS (Cascading Style Sheets) is used to style and layout web pages. It allows you to control colors, fonts, spacing, and the overall visual presentation of your HTML content.",
+            textContent:
+              "CSS (Cascading Style Sheets) is used to style and layout web pages. It allows you to control colors, fonts, spacing, and the overall visual presentation of your HTML content.",
             quiz: {
               create: {
                 title: "CSS Basics Quiz",
@@ -77,7 +85,12 @@ async function main() {
                   create: [
                     {
                       question: "What does CSS stand for?",
-                      options: ["Computer Style Sheets", "Creative Style Sheets", "Cascading Style Sheets", "Colorful Style Sheets"],
+                      options: [
+                        "Computer Style Sheets",
+                        "Creative Style Sheets",
+                        "Cascading Style Sheets",
+                        "Colorful Style Sheets",
+                      ],
                       correctAnswer: 2,
                       order: 1,
                     },
@@ -98,7 +111,8 @@ async function main() {
             order: 3,
             duration: 60,
             videoUrl: "https://example.com/videos/js-fundamentals",
-            textContent: "JavaScript is a programming language that allows you to implement complex features on web pages. It enables interactive elements, dynamic content, and real-time updates.",
+            textContent:
+              "JavaScript is a programming language that allows you to implement complex features on web pages. It enables interactive elements, dynamic content, and real-time updates.",
             quiz: {
               create: {
                 title: "JavaScript Quiz",
@@ -113,7 +127,12 @@ async function main() {
                     },
                     {
                       question: "How do you write 'Hello World' in an alert box?",
-                      options: ["alertBox('Hello World')", "msg('Hello World')", "alert('Hello World')", "msgBox('Hello World')"],
+                      options: [
+                        "alertBox('Hello World')",
+                        "msg('Hello World')",
+                        "alert('Hello World')",
+                        "msgBox('Hello World')",
+                      ],
                       correctAnswer: 2,
                       order: 2,
                     },
@@ -133,7 +152,8 @@ async function main() {
     create: {
       title: "Data Analysis Essentials",
       slug: "data-analysis-essentials",
-      description: "Master the fundamentals of data analysis. Learn to work with spreadsheets, understand statistics, and create meaningful visualizations.",
+      description:
+        "Master the fundamentals of data analysis. Learn to work with spreadsheets, understand statistics, and create meaningful visualizations.",
       level: "BEGINNER",
       duration: 15,
       careerPaths: ["Data Analyst", "Business Analyst", "Research Analyst"],
@@ -147,7 +167,8 @@ async function main() {
             description: "Understanding the data analysis process and its importance",
             order: 1,
             duration: 25,
-            textContent: "Data analysis is the process of inspecting, cleaning, transforming, and modeling data to discover useful information, draw conclusions, and support decision-making.",
+            textContent:
+              "Data analysis is the process of inspecting, cleaning, transforming, and modeling data to discover useful information, draw conclusions, and support decision-making.",
             quiz: {
               create: {
                 title: "Data Analysis Intro Quiz",
@@ -156,7 +177,12 @@ async function main() {
                   create: [
                     {
                       question: "What is the primary goal of data analysis?",
-                      options: ["To collect more data", "To extract useful insights from data", "To delete unnecessary data", "To create charts only"],
+                      options: [
+                        "To collect more data",
+                        "To extract useful insights from data",
+                        "To delete unnecessary data",
+                        "To create charts only",
+                      ],
                       correctAnswer: 1,
                       order: 1,
                     },
@@ -170,7 +196,8 @@ async function main() {
             description: "Learn essential spreadsheet skills for data analysis",
             order: 2,
             duration: 40,
-            textContent: "Spreadsheets are powerful tools for organizing, analyzing, and visualizing data. Learn essential functions, formulas, and techniques for effective data management.",
+            textContent:
+              "Spreadsheets are powerful tools for organizing, analyzing, and visualizing data. Learn essential functions, formulas, and techniques for effective data management.",
             quiz: {
               create: {
                 title: "Spreadsheets Quiz",
@@ -199,7 +226,8 @@ async function main() {
     create: {
       title: "Digital Marketing Basics",
       slug: "digital-marketing-basics",
-      description: "Learn the fundamentals of digital marketing including social media, SEO, content marketing, and analytics.",
+      description:
+        "Learn the fundamentals of digital marketing including social media, SEO, content marketing, and analytics.",
       level: "BEGINNER",
       duration: 12,
       careerPaths: ["Digital Marketer", "Social Media Manager", "Content Creator"],
@@ -213,7 +241,8 @@ async function main() {
             description: "Understanding the digital marketing landscape",
             order: 1,
             duration: 20,
-            textContent: "Digital marketing encompasses all marketing efforts that use electronic devices or the internet. It includes channels like search engines, social media, email, and websites.",
+            textContent:
+              "Digital marketing encompasses all marketing efforts that use electronic devices or the internet. It includes channels like search engines, social media, email, and websites.",
             quiz: {
               create: {
                 title: "Digital Marketing Intro Quiz",
@@ -222,7 +251,12 @@ async function main() {
                   create: [
                     {
                       question: "What is SEO?",
-                      options: ["Social Engine Optimization", "Search Engine Optimization", "Site Enhancement Option", "Search Enhancement Operation"],
+                      options: [
+                        "Social Engine Optimization",
+                        "Search Engine Optimization",
+                        "Site Enhancement Option",
+                        "Search Enhancement Operation",
+                      ],
                       correctAnswer: 1,
                       order: 1,
                     },
@@ -243,7 +277,8 @@ async function main() {
     create: {
       name: "Innovate Tech SL",
       slug: "innovate-tech-sl",
-      description: "A leading technology company in Sierra Leone focused on digital transformation and innovation.",
+      description:
+        "A leading technology company in Sierra Leone focused on digital transformation and innovation.",
       website: "https://innovatetech.sl",
       industry: "Technology",
       location: "Freetown, Sierra Leone",
@@ -259,8 +294,10 @@ async function main() {
       companyId: techCompany.id,
       title: "Junior Web Developer",
       slug: "junior-web-developer",
-      description: "We are looking for a passionate junior web developer to join our growing team. You will work on exciting projects that impact thousands of users.",
-      requirements: "Basic understanding of HTML, CSS, and JavaScript. Eagerness to learn and grow. Good communication skills.",
+      description:
+        "We are looking for a passionate junior web developer to join our growing team. You will work on exciting projects that impact thousands of users.",
+      requirements:
+        "Basic understanding of HTML, CSS, and JavaScript. Eagerness to learn and grow. Good communication skills.",
       location: "Freetown",
       jobType: "Full-time",
       salaryRange: "SLL 3,000,000 - 5,000,000/month",
@@ -295,7 +332,8 @@ async function main() {
     create: {
       name: "Bright Media SL",
       slug: "bright-media-sl",
-      description: "Creative digital marketing agency helping businesses grow their online presence.",
+      description:
+        "Creative digital marketing agency helping businesses grow their online presence.",
       website: "https://brightmedia.sl",
       industry: "Marketing",
       location: "Freetown, Sierra Leone",
@@ -311,7 +349,8 @@ async function main() {
       title: "Social Media Coordinator",
       slug: "social-media-coordinator",
       description: "Manage social media accounts and create engaging content for our clients.",
-      requirements: "Understanding of social media platforms. Creative mindset. Good writing skills.",
+      requirements:
+        "Understanding of social media platforms. Creative mindset. Good writing skills.",
       location: "Freetown",
       jobType: "Full-time",
       salaryRange: "SLL 2,500,000 - 4,000,000/month",
@@ -326,6 +365,7 @@ async function main() {
   const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD;
 
   if (adminEmail && adminPassword) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const bcrypt = require("bcryptjs");
     const passwordHash = await bcrypt.hash(adminPassword, 12);
 
@@ -348,11 +388,15 @@ async function main() {
       console.log(`ℹ️  Admin user already exists: ${adminEmail}`);
     }
   } else {
-    console.log("ℹ️  Skipping admin creation (DEFAULT_ADMIN_EMAIL and DEFAULT_ADMIN_PASSWORD not set)");
+    console.log(
+      "ℹ️  Skipping admin creation (DEFAULT_ADMIN_EMAIL and DEFAULT_ADMIN_PASSWORD not set)"
+    );
   }
 
   console.log("✅ Seed completed!");
-  console.log(`Created courses: ${webDevCourse.title}, ${dataAnalysisCourse.title}, ${digitalMarketingCourse.title}`);
+  console.log(
+    `Created courses: ${webDevCourse.title}, ${dataAnalysisCourse.title}, ${digitalMarketingCourse.title}`
+  );
   console.log(`Created companies: ${techCompany.name}, ${marketingAgency.name}`);
 }
 

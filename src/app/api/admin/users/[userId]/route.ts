@@ -14,10 +14,7 @@ const updateUserSchema = z.object({
  * PUT /api/admin/users/[userId]
  * Update user (e.g., change role)
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { userId } = await params;
     const body = await request.json();
@@ -25,10 +22,10 @@ export async function PUT(
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid user data",
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 }
       );
@@ -40,10 +37,7 @@ export async function PUT(
     });
 
     if (!existingUser) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
     }
 
     const updateData: {
@@ -75,12 +69,11 @@ export async function PUT(
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to update user" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to update user",
       },
       { status: 500 }
     );
   }
 }
-

@@ -3,7 +3,15 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, Button, Mascot, StepProgress } from "@/components/ui";
-import { ArrowRight, ArrowLeft, Brain, Heart, Target, Lightbulb, GraduationCap } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowLeft,
+  Brain,
+  Heart,
+  Target,
+  Lightbulb,
+  GraduationCap,
+} from "lucide-react";
 
 // Placeholder questions for the aptitude test (Phase 2 will have full implementation with AI)
 const aptitudeQuestions = [
@@ -132,19 +140,19 @@ export default function OnboardingPage() {
   const handleNext = async () => {
     if (isLastStep) {
       setIsSubmitting(true);
-      
+
       try {
         const response = await fetch("/api/profile/aptitude", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             answers,
             userType: "Employed", // Default to Employed (job seeker) for students
           }),
         });
 
         const data = await response.json();
-        
+
         if (data.success) {
           // Redirect to recommendations page to show career matches
           router.push("/recommendations");
@@ -173,13 +181,14 @@ export default function OnboardingPage() {
   const Icon = currentQuestion.icon;
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="bg-background flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-2xl">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">Aptitude Assessment</h1>
+        <div className="mb-8 text-center">
+          <h1 className="text-primary text-3xl font-bold">Aptitude Assessment</h1>
           <p className="text-muted-foreground mt-2">
-            Help us understand your interests and strengths to recommend the best career paths for you.
+            Help us understand your interests and strengths to recommend the best career paths for
+            you.
           </p>
         </div>
 
@@ -192,31 +201,27 @@ export default function OnboardingPage() {
         <Card variant="elevated" className="animate-fade-in">
           <CardContent className="p-8">
             {/* Header with mascot */}
-            <div className="flex items-start gap-4 mb-6">
+            <div className="mb-6 flex items-start gap-4">
               <Mascot size="md" mood="thinking" animate={false} />
               <div className="flex-1">
-                <div className="flex items-center gap-2 text-primary mb-2">
-                  <Icon className="w-5 h-5" />
-                  <span className="text-sm font-medium uppercase tracking-wide">
+                <div className="text-primary mb-2 flex items-center gap-2">
+                  <Icon className="h-5 w-5" />
+                  <span className="text-sm font-medium tracking-wide uppercase">
                     {currentQuestion.category}
                   </span>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground">
-                  {currentQuestion.question}
-                </h2>
-                <p className="text-muted-foreground mt-1">
-                  {currentQuestion.description}
-                </p>
+                <h2 className="text-foreground text-2xl font-bold">{currentQuestion.question}</h2>
+                <p className="text-muted-foreground mt-1">{currentQuestion.description}</p>
               </div>
             </div>
 
             {/* Options */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8">
+            <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {currentQuestion.options.map((option) => (
                 <button
                   key={option.id}
                   onClick={() => handleSelect(option.value)}
-                  className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
+                  className={`rounded-xl border-2 p-4 text-left transition-all duration-200 ${
                     isSelected(option.value)
                       ? "border-primary bg-primary/5 text-foreground"
                       : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
@@ -224,7 +229,7 @@ export default function OnboardingPage() {
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
                         isSelected(option.value)
                           ? "border-primary bg-primary"
                           : "border-muted-foreground"
@@ -232,7 +237,7 @@ export default function OnboardingPage() {
                     >
                       {isSelected(option.value) && (
                         <svg
-                          className="w-3 h-3 text-white"
+                          className="h-3 w-3 text-white"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -253,17 +258,17 @@ export default function OnboardingPage() {
             </div>
 
             {/* Navigation */}
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
+            <div className="border-border mt-8 flex items-center justify-between border-t pt-6">
               <Button
                 variant="ghost"
                 onClick={handleBack}
                 disabled={currentStep === 0}
-                leftIcon={<ArrowLeft className="w-4 h-4" />}
+                leftIcon={<ArrowLeft className="h-4 w-4" />}
               >
                 Back
               </Button>
 
-              <span className="text-sm text-muted-foreground">
+              <span className="text-muted-foreground text-sm">
                 {currentStep + 1} of {totalSteps}
               </span>
 
@@ -271,7 +276,7 @@ export default function OnboardingPage() {
                 onClick={handleNext}
                 disabled={!canProceed()}
                 isLoading={isSubmitting}
-                rightIcon={<ArrowRight className="w-4 h-4" />}
+                rightIcon={<ArrowRight className="h-4 w-4" />}
               >
                 {isLastStep ? "Complete" : "Next"}
               </Button>
@@ -280,10 +285,10 @@ export default function OnboardingPage() {
         </Card>
 
         {/* Skip option */}
-        <div className="text-center mt-6">
+        <div className="mt-6 text-center">
           <button
             onClick={() => router.push("/dashboard")}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
             Skip for now, I&apos;ll complete this later
           </button>
@@ -292,4 +297,3 @@ export default function OnboardingPage() {
     </div>
   );
 }
-

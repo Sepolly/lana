@@ -3,7 +3,14 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Card, CardContent, Button, ConfirmDialog, useErrorToast, useSuccessToast } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  Button,
+  ConfirmDialog,
+  useErrorToast,
+  useSuccessToast,
+} from "@/components/ui";
 import { Plus, BookOpen, Users, Clock, Edit2, Trash2, Eye, EyeOff, Loader2 } from "lucide-react";
 
 interface Course {
@@ -24,7 +31,10 @@ export default function AdminCoursesPage() {
   const [courses, setCourses] = React.useState<Course[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [deletingCourseId, setDeletingCourseId] = React.useState<string | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = React.useState<{ id: string; title: string } | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = React.useState<{
+    id: string;
+    title: string;
+  } | null>(null);
   const errorToast = useErrorToast();
   const successToast = useSuccessToast();
 
@@ -79,8 +89,8 @@ export default function AdminCoursesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -90,15 +100,11 @@ export default function AdminCoursesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Courses</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage all courses on the platform
-          </p>
+          <h1 className="text-foreground text-3xl font-bold">Courses</h1>
+          <p className="text-muted-foreground mt-1">Manage all courses on the platform</p>
         </div>
         <Link href="/admin/courses/new">
-          <Button leftIcon={<Plus className="w-4 h-4" />}>
-            Create Course from Career
-          </Button>
+          <Button leftIcon={<Plus className="h-4 w-4" />}>Create Course from Career</Button>
         </Link>
       </div>
 
@@ -108,36 +114,40 @@ export default function AdminCoursesPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left p-4 font-medium text-muted-foreground">Course</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Level</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Topics</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Enrolled</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Certified</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
-                  <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                <tr className="border-border border-b">
+                  <th className="text-muted-foreground p-4 text-left font-medium">Course</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Level</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Topics</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Enrolled</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Certified</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Status</th>
+                  <th className="text-muted-foreground p-4 text-left font-medium">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-border divide-y">
                 {courses.map((course) => (
                   <tr key={course.id} className="hover:bg-muted/50">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center">
-                          <BookOpen className="w-6 h-6 text-primary" />
+                        <div className="bg-secondary flex h-12 w-12 items-center justify-center rounded-lg">
+                          <BookOpen className="text-primary h-6 w-6" />
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">{course.title}</p>
-                          <p className="text-sm text-muted-foreground">{course.slug}</p>
+                          <p className="text-foreground font-medium">{course.title}</p>
+                          <p className="text-muted-foreground text-sm">{course.slug}</p>
                         </div>
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        course.level === "ADVANCED" ? "bg-red-100 text-red-800" :
-                        course.level === "INTERMEDIATE" ? "bg-yellow-100 text-yellow-800" :
-                        "bg-green-100 text-green-800"
-                      }`}>
+                      <span
+                        className={`rounded-full px-2 py-1 text-xs ${
+                          course.level === "ADVANCED"
+                            ? "bg-red-100 text-red-800"
+                            : course.level === "INTERMEDIATE"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-green-100 text-green-800"
+                        }`}
+                      >
                         {course.level}
                       </span>
                     </td>
@@ -146,7 +156,7 @@ export default function AdminCoursesPage() {
                     </td>
                     <td className="p-4">
                       <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4 text-muted-foreground" />
+                        <Users className="text-muted-foreground h-4 w-4" />
                         <span className="text-foreground">{course._count.enrollments}</span>
                       </div>
                     </td>
@@ -155,13 +165,13 @@ export default function AdminCoursesPage() {
                     </td>
                     <td className="p-4">
                       {course.isPublished ? (
-                        <span className="flex items-center gap-1 text-success text-sm">
-                          <Eye className="w-4 h-4" />
+                        <span className="text-success flex items-center gap-1 text-sm">
+                          <Eye className="h-4 w-4" />
                           Published
                         </span>
                       ) : (
-                        <span className="flex items-center gap-1 text-muted-foreground text-sm">
-                          <EyeOff className="w-4 h-4" />
+                        <span className="text-muted-foreground flex items-center gap-1 text-sm">
+                          <EyeOff className="h-4 w-4" />
                           Draft
                         </span>
                       )}
@@ -170,20 +180,20 @@ export default function AdminCoursesPage() {
                       <div className="flex items-center gap-2">
                         <Link href={`/admin/courses/${course.id}/edit`}>
                           <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Edit2 className="w-4 h-4" />
+                            <Edit2 className="h-4 w-4" />
                           </Button>
                         </Link>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          className="text-destructive hover:text-destructive h-8 w-8"
                           onClick={() => handleDeleteCourse(course.id, course.title)}
                           disabled={deletingCourseId === course.id}
                         >
                           {deletingCourseId === course.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="h-4 w-4" />
                           )}
                         </Button>
                       </div>
@@ -193,12 +203,12 @@ export default function AdminCoursesPage() {
               </tbody>
             </table>
           </div>
-          
+
           {courses.length === 0 && (
             <div className="py-12 text-center">
-              <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <BookOpen className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
               <p className="text-muted-foreground">No courses yet</p>
-              <Link href="/admin/courses/new" className="inline-block mt-4">
+              <Link href="/admin/courses/new" className="mt-4 inline-block">
                 <Button size="sm">Add Your First Course</Button>
               </Link>
             </div>
@@ -221,4 +231,3 @@ export default function AdminCoursesPage() {
     </div>
   );
 }
-

@@ -1,4 +1,11 @@
-import { LearningStyle, Role, EnrollmentStatus, CertificateLevel, ApplicationStatus, ExamStatus } from "@prisma/client";
+import {
+  LearningStyle,
+  Role,
+  EnrollmentStatus,
+  CertificateLevel,
+  ApplicationStatus,
+  ExamStatus,
+} from "@prisma/client";
 
 // Re-export Prisma enums for convenience
 export { LearningStyle, Role, EnrollmentStatus, CertificateLevel, ApplicationStatus, ExamStatus };
@@ -198,4 +205,3 @@ export interface LoginFormData {
   email: string;
   password: string;
 }
-

@@ -247,9 +247,6 @@ export async function saveTranscriptToTopic(
 // Type for Prisma client
 type PrismaClientType = {
   topic: {
-    update: (args: {
-      where: { id: string };
-      data: Record<string, unknown>;
-    }) => Promise<unknown>;
+    update: (args: { where: { id: string }; data: Record<string, unknown> }) => Promise<unknown>;
   };
 };

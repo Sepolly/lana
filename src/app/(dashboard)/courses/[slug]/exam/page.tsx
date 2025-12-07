@@ -65,13 +65,13 @@ export default async function ExamPage({ params }: PageProps) {
     },
   });
 
-  console.log('Exam page debug:', {
+  console.log("Exam page debug:", {
     userId: session.user.id,
     courseId: course.id,
     hasExistingExam: !!existingExam,
     existingExamStatus: existingExam?.status,
     existingExamId: existingExam?.id,
-    existingExamCreatedAt: existingExam?.createdAt
+    existingExamCreatedAt: existingExam?.createdAt,
   });
 
   // Check for existing certificate
@@ -93,4 +93,3 @@ export default async function ExamPage({ params }: PageProps) {
     />
   );
 }
-

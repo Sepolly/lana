@@ -45,7 +45,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
         <div
           ref={ref}
           className={cn(
-            "w-full overflow-hidden rounded-full bg-muted",
+            "bg-muted w-full overflow-hidden rounded-full",
             sizeClasses[size],
             className
           )}
@@ -61,9 +61,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
           />
         </div>
         {showLabel && (
-          <p className="text-sm text-muted-foreground mt-1 text-right">
-            {Math.round(percentage)}%
-          </p>
+          <p className="text-muted-foreground mt-1 text-right text-sm">{Math.round(percentage)}%</p>
         )}
       </div>
     );
@@ -79,11 +77,7 @@ interface StepProgressProps {
   className?: string;
 }
 
-const StepProgress: React.FC<StepProgressProps> = ({
-  steps,
-  currentStep,
-  className,
-}) => {
+const StepProgress: React.FC<StepProgressProps> = ({ steps, currentStep, className }) => {
   return (
     <div className={cn("flex items-center gap-2", className)}>
       {Array.from({ length: steps }, (_, index) => {
@@ -96,19 +90,14 @@ const StepProgress: React.FC<StepProgressProps> = ({
             <div
               className={cn(
                 "flex items-center justify-center rounded-full transition-all duration-300",
-                "w-8 h-8 text-sm font-semibold",
+                "h-8 w-8 text-sm font-semibold",
                 isCompleted && "bg-primary text-primary-foreground",
-                isCurrent && "bg-primary text-primary-foreground ring-4 ring-secondary",
+                isCurrent && "bg-primary text-primary-foreground ring-secondary ring-4",
                 !isCompleted && !isCurrent && "bg-muted text-muted-foreground"
               )}
             >
               {isCompleted ? (
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -123,7 +112,7 @@ const StepProgress: React.FC<StepProgressProps> = ({
             {stepNumber < steps && (
               <div
                 className={cn(
-                  "flex-1 h-1 rounded-full transition-all duration-300",
+                  "h-1 flex-1 rounded-full transition-all duration-300",
                   stepNumber < currentStep ? "bg-primary" : "bg-muted"
                 )}
               />
@@ -142,11 +131,7 @@ interface DotProgressProps {
   className?: string;
 }
 
-const DotProgress: React.FC<DotProgressProps> = ({
-  steps,
-  currentStep,
-  className,
-}) => {
+const DotProgress: React.FC<DotProgressProps> = ({ steps, currentStep, className }) => {
   return (
     <div className={cn("flex items-center justify-center gap-3", className)}>
       {Array.from({ length: steps }, (_, index) => {
@@ -157,7 +142,7 @@ const DotProgress: React.FC<DotProgressProps> = ({
           <div
             key={stepNumber}
             className={cn(
-              "w-3 h-3 rounded-full transition-all duration-300",
+              "h-3 w-3 rounded-full transition-all duration-300",
               isActive ? "bg-primary scale-110" : "bg-muted"
             )}
           />
@@ -168,4 +153,3 @@ const DotProgress: React.FC<DotProgressProps> = ({
 };
 
 export { Progress, StepProgress, DotProgress };
-

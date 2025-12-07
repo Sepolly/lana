@@ -10,22 +10,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary:
-          "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        tertiary:
-          "bg-tertiary text-tertiary-foreground hover:bg-tertiary/80",
+        primary: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        tertiary: "bg-tertiary text-tertiary-foreground hover:bg-tertiary/80",
         outline:
           "border-2 border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground",
-        ghost:
-          "hover:bg-secondary hover:text-secondary-foreground",
-        link:
-          "text-primary underline-offset-4 hover:underline",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        success:
-          "bg-success text-success-foreground hover:bg-success/90",
+        ghost: "hover:bg-secondary hover:text-secondary-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        success: "bg-success text-success-foreground hover:bg-success/90",
       },
       size: {
         sm: "h-9 px-4 text-xs",
@@ -46,8 +39,7 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -76,11 +68,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || isLoading}
         {...props}
       >
-        {isLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          leftIcon
-        )}
+        {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : leftIcon}
         {children}
         {!isLoading && rightIcon}
       </button>
@@ -91,4 +79,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button, buttonVariants };
-

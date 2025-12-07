@@ -60,7 +60,10 @@ export default function AdminsPage() {
       const result = await response.json();
 
       if (result.success) {
-        addToast({ type: "success", title: result.message || "Admin invitation sent successfully" });
+        addToast({
+          type: "success",
+          title: result.message || "Admin invitation sent successfully",
+        });
         setDialogOpen(false);
         setFormData({ email: "", name: "" });
         fetchAdmins();
@@ -76,7 +79,7 @@ export default function AdminsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="text-muted-foreground">Loading admins...</div>
       </div>
     );
@@ -86,53 +89,43 @@ export default function AdminsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Admin Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage platform administrators
-          </p>
+          <h1 className="text-foreground text-3xl font-bold">Admin Management</h1>
+          <p className="text-muted-foreground mt-1">Manage platform administrators</p>
         </div>
         <Button onClick={() => setDialogOpen(true)}>
-          <UserPlus className="w-4 h-4 mr-2" />
+          <UserPlus className="mr-2 h-4 w-4" />
           Add Admin
         </Button>
-        <Dialog
-          isOpen={dialogOpen}
-          onClose={() => setDialogOpen(false)}
-          title="Add New Admin"
-        >
+        <Dialog isOpen={dialogOpen} onClose={() => setDialogOpen(false)} title="Add New Admin">
           <form onSubmit={handleAddAdmin} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
-                <Input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  minLength={2}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setDialogOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? "Sending..." : "Send Invitation"}
-                </Button>
-              </div>
-            </form>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Name</label>
+              <Input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                minLength={2}
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Email</label>
+              <Input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "Sending..." : "Send Invitation"}
+              </Button>
+            </div>
+          </form>
         </Dialog>
       </div>
 
@@ -142,39 +135,37 @@ export default function AdminsPage() {
         </CardHeader>
         <CardContent>
           {admins.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No admins found
-            </div>
+            <div className="text-muted-foreground py-8 text-center">No admins found</div>
           ) : (
             <div className="space-y-4">
               {admins.map((admin) => (
                 <div
                   key={admin.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex items-center justify-between rounded-lg border p-4"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="w-5 h-5 text-primary" />
+                    <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                      <User className="text-primary h-5 w-5" />
                     </div>
                     <div>
                       <div className="font-medium">{admin.name || "No name"}</div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Mail className="w-3 h-3" />
+                      <div className="text-muted-foreground flex items-center gap-2 text-sm">
+                        <Mail className="h-3 w-3" />
                         {admin.email}
                       </div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
-                        <Calendar className="w-3 h-3" />
+                      <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
+                        <Calendar className="h-3 w-3" />
                         Added {new Date(admin.createdAt).toLocaleDateString()}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {admin.emailVerified ? (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                      <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-800">
                         Verified
                       </span>
                     ) : (
-                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                      <span className="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-800">
                         Pending
                       </span>
                     )}
@@ -188,4 +179,3 @@ export default function AdminsPage() {
     </div>
   );
 }
-

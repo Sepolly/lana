@@ -55,25 +55,25 @@ Configure all environment variables in Vercel dashboard:
 
 #### Required Environment Variables
 
-| Variable | Description | Required For |
-|----------|-------------|--------------|
-| `DATABASE_URL` | PostgreSQL connection string | All |
-| `NEXTAUTH_SECRET` | NextAuth secret (min 32 chars) | All |
-| `NEXTAUTH_URL` | Application URL | All |
-| `NEXT_PUBLIC_APP_URL` | Public app URL | All |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID | All |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret | All |
-| `GEMINI_API_KEY` | Google Gemini API key | All |
-| `OPENROUTER_API_KEY` | OpenRouter API key | All |
-| `PINECONE_API_KEY` | Pinecone API key | All |
-| `PINECONE_INDEX` | Pinecone index name | All |
-| `YOUTUBE_API_KEY` | YouTube Data API key | All |
-| `SMTP_HOST` | SMTP server hostname | All |
-| `SMTP_PORT` | SMTP server port | All |
-| `SMTP_SECURE` | Use secure connection | All |
-| `SMTP_USER` | SMTP username | All |
-| `SMTP_PASSWORD` | SMTP password | All |
-| `EMAIL_FROM` | Email sender address | All |
+| Variable               | Description                    | Required For |
+| ---------------------- | ------------------------------ | ------------ |
+| `DATABASE_URL`         | PostgreSQL connection string   | All          |
+| `NEXTAUTH_SECRET`      | NextAuth secret (min 32 chars) | All          |
+| `NEXTAUTH_URL`         | Application URL                | All          |
+| `NEXT_PUBLIC_APP_URL`  | Public app URL                 | All          |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID         | All          |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret     | All          |
+| `GEMINI_API_KEY`       | Google Gemini API key          | All          |
+| `OPENROUTER_API_KEY`   | OpenRouter API key             | All          |
+| `PINECONE_API_KEY`     | Pinecone API key               | All          |
+| `PINECONE_INDEX`       | Pinecone index name            | All          |
+| `YOUTUBE_API_KEY`      | YouTube Data API key           | All          |
+| `SMTP_HOST`            | SMTP server hostname           | All          |
+| `SMTP_PORT`            | SMTP server port               | All          |
+| `SMTP_SECURE`          | Use secure connection          | All          |
+| `SMTP_USER`            | SMTP username                  | All          |
+| `SMTP_PASSWORD`        | SMTP password                  | All          |
+| `EMAIL_FROM`           | Email sender address           | All          |
 
 ### 4. Domain Configuration
 
@@ -140,6 +140,7 @@ Add these secrets in **Repository Settings** → **Secrets and variables** → *
   - Required scopes: Full Account access
 
 Optional (for build-time checks):
+
 - `DATABASE_URL`: Production database URL
 - `NEXTAUTH_SECRET`: NextAuth secret
 - `NEXTAUTH_URL`: Production URL
@@ -174,6 +175,7 @@ vercel --prod
 ### Automatic Deployment
 
 1. **Push to Main Branch**:
+
    ```bash
    git push origin main
    ```
@@ -191,6 +193,7 @@ vercel --prod
 ### Preview Deployments
 
 1. **Create Pull Request**:
+
    ```bash
    git checkout -b feature/new-feature
    git push origin feature/new-feature
@@ -294,11 +297,12 @@ Set up health check endpoints:
 ```typescript
 // app/api/health/route.ts
 export async function GET() {
-  return Response.json({ status: 'ok', timestamp: new Date().toISOString() });
+  return Response.json({ status: "ok", timestamp: new Date().toISOString() });
 }
 ```
 
 Monitor with:
+
 - Uptime monitoring services (UptimeRobot, Pingdom)
 - Vercel Cron Jobs for scheduled checks
 
@@ -309,6 +313,7 @@ Monitor with:
 **Issue**: Build fails with TypeScript errors
 
 **Solution**:
+
 ```bash
 # Check types locally
 npm run type-check
@@ -319,6 +324,7 @@ npm run type-check
 **Issue**: Build fails with missing environment variables
 
 **Solution**:
+
 - Verify all required variables are set in Vercel
 - Check variable names match exactly (case-sensitive)
 - Ensure variables are set for correct environment (Production/Preview)
@@ -328,6 +334,7 @@ npm run type-check
 **Issue**: Deployment succeeds but application doesn't work
 
 **Solution**:
+
 - Check function logs in Vercel dashboard
 - Verify environment variables are correct
 - Check database connectivity
@@ -336,6 +343,7 @@ npm run type-check
 **Issue**: Slow build times
 
 **Solution**:
+
 - Enable build caching in Vercel
 - Optimize dependencies
 - Review bundle size with `npm run build:analyze`
@@ -346,6 +354,7 @@ npm run type-check
 **Issue**: Database connection errors
 
 **Solution**:
+
 - Verify `DATABASE_URL` is correct
 - Check database allows connections from Vercel IPs
 - Ensure SSL is enabled (`sslmode=require`)
@@ -356,6 +365,7 @@ npm run type-check
 **Issue**: Google OAuth not working
 
 **Solution**:
+
 - Verify redirect URIs in Google Cloud Console
 - Check `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
 - Ensure `NEXTAUTH_URL` matches your domain
@@ -384,4 +394,3 @@ For deployment issues:
 ---
 
 Last updated: 2024
-

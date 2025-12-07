@@ -13,18 +13,12 @@ export async function POST(request: NextRequest) {
     const { videoUrl } = body;
 
     if (!videoUrl) {
-      return NextResponse.json(
-        { success: false, error: "Video URL is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Video URL is required" }, { status: 400 });
     }
 
     const videoId = extractVideoId(videoUrl);
     if (!videoId) {
-      return NextResponse.json(
-        { success: false, error: "Invalid YouTube URL" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Invalid YouTube URL" }, { status: 400 });
     }
 
     // Get video duration from YouTube API
@@ -49,10 +43,7 @@ export async function POST(request: NextRequest) {
 
     const detailsData = await detailsResponse.json();
     if (!detailsData.items || detailsData.items.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "Video not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Video not found" }, { status: 404 });
     }
 
     // Parse ISO 8601 duration (e.g., PT1H2M10S)
@@ -100,7 +91,8 @@ Return ONLY the cleaned, formatted transcript text. Do not add any explanations 
         const messages: Message[] = [
           {
             role: "system",
-            content: "You are a professional transcription editor. Clean and format transcripts to be readable and well-structured. Return only the cleaned transcript text.",
+            content:
+              "You are a professional transcription editor. Clean and format transcripts to be readable and well-structured. Return only the cleaned transcript text.",
           },
           {
             role: "user",
@@ -127,7 +119,9 @@ Return ONLY the cleaned, formatted transcript text. Do not add any explanations 
     } else {
       // If no YouTube transcript available, try to use Gemini to generate from video metadata
       // This is a fallback - Gemini can't actually watch videos, but we can try
-      console.log("No YouTube transcript available, cannot generate with Gemini without transcript data");
+      console.log(
+        "No YouTube transcript available, cannot generate with Gemini without transcript data"
+      );
     }
 
     return NextResponse.json({
@@ -164,4 +158,3 @@ function parseDuration(isoDuration: string): number {
 
   return hours * 3600 + minutes * 60 + seconds;
 }
-

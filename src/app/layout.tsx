@@ -51,9 +51,7 @@ export const metadata: Metadata = {
       { url: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
       { url: "/favicon.ico", sizes: "any" },
     ],
-    apple: [
-      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   manifest: "/site.webmanifest",
   openGraph: {
@@ -61,15 +59,13 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: process.env.NEXTAUTH_URL || "http://localhost:3000",
     title: "Lana - AI-Powered Career Guidance Platform",
-    description:
-      "Discover your perfect career path with AI-powered recommendations",
+    description: "Discover your perfect career path with AI-powered recommendations",
     siteName: "Lana",
   },
   twitter: {
     card: "summary_large_image",
     title: "Lana - AI-Powered Career Guidance Platform",
-    description:
-      "Discover your perfect career path with AI-powered recommendations",
+    description: "Discover your perfect career path with AI-powered recommendations",
   },
   robots: {
     index: true,

@@ -19,10 +19,7 @@ const updateCourseSchema = z.object({
  * GET /api/admin/courses/[courseId]
  * Get course details with all topics
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { courseId } = await params;
 
@@ -30,19 +27,13 @@ export async function GET(
       where: { id: courseId },
       include: {
         topics: {
-          orderBy: [
-            { sectionOrder: "asc" },
-            { order: "asc" },
-          ],
+          orderBy: [{ sectionOrder: "asc" }, { order: "asc" }],
         },
       },
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -52,9 +43,9 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching course:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to fetch course" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch course",
       },
       { status: 500 }
     );
@@ -65,10 +56,7 @@ export async function GET(
  * PUT /api/admin/courses/[courseId]
  * Update course metadata
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { courseId } = await params;
     const body = await request.json();
@@ -76,10 +64,10 @@ export async function PUT(
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid course data",
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 }
       );
@@ -91,10 +79,7 @@ export async function PUT(
     });
 
     if (!existingCourse) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     const updateData: {
@@ -117,14 +102,16 @@ export async function PUT(
           NOT: { id: courseId },
         },
       });
-      
+
       if (slugExists) {
         // Generate unique slug
         let finalSlug = newSlug;
         let counter = 1;
-        while (await db.course.findFirst({
-          where: { slug: finalSlug, NOT: { id: courseId } },
-        })) {
+        while (
+          await db.course.findFirst({
+            where: { slug: finalSlug, NOT: { id: courseId } },
+          })
+        ) {
           finalSlug = `${newSlug}-${counter}`;
           counter++;
         }
@@ -156,10 +143,7 @@ export async function PUT(
       data: updateData,
       include: {
         topics: {
-          orderBy: [
-            { sectionOrder: "asc" },
-            { order: "asc" },
-          ],
+          orderBy: [{ sectionOrder: "asc" }, { order: "asc" }],
         },
       },
     });
@@ -172,9 +156,9 @@ export async function PUT(
   } catch (error) {
     console.error("Error updating course:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to update course" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to update course",
       },
       { status: 500 }
     );
@@ -185,10 +169,7 @@ export async function PUT(
  * DELETE /api/admin/courses/[courseId]
  * Delete a course and all its related data
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { courseId } = await params;
 
@@ -206,18 +187,16 @@ export async function DELETE(
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     // Check if course has enrollments or certificates
     if (course._count.enrollments > 0 || course._count.certificates > 0) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: "Cannot delete course with existing enrollments or certificates. Please unpublish the course instead." 
+        {
+          success: false,
+          error:
+            "Cannot delete course with existing enrollments or certificates. Please unpublish the course instead.",
         },
         { status: 400 }
       );
@@ -235,12 +214,11 @@ export async function DELETE(
   } catch (error) {
     console.error("Error deleting course:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to delete course" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to delete course",
       },
       { status: 500 }
     );
   }
 }
-

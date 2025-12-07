@@ -6,7 +6,6 @@ import { Award, Download, ExternalLink, Shield } from "lucide-react";
 import Link from "next/link";
 import { PendingCertificates } from "./pending-certificates";
 
-
 export default async function CertificatesPage() {
   const session = await auth();
 
@@ -33,9 +32,9 @@ export default async function CertificatesPage() {
       passed: true,
       NOT: {
         courseId: {
-          in: validCertificates.map(cert => cert.courseId)
-        }
-      }
+          in: validCertificates.map((cert) => cert.courseId),
+        },
+      },
     },
     orderBy: { completedAt: "desc" },
   });
@@ -45,11 +44,11 @@ export default async function CertificatesPage() {
     examSchedules.map(async (exam) => {
       const course = await db.course.findUnique({
         where: { id: exam.courseId },
-        select: { id: true, title: true }
+        select: { id: true, title: true },
       });
       return {
         ...exam,
-        course: course || { id: exam.courseId, title: 'Unknown Course' }
+        course: course || { id: exam.courseId, title: "Unknown Course" },
       };
     })
   );
@@ -62,20 +61,18 @@ export default async function CertificatesPage() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="animate-fade-in space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-foreground">My Certificates</h1>
-        <p className="text-muted-foreground mt-1">
-          View and download your earned certificates
-        </p>
+        <h1 className="text-foreground text-3xl font-bold">My Certificates</h1>
+        <p className="text-muted-foreground mt-1">View and download your earned certificates</p>
       </div>
 
       {/* Pending Certificates Section */}
       {passedExamsWithoutCertificates.length > 0 && (
         <div className="space-y-4">
           <div>
-            <h2 className="text-xl font-semibold text-foreground">Pending Certificates</h2>
+            <h2 className="text-foreground text-xl font-semibold">Pending Certificates</h2>
             <p className="text-muted-foreground text-sm">
               You have passed exams that certificates haven&apos;t been generated for yet.
             </p>
@@ -88,47 +85,47 @@ export default async function CertificatesPage() {
         <Card>
           <CardContent className="py-16 text-center">
             <Mascot size="xl" mood="thinking" animate={false} />
-            <h2 className="text-xl font-semibold text-foreground mt-6">
-              No Certificates Yet
-            </h2>
-            <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-              Complete courses and pass the final exams to earn certificates that are 
-              verified on the blockchain and recognized by government bodies.
+            <h2 className="text-foreground mt-6 text-xl font-semibold">No Certificates Yet</h2>
+            <p className="text-muted-foreground mx-auto mt-2 max-w-md">
+              Complete courses and pass the final exams to earn certificates that are verified on
+              the blockchain and recognized by government bodies.
             </p>
-            <Link href="/courses" className="inline-block mt-6">
+            <Link href="/courses" className="mt-6 inline-block">
               <Button>Browse Courses</Button>
             </Link>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {validCertificates.map((cert) => (
-              <Card key={cert.id} className="overflow-hidden">
-                {/* Certificate Preview */}
-                <div className="h-48 bg-gradient-to-br from-primary via-primary/90 to-primary/80 p-6 flex flex-col justify-between text-white relative overflow-hidden">
-                  {/* Decorative elements */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
-                  
-                  <div className="relative z-10">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Award className="w-6 h-6" />
-                        <span className="font-semibold">Certificate of Completion</span>
-                      </div>
-                      <span className={`text-xs px-2 py-1 rounded-full border ${levelColors[cert.level] || levelColors.BRONZE}`}>
-                        {cert.level}
-                      </span>
-                    </div>
-                  </div>
+            <Card key={cert.id} className="overflow-hidden">
+              {/* Certificate Preview */}
+              <div className="from-primary via-primary/90 to-primary/80 relative flex h-48 flex-col justify-between overflow-hidden bg-gradient-to-br p-6 text-white">
+                {/* Decorative elements */}
+                <div className="absolute top-0 right-0 h-32 w-32 translate-x-1/2 -translate-y-1/2 rounded-full bg-white/10" />
+                <div className="absolute bottom-0 left-0 h-24 w-24 -translate-x-1/2 translate-y-1/2 rounded-full bg-white/10" />
 
-                  <div className="relative z-10">
-                    <p className="text-lg font-bold">{cert.course.title}</p>
-                    <p className="text-white/80 text-sm mt-1">
-                      Issued to {session.user.name || session.user.email}
-                    </p>
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Award className="h-6 w-6" />
+                      <span className="font-semibold">Certificate of Completion</span>
+                    </div>
+                    <span
+                      className={`rounded-full border px-2 py-1 text-xs ${levelColors[cert.level] || levelColors.BRONZE}`}
+                    >
+                      {cert.level}
+                    </span>
                   </div>
                 </div>
+
+                <div className="relative z-10">
+                  <p className="text-lg font-bold">{cert.course.title}</p>
+                  <p className="mt-1 text-sm text-white/80">
+                    Issued to {session.user.name || session.user.email}
+                  </p>
+                </div>
+              </div>
 
               <CardContent className="p-6">
                 <div className="space-y-4">
@@ -136,11 +133,11 @@ export default async function CertificatesPage() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-muted-foreground">Certificate ID</p>
-                      <p className="font-mono text-foreground">{cert.certificateNumber}</p>
+                      <p className="text-foreground font-mono">{cert.certificateNumber}</p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Exam Score</p>
-                      <p className="font-semibold text-foreground">{cert.examScore}%</p>
+                      <p className="text-foreground font-semibold">{cert.examScore}%</p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Issue Date</p>
@@ -151,8 +148,8 @@ export default async function CertificatesPage() {
                     <div>
                       <p className="text-muted-foreground">Verification</p>
                       {cert.blockchainHash ? (
-                        <div className="flex items-center gap-1 text-success">
-                          <Shield className="w-4 h-4" />
+                        <div className="text-success flex items-center gap-1">
+                          <Shield className="h-4 w-4" />
                           <span className="text-sm">Verified</span>
                         </div>
                       ) : (
@@ -168,7 +165,7 @@ export default async function CertificatesPage() {
                         variant="primary"
                         size="sm"
                         fullWidth
-                        leftIcon={<Award className="w-4 h-4" />}
+                        leftIcon={<Award className="h-4 w-4" />}
                       >
                         View Certificate
                       </Button>
@@ -179,7 +176,7 @@ export default async function CertificatesPage() {
                           variant="outline"
                           size="sm"
                           fullWidth
-                          leftIcon={<ExternalLink className="w-4 h-4" />}
+                          leftIcon={<ExternalLink className="h-4 w-4" />}
                         >
                           Verify
                         </Button>
@@ -194,21 +191,19 @@ export default async function CertificatesPage() {
       )}
 
       {/* Info about certificates */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <Card className="bg-tertiary/30">
           <CardContent className="py-6">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-primary" />
+              <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
+                <Shield className="text-primary h-6 w-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">
-                  Blockchain-Verified Certificates
-                </h3>
-                <p className="text-muted-foreground text-sm mt-1">
-                  All certificates are signed by the Ministry of Technical and Higher Education 
-                  and the Ministry of Communication and Technology Information. Each certificate 
-                  has a unique blockchain hash that can be verified by employers and institutions.
+                <h3 className="text-foreground font-semibold">Blockchain-Verified Certificates</h3>
+                <p className="text-muted-foreground mt-1 text-sm">
+                  All certificates are signed by the Ministry of Technical and Higher Education and
+                  the Ministry of Communication and Technology Information. Each certificate has a
+                  unique blockchain hash that can be verified by employers and institutions.
                 </p>
               </div>
             </div>
@@ -218,15 +213,14 @@ export default async function CertificatesPage() {
         <Card className="bg-secondary/30">
           <CardContent className="py-6">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-primary" />
+              <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-full">
+                <Shield className="text-primary h-6 w-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">
-                  Verify Certificates
-                </h3>
-                <p className="text-muted-foreground text-sm mt-1 mb-4">
-                  Verify the authenticity of any certificate by scanning its QR code or entering the certificate number.
+                <h3 className="text-foreground font-semibold">Verify Certificates</h3>
+                <p className="text-muted-foreground mt-1 mb-4 text-sm">
+                  Verify the authenticity of any certificate by scanning its QR code or entering the
+                  certificate number.
                 </p>
                 <Link href="/verify">
                   <Button size="sm" variant="outline">
@@ -241,4 +235,3 @@ export default async function CertificatesPage() {
     </div>
   );
 }
-

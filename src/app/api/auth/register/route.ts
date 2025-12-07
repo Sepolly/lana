@@ -19,10 +19,10 @@ const registerSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     // Validate input
     const validationResult = registerSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
       return NextResponse.json(
         {
@@ -76,15 +76,17 @@ export async function POST(request: NextRequest) {
     // Send verification email
     try {
       await sendVerificationEmail(email, name, token);
-    } catch (emailError: any) {
+    } catch (emailError: unknown) {
       // Log error details only in development
       const isDevelopment = process.env.NODE_ENV === "development";
       if (isDevelopment) {
         console.error("Failed to send verification email:", emailError);
       } else {
+        const errorObj = emailError instanceof Error ? emailError : new Error(String(emailError));
+        const errorWithCode = emailError as { code?: string };
         console.error("Failed to send verification email:", {
-          code: emailError?.code,
-          message: emailError?.message,
+          code: errorWithCode?.code,
+          message: errorObj.message,
         });
       }
       // Don't fail registration if email fails - user can request new verification
@@ -102,15 +104,16 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Log full error details only in development
     const isDevelopment = process.env.NODE_ENV === "development";
     if (isDevelopment) {
       console.error("Registration error:", error);
     } else {
+      const errorObj = error instanceof Error ? error : new Error(String(error));
       console.error("Registration error:", {
-        message: error?.message,
-        name: error?.name,
+        message: errorObj.message,
+        name: errorObj.name,
       });
     }
     return NextResponse.json(
@@ -122,4 +125,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

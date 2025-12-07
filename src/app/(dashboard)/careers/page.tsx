@@ -2,7 +2,15 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Mascot } from "@/components/ui";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Button,
+  Mascot,
+} from "@/components/ui";
 import { Compass, TrendingUp, GraduationCap, ArrowRight, Search, Briefcase } from "lucide-react";
 
 // Sample career data (in production, this would come from the RAG system)
@@ -48,7 +56,11 @@ const sampleCareers = [
     averageSalary: "$55,000 - $100,000",
     growthOutlook: "Moderate",
     skills: ["Management", "Healthcare Knowledge", "Communication", "Budgeting"],
-    educationPath: ["Healthcare Administration Degree", "Business Administration", "Certifications"],
+    educationPath: [
+      "Healthcare Administration Degree",
+      "Business Administration",
+      "Certifications",
+    ],
     category: "Healthcare",
   },
   {
@@ -92,48 +104,44 @@ export default async function CareersPage() {
   const careers = sampleCareers;
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="animate-fade-in space-y-8">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Explore Careers</h1>
+          <h1 className="text-foreground text-3xl font-bold">Explore Careers</h1>
           <p className="text-muted-foreground mt-1">
             Discover career paths that match your interests and skills
           </p>
         </div>
-        
+
         {/* Search */}
         <div className="relative w-full lg:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search careers..."
-            className="w-full h-10 pl-10 pr-4 rounded-xl border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="border-border bg-card focus:ring-primary h-10 w-full rounded-xl border pr-4 pl-10 text-sm focus:ring-2 focus:outline-none"
           />
         </div>
       </div>
 
       {/* Aptitude CTA */}
       {!hasCompletedAptitude && (
-        <Card className="bg-gradient-to-r from-primary to-primary/80 text-white border-0">
+        <Card className="from-primary to-primary/80 border-0 bg-gradient-to-r text-white">
           <CardContent className="py-6">
-            <div className="flex flex-col md:flex-row items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
-                <Compass className="w-8 h-8" />
+            <div className="flex flex-col items-center gap-4 md:flex-row">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+                <Compass className="h-8 w-8" />
               </div>
               <div className="flex-1 text-center md:text-left">
-                <h3 className="font-semibold text-lg">
-                  Find Your Perfect Career Match
-                </h3>
-                <p className="text-white/80 mt-1">
-                  Take our aptitude test to get personalized career recommendations based on your strengths and interests.
+                <h3 className="text-lg font-semibold">Find Your Perfect Career Match</h3>
+                <p className="mt-1 text-white/80">
+                  Take our aptitude test to get personalized career recommendations based on your
+                  strengths and interests.
                 </p>
               </div>
               <Link href="/onboarding">
-                <Button 
-                  variant="secondary" 
-                  rightIcon={<ArrowRight className="w-4 h-4" />}
-                >
+                <Button variant="secondary" rightIcon={<ArrowRight className="h-4 w-4" />}>
                   Take Aptitude Test
                 </Button>
               </Link>
@@ -146,33 +154,41 @@ export default async function CareersPage() {
       {hasCompletedAptitude && profile && (
         <Card className="bg-secondary/30">
           <CardContent className="py-6">
-            <div className="flex flex-col md:flex-row items-start gap-6">
+            <div className="flex flex-col items-start gap-6 md:flex-row">
               <Mascot size="md" mood="happy" animate={false} />
               <div className="flex-1">
-                <h3 className="font-semibold text-foreground">Your Profile</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                <h3 className="text-foreground font-semibold">Your Profile</h3>
+                <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Learning Style</p>
-                    <p className="font-medium text-foreground mt-1">
+                    <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                      Learning Style
+                    </p>
+                    <p className="text-foreground mt-1 font-medium">
                       {profile.learningStyle?.replace("_", " ") || "Not set"}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Top Interests</p>
-                    <p className="font-medium text-foreground mt-1">
+                    <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                      Top Interests
+                    </p>
+                    <p className="text-foreground mt-1 font-medium">
                       {profile.interests?.slice(0, 2).join(", ") || "Not set"}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Key Strengths</p>
-                    <p className="font-medium text-foreground mt-1">
+                    <p className="text-muted-foreground text-xs tracking-wide uppercase">
+                      Key Strengths
+                    </p>
+                    <p className="text-foreground mt-1 font-medium">
                       {profile.strengths?.slice(0, 2).join(", ") || "Not set"}
                     </p>
                   </div>
                 </div>
               </div>
               <Link href="/onboarding">
-                <Button variant="outline" size="sm">Update Profile</Button>
+                <Button variant="outline" size="sm">
+                  Update Profile
+                </Button>
               </Link>
             </div>
           </CardContent>
@@ -180,44 +196,44 @@ export default async function CareersPage() {
       )}
 
       {/* Career Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {careers.map((career, index) => (
           <Card key={career.id} variant="interactive" className="overflow-hidden">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium px-2 py-1 rounded-full bg-secondary text-secondary-foreground">
+                <span className="bg-secondary text-secondary-foreground rounded-full px-2 py-1 text-xs font-medium">
                   {career.category}
                 </span>
-                <div className="flex items-center gap-1 text-primary">
-                  <TrendingUp className="w-4 h-4" />
+                <div className="text-primary flex items-center gap-1">
+                  <TrendingUp className="h-4 w-4" />
                   <span className="text-sm font-medium">{career.demandScore}% Demand</span>
                 </div>
               </div>
-              <CardTitle className="text-xl mt-2">{career.title}</CardTitle>
+              <CardTitle className="mt-2 text-xl">{career.title}</CardTitle>
               <CardDescription>{career.description}</CardDescription>
             </CardHeader>
-            
+
             <CardContent className="space-y-4">
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-muted-foreground">Average Salary</p>
-                  <p className="font-medium text-foreground">{career.averageSalary}</p>
+                  <p className="text-muted-foreground text-xs">Average Salary</p>
+                  <p className="text-foreground font-medium">{career.averageSalary}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground">Growth Outlook</p>
-                  <p className="font-medium text-foreground">{career.growthOutlook}</p>
+                  <p className="text-muted-foreground text-xs">Growth Outlook</p>
+                  <p className="text-foreground font-medium">{career.growthOutlook}</p>
                 </div>
               </div>
 
               {/* Skills */}
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Required Skills</p>
+                <p className="text-muted-foreground mb-2 text-xs">Required Skills</p>
                 <div className="flex flex-wrap gap-1">
                   {career.skills.slice(0, 4).map((skill) => (
                     <span
                       key={skill}
-                      className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground"
+                      className="bg-muted text-muted-foreground rounded-full px-2 py-1 text-xs"
                     >
                       {skill}
                     </span>
@@ -227,19 +243,17 @@ export default async function CareersPage() {
 
               {/* Education Path */}
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Education Path</p>
+                <p className="text-muted-foreground mb-2 text-xs">Education Path</p>
                 <div className="flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-primary" />
-                  <span className="text-sm text-foreground">
-                    {career.educationPath[0]}
-                  </span>
+                  <GraduationCap className="text-primary h-4 w-4" />
+                  <span className="text-foreground text-sm">{career.educationPath[0]}</span>
                 </div>
               </div>
 
               {/* Action */}
               <div className="pt-2">
                 <Link href={`/courses?career=${career.id}`}>
-                  <Button fullWidth variant="outline" rightIcon={<Briefcase className="w-4 h-4" />}>
+                  <Button fullWidth variant="outline" rightIcon={<Briefcase className="h-4 w-4" />}>
                     View Related Courses
                   </Button>
                 </Link>
@@ -251,4 +265,3 @@ export default async function CareersPage() {
     </div>
   );
 }
-

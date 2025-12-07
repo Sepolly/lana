@@ -12,10 +12,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { topicId } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Get the quiz for this topic
@@ -41,10 +38,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error("Quiz fetch error:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch quiz" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to fetch quiz" }, { status: 500 });
   }
 }
-

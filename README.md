@@ -54,22 +54,22 @@ cp .env.example .env
 
 Required environment variables:
 
-| Variable | Description |
-|----------|-------------|
-| `DATABASE_URL` | NeonDB PostgreSQL connection string |
-| `NEXTAUTH_SECRET` | Random string for NextAuth (min 32 chars) |
-| `NEXTAUTH_URL` | Your app URL (http://localhost:3000 for dev) |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
-| `PINECONE_API_KEY` | Pinecone API key |
-| `PINECONE_INDEX` | Pinecone index name |
-| `OPENROUTER_API_KEY` | OpenRouter API key for AI queries |
-| `YOUTUBE_API_KEY` | YouTube Data API key for video content |
-| `SMTP_HOST` | SMTP server host |
-| `SMTP_PORT` | SMTP server port |
-| `SMTP_USER` | SMTP username |
-| `SMTP_PASSWORD` | SMTP password |
-| `EMAIL_FROM` | Sender email address |
+| Variable               | Description                                  |
+| ---------------------- | -------------------------------------------- |
+| `DATABASE_URL`         | NeonDB PostgreSQL connection string          |
+| `NEXTAUTH_SECRET`      | Random string for NextAuth (min 32 chars)    |
+| `NEXTAUTH_URL`         | Your app URL (http://localhost:3000 for dev) |
+| `GOOGLE_CLIENT_ID`     | Google OAuth client ID                       |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth client secret                   |
+| `PINECONE_API_KEY`     | Pinecone API key                             |
+| `PINECONE_INDEX`       | Pinecone index name                          |
+| `OPENROUTER_API_KEY`   | OpenRouter API key for AI queries            |
+| `YOUTUBE_API_KEY`      | YouTube Data API key for video content       |
+| `SMTP_HOST`            | SMTP server host                             |
+| `SMTP_PORT`            | SMTP server port                             |
+| `SMTP_USER`            | SMTP username                                |
+| `SMTP_PASSWORD`        | SMTP password                                |
+| `EMAIL_FROM`           | Sender email address                         |
 
 ### 4. Set up the database
 
@@ -116,12 +116,12 @@ lana/
 
 ## 🎨 Color Palette
 
-| Color | Hex | Usage |
-|-------|-----|-------|
-| Primary (Royal Blue) | `#162660` | Main brand color |
-| Primary Foreground | `#FFFFFF` | Text on primary |
+| Color                   | Hex       | Usage                |
+| ----------------------- | --------- | -------------------- |
+| Primary (Royal Blue)    | `#162660` | Main brand color     |
+| Primary Foreground      | `#FFFFFF` | Text on primary      |
 | Secondary (Powder Blue) | `#D0E6FD` | Accents, backgrounds |
-| Tertiary (Warm Beige) | `#F1E4D1` | Highlights |
+| Tertiary (Warm Beige)   | `#F1E4D1` | Highlights           |
 
 ## 🔧 Available Scripts
 
@@ -172,6 +172,7 @@ The platform supports two authentication methods:
 ## 📧 Email Setup
 
 For development, you can use services like:
+
 - [Mailtrap](https://mailtrap.io/) - Email testing
 - [Ethereal](https://ethereal.email/) - Fake SMTP service
 - Gmail SMTP (requires app password)
@@ -263,6 +264,7 @@ If you need to rollback a deployment:
    - Click the three dots menu → "Promote to Production"
 
 2. **Via Vercel CLI**:
+
    ```bash
    vercel rollback [deployment-url]
    ```
@@ -318,11 +320,13 @@ The application includes comprehensive security headers:
 ### Build Failures
 
 1. **TypeScript Errors**:
+
    ```bash
    npm run type-check
    ```
 
 2. **Linting Errors**:
+
    ```bash
    npm run lint
    ```

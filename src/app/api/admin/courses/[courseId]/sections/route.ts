@@ -17,10 +17,7 @@ const addSectionSchema = z.object({
  * Note: Sections are implicit (grouped by topic.section field)
  * This endpoint helps organize topics into sections
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteParams
-) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { courseId } = await params;
     const body = await request.json();
@@ -28,10 +25,10 @@ export async function POST(
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid section data",
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 }
       );
@@ -44,10 +41,7 @@ export async function POST(
     });
 
     if (!course) {
-      return NextResponse.json(
-        { success: false, error: "Course not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
     // Sections are stored in topics, so we just return the section info
@@ -58,9 +52,7 @@ export async function POST(
     let sectionOrder = order;
     if (!sectionOrder) {
       const existingSections = new Set(
-        course.topics
-          .map(t => t.section)
-          .filter((s): s is string => s !== null)
+        course.topics.map((t) => t.section).filter((s): s is string => s !== null)
       );
       sectionOrder = existingSections.size + 1;
     }
@@ -76,12 +68,11 @@ export async function POST(
   } catch (error) {
     console.error("Error adding section:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to add section" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to add section",
       },
       { status: 500 }
     );
   }
 }
-

@@ -49,7 +49,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
               questions: topic.quiz.questions.map((question) => {
                 // Validate options JSON field
                 let options = question.options;
-                if (typeof options === 'string') {
+                if (typeof options === "string") {
                   try {
                     options = JSON.parse(options);
                   } catch (e) {
@@ -73,7 +73,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
     };
 
     // Get or create enrollment
-    let enrollment = await db.enrollment.findUnique({
+    const enrollment = await db.enrollment.findUnique({
       where: {
         userId_courseId: {
           userId: session.user.id,
@@ -104,4 +104,3 @@ export default async function CourseDetailPage({ params }: PageProps) {
     throw new Error("Failed to load course. Please try again later.");
   }
 }
-

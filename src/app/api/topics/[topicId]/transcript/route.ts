@@ -13,10 +13,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { topicId } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -40,10 +37,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!topic) {
-      return NextResponse.json(
-        { success: false, error: "Topic not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Topic not found" }, { status: 404 });
     }
 
     // Check if we already have a transcript saved
@@ -101,17 +95,18 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error("Transcript generation error:", error);
-    
+
     // Check if it's a "no transcript available" error
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    const isNoTranscriptError = errorMessage.includes("No transcript available") || 
-                                 errorMessage.includes("Could not get") ||
-                                 errorMessage.includes("Transcript is disabled");
-    
+    const isNoTranscriptError =
+      errorMessage.includes("No transcript available") ||
+      errorMessage.includes("Could not get") ||
+      errorMessage.includes("Transcript is disabled");
+
     return NextResponse.json(
-      { 
-        success: false, 
-        error: isNoTranscriptError 
+      {
+        success: false,
+        error: isNoTranscriptError
           ? "This video does not have captions/transcript available on YouTube"
           : "Failed to fetch transcript from YouTube",
         details: errorMessage,
@@ -128,10 +123,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { topicId } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const topic = await db.topic.findUnique({
@@ -145,10 +137,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!topic) {
-      return NextResponse.json(
-        { success: false, error: "Topic not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Topic not found" }, { status: 404 });
     }
 
     if (!topic.textContent) {
@@ -175,4 +164,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
   }
 }
-

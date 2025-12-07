@@ -3,7 +3,18 @@
 import * as React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, BookOpen, Users, Briefcase, Building2, Settings, LogOut, ChevronLeft, ChevronRight, Shield } from "lucide-react";
+import {
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  Briefcase,
+  Building2,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Shield,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const adminNavItems = [
@@ -55,7 +66,7 @@ export function AdminSidebar({ userName, userEmail }: AdminSidebarProps) {
   // Prevent hydration mismatch
   if (!mounted) {
     return (
-      <aside className="w-64 bg-primary text-primary-foreground flex flex-col shrink-0 fixed left-0 top-0 h-screen z-40" />
+      <aside className="bg-primary text-primary-foreground fixed top-0 left-0 z-40 flex h-screen w-64 shrink-0 flex-col" />
     );
   }
 
@@ -64,29 +75,29 @@ export function AdminSidebar({ userName, userEmail }: AdminSidebarProps) {
   return (
     <aside
       className={cn(
-        "bg-primary text-primary-foreground flex flex-col shrink-0 fixed left-0 top-0 h-screen z-40 transition-all duration-300 border-r border-white/10",
+        "bg-primary text-primary-foreground fixed top-0 left-0 z-40 flex h-screen shrink-0 flex-col border-r border-white/10 transition-all duration-300",
         isCollapsed ? "w-20" : "w-64"
       )}
     >
       {/* Logo */}
-      <div className="p-4 border-b border-white/10 flex items-center justify-between">
+      <div className="flex items-center justify-between border-b border-white/10 p-4">
         <Link
           href="/admin"
           className={cn(
             "flex items-center gap-2 transition-opacity",
-            isCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
+            isCollapsed ? "w-0 overflow-hidden opacity-0" : "opacity-100"
           )}
         >
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10">
             <span className="text-xl font-bold">L</span>
           </div>
           <div>
-            <span className="font-bold text-lg">Lana</span>
+            <span className="text-lg font-bold">Lana</span>
             <span className="block text-xs text-white/60">Admin Panel</span>
           </div>
         </Link>
         {isCollapsed && (
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10">
             <span className="text-xl font-bold">L</span>
           </div>
         )}
@@ -94,21 +105,17 @@ export function AdminSidebar({ userName, userEmail }: AdminSidebarProps) {
         <button
           onClick={handleToggle}
           className={cn(
-            "p-2 rounded-lg hover:bg-white/10 transition-colors text-white/80 hover:text-white shrink-0",
+            "shrink-0 rounded-lg p-2 text-white/80 transition-colors hover:bg-white/10 hover:text-white",
             isCollapsed && "mx-auto"
           )}
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {isCollapsed ? (
-            <ChevronRight className="w-4 h-4" />
-          ) : (
-            <ChevronLeft className="w-4 h-4" />
-          )}
+          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
         {adminNavItems.map((item) => {
           // For Dashboard (/admin), only match exactly. For other routes, match exact or sub-routes
           let isActive = false;
@@ -133,7 +140,7 @@ export function AdminSidebar({ userName, userEmail }: AdminSidebarProps) {
                   : "text-white/80 hover:bg-white/10 hover:text-white"
               )}
             >
-              <item.icon className="w-5 h-5 shrink-0" />
+              <item.icon className="h-5 w-5 shrink-0" />
               {!isCollapsed && <span>{item.title}</span>}
             </Link>
           );
@@ -141,37 +148,37 @@ export function AdminSidebar({ userName, userEmail }: AdminSidebarProps) {
       </nav>
 
       {/* User Section */}
-      <div className="p-4 border-t border-white/10">
+      <div className="border-t border-white/10 p-4">
         {!isCollapsed ? (
           <>
-            <div className="flex items-center gap-3 px-4 py-2 mb-2">
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold shrink-0">
+            <div className="mb-2 flex items-center gap-3 px-4 py-2">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-bold">
                 {userInitial}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{userName || "Admin"}</p>
-                <p className="text-xs text-white/60 truncate">{userEmail || "admin@lana.com"}</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{userName || "Admin"}</p>
+                <p className="truncate text-xs text-white/60">{userEmail || "admin@lana.com"}</p>
               </div>
             </div>
             <button
               onClick={handleSignOut}
-              className="flex items-center gap-2 px-4 py-2 w-full text-sm text-white/60 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
+              className="flex w-full items-center gap-2 rounded-xl px-4 py-2 text-sm text-white/60 transition-colors hover:bg-white/10 hover:text-white"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="h-4 w-4" />
               <span>Sign Out</span>
             </button>
           </>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm font-bold">
               {userInitial}
             </div>
             <button
               onClick={handleSignOut}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors text-white/60 hover:text-white"
+              className="rounded-lg p-2 text-white/60 transition-colors hover:bg-white/10 hover:text-white"
               title="Sign Out"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="h-4 w-4" />
             </button>
           </div>
         )}
@@ -179,4 +186,3 @@ export function AdminSidebar({ userName, userEmail }: AdminSidebarProps) {
     </aside>
   );
 }
-

@@ -16,10 +16,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { topicId } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     // Get the topic's quiz
@@ -37,10 +34,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!topic || !topic.quiz) {
-      return NextResponse.json(
-        { success: false, error: "Quiz not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Quiz not found" }, { status: 404 });
     }
 
     // Get the latest quiz attempt for this user
@@ -55,10 +49,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
     if (!attempt) {
-      return NextResponse.json(
-        { success: false, error: "No quiz attempt found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "No quiz attempt found" }, { status: 404 });
     }
 
     // Get topic progress to check completion status
@@ -112,4 +103,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
   }
 }
-

@@ -115,11 +115,7 @@ export function delay(ms: number): Promise<void> {
  * Only logs detailed error information in development mode
  * In production, only logs safe error information (no sensitive data)
  */
-export function logError(
-  message: string,
-  error: unknown,
-  context?: Record<string, unknown>
-): void {
+export function logError(message: string, error: unknown, context?: Record<string, unknown>): void {
   const isDevelopment = process.env.NODE_ENV === "development";
 
   if (isDevelopment) {
@@ -131,13 +127,14 @@ export function logError(
     });
   } else {
     // Production: Log only safe information
-    const safeError = error instanceof Error 
-      ? {
-          name: error.name,
-          message: error.message,
-          // Don't include stack trace or sensitive data
-        }
-      : { error: String(error) };
+    const safeError =
+      error instanceof Error
+        ? {
+            name: error.name,
+            message: error.message,
+            // Don't include stack trace or sensitive data
+          }
+        : { error: String(error) };
 
     console.error(message, {
       ...safeError,
@@ -168,9 +165,7 @@ function sanitizeContext(context: Record<string, unknown>): Record<string, unkno
 
   for (const [key, value] of Object.entries(context)) {
     const lowerKey = key.toLowerCase();
-    const isSensitive = sensitiveKeys.some((sensitive) =>
-      lowerKey.includes(sensitive)
-    );
+    const isSensitive = sensitiveKeys.some((sensitive) => lowerKey.includes(sensitive));
 
     if (isSensitive) {
       sanitized[key] = "[REDACTED]";
@@ -183,4 +178,3 @@ function sanitizeContext(context: Record<string, unknown>): Record<string, unkno
 
   return sanitized;
 }
-

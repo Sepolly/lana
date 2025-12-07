@@ -22,10 +22,10 @@ export async function POST(request: NextRequest) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          success: false, 
+        {
+          success: false,
           error: "Invalid course data",
-          details: validationResult.error.issues 
+          details: validationResult.error.issues,
         },
         { status: 400 }
       );
@@ -76,12 +76,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating course:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to create course" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to create course",
       },
       { status: 500 }
     );
   }
 }
-

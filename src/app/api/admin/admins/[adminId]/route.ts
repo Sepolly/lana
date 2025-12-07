@@ -28,10 +28,7 @@ export async function PATCH(
     const session = await auth();
 
     if (!session?.user || session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const { adminId } = await params;
@@ -70,24 +67,21 @@ export async function PATCH(
       });
 
       if (!user) {
-        return NextResponse.json(
-          { success: false, error: "User not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
       }
 
       if (!user.passwordHash) {
         return NextResponse.json(
-          { success: false, error: "No password set for this account. Please use the password reset feature." },
+          {
+            success: false,
+            error: "No password set for this account. Please use the password reset feature.",
+          },
           { status: 400 }
         );
       }
 
       try {
-        const isPasswordValid = await verifyPassword(
-          trimmedCurrentPassword,
-          user.passwordHash
-        );
+        const isPasswordValid = await verifyPassword(trimmedCurrentPassword, user.passwordHash);
 
         if (!isPasswordValid) {
           const isDevelopment = process.env.NODE_ENV === "development";
@@ -101,7 +95,10 @@ export async function PATCH(
             });
           }
           return NextResponse.json(
-            { success: false, error: "Current password is incorrect. Please check your password and try again." },
+            {
+              success: false,
+              error: "Current password is incorrect. Please check your password and try again.",
+            },
             { status: 400 }
           );
         }
@@ -166,10 +163,7 @@ export async function PATCH(
       }
 
       if (Object.keys(updateData).length === 0) {
-        return NextResponse.json(
-          { success: false, error: "No fields to update" },
-          { status: 400 }
-        );
+        return NextResponse.json({ success: false, error: "No fields to update" }, { status: 400 });
       }
 
       await db.user.update({
@@ -183,10 +177,7 @@ export async function PATCH(
       });
     }
 
-    return NextResponse.json(
-      { success: false, error: "Invalid action" },
-      { status: 400 }
-    );
+    return NextResponse.json({ success: false, error: "Invalid action" }, { status: 400 });
   } catch (error: unknown) {
     const isDevelopment = process.env.NODE_ENV === "development";
     if (isDevelopment) {
@@ -196,10 +187,6 @@ export async function PATCH(
         message: error instanceof Error ? error.message : String(error),
       });
     }
-    return NextResponse.json(
-      { success: false, error: "Failed to update admin" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to update admin" }, { status: 500 });
   }
 }
-

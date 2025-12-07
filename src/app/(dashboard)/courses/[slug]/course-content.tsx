@@ -4,19 +4,40 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Card, CardContent, Button, Mascot } from "@/components/ui";
-import { CheckCircle2, Lock, Clock, BookOpen, Award, ChevronRight, ChevronDown, ArrowLeft, Loader2, Play, PanelLeftClose, PanelLeft } from "lucide-react";
+import {
+  CheckCircle2,
+  Lock,
+  Clock,
+  BookOpen,
+  Award,
+  ChevronRight,
+  ChevronDown,
+  ArrowLeft,
+  Loader2,
+  Play,
+  PanelLeftClose,
+  PanelLeft,
+} from "lucide-react";
 import Link from "next/link";
 import { QuizModal } from "@/components/quiz-modal";
-import type { LearningStyle, Course, Topic, Quiz, QuizQuestion, Enrollment, TopicProgress } from "@prisma/client";
+import type {
+  LearningStyle,
+  Course,
+  Topic,
+  Quiz,
+  QuizQuestion,
+  Enrollment,
+  TopicProgress,
+} from "@prisma/client";
 
 // Dynamic import with SSR disabled to prevent hydration issues with YouTube iframe API
 const YouTubePlayer = dynamic(
   () => import("@/components/youtube-player").then((mod) => mod.YouTubePlayer),
-  { 
+  {
     ssr: false,
     loading: () => (
-      <div className="aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center">
-        <div className="w-16 h-16 rounded-full border-4 border-secondary/30 border-t-primary animate-spin" />
+      <div className="flex aspect-video items-center justify-center overflow-hidden rounded-xl bg-black">
+        <div className="border-secondary/30 border-t-primary h-16 w-16 animate-spin rounded-full border-4" />
       </div>
     ),
   }
@@ -30,9 +51,11 @@ type CourseWithTopics = Course & {
   topics: TopicWithQuiz[];
 };
 
-type EnrollmentWithProgress = Enrollment & {
-  topicProgress: TopicProgress[];
-} | null;
+type EnrollmentWithProgress =
+  | (Enrollment & {
+      topicProgress: TopicProgress[];
+    })
+  | null;
 
 interface CourseContentProps {
   course: CourseWithTopics;
@@ -49,11 +72,17 @@ interface TopicSection {
 
 function groupTopicsBySection(topics: TopicWithQuiz[]): TopicSection[] {
   const sectionMap = new Map<string, TopicWithQuiz[]>();
-  const defaultSections = ["Introduction & Foundations", "Core Fundamentals", "Intermediate Skills", "Advanced & Professional", "Career Launch"];
-  
+  const defaultSections = [
+    "Introduction & Foundations",
+    "Core Fundamentals",
+    "Intermediate Skills",
+    "Advanced & Professional",
+    "Career Launch",
+  ];
+
   topics.forEach((topic, index) => {
     let sectionName = (topic as TopicWithQuiz & { section?: string }).section;
-    
+
     if (!sectionName) {
       if (index < 5) sectionName = "Introduction & Foundations";
       else if (index < 12) sectionName = "Core Fundamentals";
@@ -61,15 +90,15 @@ function groupTopicsBySection(topics: TopicWithQuiz[]): TopicSection[] {
       else if (index < 23) sectionName = "Advanced & Professional";
       else sectionName = "Career Launch";
     }
-    
+
     if (!sectionMap.has(sectionName)) {
       sectionMap.set(sectionName, []);
     }
     sectionMap.get(sectionName)!.push(topic);
   });
-  
+
   const orderedSections: TopicSection[] = [];
-  defaultSections.forEach(sectionName => {
+  defaultSections.forEach((sectionName) => {
     if (sectionMap.has(sectionName)) {
       orderedSections.push({
         name: sectionName,
@@ -78,18 +107,23 @@ function groupTopicsBySection(topics: TopicWithQuiz[]): TopicSection[] {
       sectionMap.delete(sectionName);
     }
   });
-  
+
   sectionMap.forEach((topics, name) => {
     orderedSections.push({
       name,
       topics: topics.sort((a, b) => a.order - b.order),
     });
   });
-  
+
   return orderedSections;
 }
 
-export function CourseContent({ course, enrollment: initialEnrollment, userId, learningStyle }: CourseContentProps) {
+export function CourseContent({
+  course,
+  enrollment: initialEnrollment,
+  userId,
+  learningStyle,
+}: CourseContentProps) {
   const router = useRouter();
   const [enrollment, setEnrollment] = React.useState(initialEnrollment);
   const [isEnrolling, setIsEnrolling] = React.useState(false);
@@ -98,10 +132,16 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
   const [videoProgress, setVideoProgress] = React.useState(0);
   const [videoCompleted, setVideoCompleted] = React.useState(false);
   const [isGeneratingQuiz, setIsGeneratingQuiz] = React.useState(false);
-  const [generatedQuiz, setGeneratedQuiz] = React.useState<(Quiz & { questions: QuizQuestion[] }) | null>(null);
-  const [expandedSections, setExpandedSections] = React.useState<Set<string>>(new Set(["Introduction & Foundations", "Core Fundamentals"]));
-  const [localProgress, setLocalProgress] = React.useState<Map<string, { isCompleted: boolean; videoWatched: boolean; videoProgress: number }>>(new Map());
-  
+  const [generatedQuiz, setGeneratedQuiz] = React.useState<
+    (Quiz & { questions: QuizQuestion[] }) | null
+  >(null);
+  const [expandedSections, setExpandedSections] = React.useState<Set<string>>(
+    new Set(["Introduction & Foundations", "Core Fundamentals"])
+  );
+  const [localProgress, setLocalProgress] = React.useState<
+    Map<string, { isCompleted: boolean; videoWatched: boolean; videoProgress: number }>
+  >(new Map());
+
   // Quiz performance state for completed topics and topics with existing attempts
   const [quizPerformance, setQuizPerformance] = React.useState<{
     score: number;
@@ -112,17 +152,15 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
   } | null>(null);
   const [isLoadingQuizPerformance, setIsLoadingQuizPerformance] = React.useState(false);
   const [hasQuizAttempt, setHasQuizAttempt] = React.useState(false);
-  
+
   // Sidebar state
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
 
   const isEnrolled = !!enrollment;
-  
+
   // Merge server progress with local progress for immediate UI updates
   const progressMap = React.useMemo(() => {
-    const map = new Map(
-      enrollment?.topicProgress.map((p) => [p.topicId, p]) || []
-    );
+    const map = new Map(enrollment?.topicProgress.map((p) => [p.topicId, p]) || []);
     localProgress.forEach((progress, topicId) => {
       const existing = map.get(topicId);
       if (existing) {
@@ -148,7 +186,7 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
   }, [isEnrolled, activeTopic, course.topics, progressMap]);
 
   const toggleSection = (sectionName: string) => {
-    setExpandedSections(prev => {
+    setExpandedSections((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(sectionName)) {
         newSet.delete(sectionName);
@@ -159,7 +197,10 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
     });
   };
 
-  const getTopicStatus = (topic: TopicWithQuiz, topicIndex: number): "completed" | "available" | "locked" => {
+  const getTopicStatus = (
+    topic: TopicWithQuiz,
+    topicIndex: number
+  ): "completed" | "available" | "locked" => {
     const progress = progressMap.get(topic.id);
     if (progress?.isCompleted) return "completed";
     if (topicIndex === 0) return "available";
@@ -171,7 +212,7 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
 
   const getSectionProgress = (section: TopicSection) => {
     let completed = 0;
-    section.topics.forEach(topic => {
+    section.topics.forEach((topic) => {
       if (progressMap.get(topic.id)?.isCompleted) completed++;
     });
     return { completed, total: section.topics.length };
@@ -204,19 +245,20 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
   };
 
   const getGlobalTopicIndex = (topicId: string): number => {
-    return course.topics.findIndex(t => t.id === topicId);
+    return course.topics.findIndex((t) => t.id === topicId);
   };
 
   const getNextTopic = (currentTopicId: string): TopicWithQuiz | null => {
-    const currentIndex = course.topics.findIndex(t => t.id === currentTopicId);
+    const currentIndex = course.topics.findIndex((t) => t.id === currentTopicId);
     if (currentIndex >= 0 && currentIndex < course.topics.length - 1) {
       return course.topics[currentIndex + 1];
     }
     return null;
   };
-  
-  const isLastTopic = activeTopic ? 
-    course.topics.findIndex(t => t.id === activeTopic.id) === course.topics.length - 1 : false;
+
+  const isLastTopic = activeTopic
+    ? course.topics.findIndex((t) => t.id === activeTopic.id) === course.topics.length - 1
+    : false;
 
   React.useEffect(() => {
     // Always reset all video/quiz state when topic changes
@@ -227,7 +269,7 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
     setIsGeneratingQuiz(false);
     setQuizPerformance(null);
     setHasQuizAttempt(false);
-    
+
     if (activeTopic) {
       // Load existing progress for this topic from database
       const existingProgress = progressMap.get(activeTopic.id);
@@ -235,16 +277,16 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
         setVideoCompleted(true);
         setVideoProgress(existingProgress.videoProgress || 100);
       }
-      
+
       // Check if quiz exists and load quiz performance/attempt status
       if (activeTopic.quiz) {
         checkQuizAttempt(activeTopic.id);
       }
-      
+
       // Expand the section containing this topic
-      const section = sections.find(s => s.topics.some(t => t.id === activeTopic.id));
+      const section = sections.find((s) => s.topics.some((t) => t.id === activeTopic.id));
       if (section && !expandedSections.has(section.name)) {
-        setExpandedSections(prev => new Set([...prev, section.name]));
+        setExpandedSections((prev) => new Set([...prev, section.name]));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -264,7 +306,7 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
               return question && answer === question.correctAnswer;
             }
           ).length;
-          
+
           setQuizPerformance({
             score: data.attempt.score,
             passed: data.attempt.passed,
@@ -286,7 +328,6 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
     }
   };
 
-  
   const currentQuiz = activeTopic?.quiz || generatedQuiz;
 
   const handleVideoProgress = (progress: number) => {
@@ -296,8 +337,8 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
   const handleVideoComplete = async () => {
     if (!activeTopic || !enrollment || videoCompleted) return;
     setVideoCompleted(true);
-    
-    setLocalProgress(prev => {
+
+    setLocalProgress((prev) => {
       const newMap = new Map(prev);
       newMap.set(activeTopic.id, {
         isCompleted: false,
@@ -310,19 +351,21 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
 
   const handleTakeQuiz = async () => {
     if (!activeTopic || !enrollment) return;
-    
+
     if (activeTopic.quiz || generatedQuiz) {
       setShowQuizModal(true);
       return;
     }
-    
+
     setIsGeneratingQuiz(true);
     try {
-      const response = await fetch(`/api/topics/${activeTopic.id}/generate-quiz`, { method: "POST" });
-      
+      const response = await fetch(`/api/topics/${activeTopic.id}/generate-quiz`, {
+        method: "POST",
+      });
+
       if (response.ok) {
         const data = await response.json();
-        
+
         if (data.quiz || data.quizId) {
           const quizResponse = await fetch(`/api/topics/${activeTopic.id}/quiz`);
           if (quizResponse.ok) {
@@ -340,7 +383,7 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
       setIsGeneratingQuiz(false);
     }
   };
-  
+
   const handleQuizComplete = async (passed: boolean) => {
     if (!passed || !activeTopic || !enrollment) return;
 
@@ -361,12 +404,16 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
       if (progressResponse.ok) {
         const progressData = await progressResponse.json();
         // Update enrollment progress in local state
-        setEnrollment(prev => prev ? {
-          ...prev,
-          progress: progressData.data.overallProgress,
-          status: progressData.data.isCompleted ? "COMPLETED" : "ACTIVE",
-          completedAt: progressData.data.isCompleted ? new Date() : null,
-        } : null);
+        setEnrollment((prev) =>
+          prev
+            ? {
+                ...prev,
+                progress: progressData.data.overallProgress,
+                status: progressData.data.isCompleted ? "COMPLETED" : "ACTIVE",
+                completedAt: progressData.data.isCompleted ? new Date() : null,
+              }
+            : null
+        );
       } else {
         console.error("Failed to update topic progress");
       }
@@ -375,7 +422,7 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
     }
 
     // Update local progress immediately for UI responsiveness
-    setLocalProgress(prev => {
+    setLocalProgress((prev) => {
       const newMap = new Map(prev);
       newMap.set(activeTopic.id, {
         isCompleted: true,
@@ -399,9 +446,9 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
     setTimeout(() => {
       if (nextTopic) {
         // Expand the section containing the next topic
-        const nextSection = sections.find(s => s.topics.some(t => t.id === nextTopic.id));
+        const nextSection = sections.find((s) => s.topics.some((t) => t.id === nextTopic.id));
         if (nextSection) {
-          setExpandedSections(prev => new Set([...prev, nextSection.name]));
+          setExpandedSections((prev) => new Set([...prev, nextSection.name]));
         }
 
         // Clear state again before setting new topic (double-clear for safety)
@@ -423,55 +470,61 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col -mx-4 sm:-mx-6 lg:-mx-8 xl:-mx-10 -mt-4 sm:-mt-6 lg:-mt-8 xl:-mt-10">
+    <div className="-mx-4 -mt-4 flex h-[calc(100vh-4rem)] flex-col sm:-mx-6 sm:-mt-6 lg:-mx-8 lg:-mt-8 xl:-mx-10 xl:-mt-10">
       {/* Top Bar */}
-      <div className="shrink-0 px-4 py-2 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 shrink-0 border-b px-4 py-2 backdrop-blur">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Link 
-              href="/courses" 
-              className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            <Link
+              href="/courses"
+              className="hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg p-2 transition-colors"
               title="Back to Courses"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Link>
-            
-            <div className="h-6 w-px bg-border" />
-            
+
+            <div className="bg-border h-6 w-px" />
+
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              className="hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg p-2 transition-colors"
               title={sidebarCollapsed ? "Show course outline" : "Hide course outline"}
             >
-              {sidebarCollapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+              {sidebarCollapsed ? (
+                <PanelLeft className="h-5 w-5" />
+              ) : (
+                <PanelLeftClose className="h-5 w-5" />
+              )}
             </button>
-            
+
             <div className="hidden md:block">
-              <h1 className="font-semibold text-foreground line-clamp-1 text-sm">{course.title}</h1>
-              <p className="text-xs text-muted-foreground">
+              <h1 className="text-foreground line-clamp-1 text-sm font-semibold">{course.title}</h1>
+              <p className="text-muted-foreground text-xs">
                 {course.topics.length} Topics • {course.duration}h
               </p>
             </div>
           </div>
-          
+
           {isEnrolled && (
             <div className="flex items-center gap-4">
-              <div className="hidden sm:flex items-center gap-3">
-                <span className="text-xs text-muted-foreground font-medium">Progress</span>
+              <div className="hidden items-center gap-3 sm:flex">
+                <span className="text-muted-foreground text-xs font-medium">Progress</span>
                 <div className="flex items-center gap-2">
-                  <div className="w-28 h-2 bg-secondary rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-primary rounded-full transition-all duration-500"
+                  <div className="bg-secondary h-2 w-28 overflow-hidden rounded-full">
+                    <div
+                      className="bg-primary h-full rounded-full transition-all duration-500"
                       style={{ width: `${calculateOverallProgress()}%` }}
                     />
                   </div>
-                  <span className="text-xs font-semibold text-primary min-w-10">{Math.round(calculateOverallProgress())}%</span>
+                  <span className="text-primary min-w-10 text-xs font-semibold">
+                    {Math.round(calculateOverallProgress())}%
+                  </span>
                 </div>
               </div>
-              
+
               {canTakeExam() && (
                 <Link href={`/courses/${course.slug}/exam`}>
-                  <Button size="sm" leftIcon={<Award className="w-4 h-4" />}>
+                  <Button size="sm" leftIcon={<Award className="h-4 w-4" />}>
                     Take Exam
                   </Button>
                 </Link>
@@ -482,22 +535,22 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex flex-1 overflow-hidden">
         {/* Collapsible Sidebar */}
-        <div 
-          className={`shrink-0 border-r border-border bg-card transition-all duration-300 overflow-hidden ${
-            sidebarCollapsed ? 'w-0' : 'w-80'
+        <div
+          className={`border-border bg-card shrink-0 overflow-hidden border-r transition-all duration-300 ${
+            sidebarCollapsed ? "w-0" : "w-80"
           }`}
         >
-          <div className="w-80 h-full flex flex-col">
+          <div className="flex h-full w-80 flex-col">
             {/* Enrollment Status (if not enrolled) */}
             {!isEnrolled && (
-              <div className="p-4 border-b border-border bg-muted/30">
-                <div className="text-center space-y-3">
+              <div className="border-border bg-muted/30 border-b p-4">
+                <div className="space-y-3 text-center">
                   <Mascot size="sm" mood="waving" animate={false} />
                   <div>
-                    <p className="font-semibold text-sm">Ready to start?</p>
-                    <p className="text-xs text-muted-foreground">Enroll to track progress</p>
+                    <p className="text-sm font-semibold">Ready to start?</p>
+                    <p className="text-muted-foreground text-xs">Enroll to track progress</p>
                   </div>
                   <Button size="sm" fullWidth onClick={handleEnroll} isLoading={isEnrolling}>
                     Enroll Now
@@ -505,73 +558,89 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
                 </div>
               </div>
             )}
-            
+
             {/* Course Sections */}
             <div className="flex-1 overflow-y-auto">
               {sections.map((section) => {
                 const { completed, total } = getSectionProgress(section);
                 const isExpanded = expandedSections.has(section.name);
                 const isSectionComplete = completed === total;
-                
+
                 return (
-                  <div key={section.name} className="border-b border-border last:border-b-0">
+                  <div key={section.name} className="border-border border-b last:border-b-0">
                     <button
                       onClick={() => toggleSection(section.name)}
-                      className="w-full p-3 flex items-center justify-between hover:bg-muted/50 transition-colors"
+                      className="hover:bg-muted/50 flex w-full items-center justify-between p-3 transition-colors"
                     >
                       <div className="flex items-center gap-2">
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
-                          isSectionComplete ? 'bg-success text-white' : 'bg-primary/10 text-primary'
-                        }`}>
+                        <div
+                          className={`flex h-5 w-5 items-center justify-center rounded-full text-xs ${
+                            isSectionComplete
+                              ? "bg-success text-white"
+                              : "bg-primary/10 text-primary"
+                          }`}
+                        >
                           {isSectionComplete ? (
-                            <CheckCircle2 className="w-3 h-3" />
+                            <CheckCircle2 className="h-3 w-3" />
                           ) : (
-                            <BookOpen className="w-2.5 h-2.5" />
+                            <BookOpen className="h-2.5 w-2.5" />
                           )}
                         </div>
                         <div className="text-left">
-                          <p className="font-medium text-foreground text-sm">{section.name}</p>
-                          <p className="text-xs text-muted-foreground">{completed}/{total}</p>
+                          <p className="text-foreground text-sm font-medium">{section.name}</p>
+                          <p className="text-muted-foreground text-xs">
+                            {completed}/{total}
+                          </p>
                         </div>
                       </div>
-                      <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                      <ChevronDown
+                        className={`text-muted-foreground h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                      />
                     </button>
-                    
+
                     {isExpanded && (
                       <div className="bg-muted/20">
                         {section.topics.map((topic) => {
                           const globalIndex = getGlobalTopicIndex(topic.id);
                           const status = getTopicStatus(topic, globalIndex);
                           const isActive = activeTopic?.id === topic.id;
-                          
+
                           return (
                             <button
                               key={topic.id}
                               onClick={() => status !== "locked" && setActiveTopic(topic)}
                               disabled={status === "locked"}
-                              className={`w-full pl-10 pr-3 py-2.5 text-left transition-all flex items-center gap-2 ${
-                                isActive ? "bg-primary/10 border-l-2 border-primary" : "hover:bg-muted/50"
-                              } ${status === "locked" ? "opacity-50 cursor-not-allowed" : ""}`}
+                              className={`flex w-full items-center gap-2 py-2.5 pr-3 pl-10 text-left transition-all ${
+                                isActive
+                                  ? "bg-primary/10 border-primary border-l-2"
+                                  : "hover:bg-muted/50"
+                              } ${status === "locked" ? "cursor-not-allowed opacity-50" : ""}`}
                             >
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-xs ${
-                                status === "completed" ? "bg-success text-white" :
-                                status === "available" ? "bg-primary text-white" :
-                                "bg-muted text-muted-foreground"
-                              }`}>
+                              <div
+                                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs ${
+                                  status === "completed"
+                                    ? "bg-success text-white"
+                                    : status === "available"
+                                      ? "bg-primary text-white"
+                                      : "bg-muted text-muted-foreground"
+                                }`}
+                              >
                                 {status === "completed" ? (
-                                  <CheckCircle2 className="w-3 h-3" />
+                                  <CheckCircle2 className="h-3 w-3" />
                                 ) : status === "locked" ? (
-                                  <Lock className="w-3 h-3" />
+                                  <Lock className="h-3 w-3" />
                                 ) : (
-                                  <span className="font-medium text-[10px]">{globalIndex + 1}</span>
+                                  <span className="text-[10px] font-medium">{globalIndex + 1}</span>
                                 )}
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <p className={`text-xs truncate ${isActive ? "text-primary font-medium" : "text-foreground"}`}>
+                              <div className="min-w-0 flex-1">
+                                <p
+                                  className={`truncate text-xs ${isActive ? "text-primary font-medium" : "text-foreground"}`}
+                                >
                                   {topic.title}
                                 </p>
-                                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                  <Clock className="w-2.5 h-2.5" />
+                                <p className="text-muted-foreground flex items-center gap-1 text-[10px]">
+                                  <Clock className="h-2.5 w-2.5" />
                                   {topic.duration}min
                                 </p>
                               </div>
@@ -588,25 +657,27 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto bg-muted/30">
-          <div className="p-3 lg:p-4 max-w-5xl mx-auto">
+        <div className="bg-muted/30 flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-5xl p-3 lg:p-4">
             {activeTopic ? (
               <div className="space-y-3">
                 {/* Topic Header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs">
-                    <span className="px-2 py-1 rounded-md bg-primary/10 text-primary font-medium">
-                      {sections.find(s => s.topics.some(t => t.id === activeTopic.id))?.name}
+                    <span className="bg-primary/10 text-primary rounded-md px-2 py-1 font-medium">
+                      {sections.find((s) => s.topics.some((t) => t.id === activeTopic.id))?.name}
                     </span>
-                    <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">Topic {getGlobalTopicIndex(activeTopic.id) + 1} of {course.topics.length}</span>
+                    <ChevronRight className="text-muted-foreground h-3 w-3" />
+                    <span className="text-muted-foreground">
+                      Topic {getGlobalTopicIndex(activeTopic.id) + 1} of {course.topics.length}
+                    </span>
                   </div>
                 </div>
-                
+
                 <div className="space-y-1">
-                  <h2 className="text-xl font-bold text-foreground">{activeTopic.title}</h2>
+                  <h2 className="text-foreground text-xl font-bold">{activeTopic.title}</h2>
                   {activeTopic.description && (
-                    <p className="text-sm text-muted-foreground">{activeTopic.description}</p>
+                    <p className="text-muted-foreground text-sm">{activeTopic.description}</p>
                   )}
                 </div>
 
@@ -625,69 +696,77 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
                     disableProgressUpdate={progressMap.get(activeTopic.id)?.isCompleted || false}
                   />
                 )}
-                
+
                 {/* Quiz Section */}
                 <Card className="border-2 p-2">
                   <CardContent className="p-5">
                     {!videoCompleted && !progressMap.get(activeTopic.id)?.videoWatched ? (
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                            <Play className="w-5 h-5 text-muted-foreground" />
+                          <div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                            <Play className="text-muted-foreground h-5 w-5" />
                           </div>
                           <div>
-                            <p className="font-medium text-foreground">Video Required</p>
-                            <p className="text-sm text-muted-foreground">Watch 100% of the video to unlock the quiz</p>
+                            <p className="text-foreground font-medium">Video Required</p>
+                            <p className="text-muted-foreground text-sm">
+                              Watch 100% of the video to unlock the quiz
+                            </p>
                           </div>
                         </div>
                         <div className="shrink-0">
-                          <Lock className="w-5 h-5 text-muted-foreground" />
+                          <Lock className="text-muted-foreground h-5 w-5" />
                         </div>
                       </div>
                     ) : progressMap.get(activeTopic.id)?.isCompleted ? (
                       <div className="space-y-4">
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center shrink-0">
-                              <CheckCircle2 className="w-5 h-5 text-success" />
+                            <div className="bg-success/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                              <CheckCircle2 className="text-success h-5 w-5" />
                             </div>
                             <div>
-                              <p className="font-medium text-success">Topic Completed!</p>
-                              <p className="text-sm text-muted-foreground">Great work! You&apos;ve mastered this topic</p>
+                              <p className="text-success font-medium">Topic Completed!</p>
+                              <p className="text-muted-foreground text-sm">
+                                Great work! You&apos;ve mastered this topic
+                              </p>
                             </div>
                           </div>
                           <div className="shrink-0">
                             {!isLastTopic ? (
-                              <Button 
+                              <Button
                                 size="sm"
                                 onClick={() => {
                                   const nextTopic = getNextTopic(activeTopic.id);
                                   if (nextTopic) setActiveTopic(nextTopic);
                                 }}
-                                rightIcon={<ChevronRight className="w-4 h-4" />}
+                                rightIcon={<ChevronRight className="h-4 w-4" />}
                               >
                                 Next Topic
                               </Button>
                             ) : (
                               <Link href={`/courses/${course.slug}/exam`}>
-                                <Button size="sm" leftIcon={<Award className="w-4 h-4" />}>Take Exam</Button>
+                                <Button size="sm" leftIcon={<Award className="h-4 w-4" />}>
+                                  Take Exam
+                                </Button>
                               </Link>
                             )}
                           </div>
                         </div>
-                        
+
                         {/* Quiz Performance Overview */}
                         {activeTopic.quiz && (
-                          <div className="pt-4 border-t border-border">
+                          <div className="border-border border-t pt-4">
                             {isLoadingQuizPerformance ? (
-                              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                <Loader2 className="w-4 h-4 animate-spin" />
+                              <div className="text-muted-foreground flex items-center gap-3 text-sm">
+                                <Loader2 className="h-4 w-4 animate-spin" />
                                 <span>Loading quiz performance...</span>
                               </div>
                             ) : quizPerformance ? (
                               <div className="space-y-3">
                                 <div className="flex items-center justify-between">
-                                  <h4 className="text-sm font-semibold text-foreground">Quiz Performance</h4>
+                                  <h4 className="text-foreground text-sm font-semibold">
+                                    Quiz Performance
+                                  </h4>
                                   <Button
                                     size="sm"
                                     variant="outline"
@@ -697,33 +776,39 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
                                   </Button>
                                 </div>
                                 <div className="grid grid-cols-3 gap-3">
-                                  <div className="p-3 rounded-lg bg-muted/50">
-                                    <p className="text-xs text-muted-foreground mb-1">Score</p>
-                                    <p className={`text-lg font-bold ${quizPerformance.passed ? 'text-success' : 'text-destructive'}`}>
+                                  <div className="bg-muted/50 rounded-lg p-3">
+                                    <p className="text-muted-foreground mb-1 text-xs">Score</p>
+                                    <p
+                                      className={`text-lg font-bold ${quizPerformance.passed ? "text-success" : "text-destructive"}`}
+                                    >
                                       {Math.round(quizPerformance.score)}%
                                     </p>
                                   </div>
-                                  <div className="p-3 rounded-lg bg-muted/50">
-                                    <p className="text-xs text-muted-foreground mb-1">Correct</p>
-                                    <p className="text-lg font-bold text-foreground">
-                                      {quizPerformance.correctCount}/{quizPerformance.totalQuestions}
+                                  <div className="bg-muted/50 rounded-lg p-3">
+                                    <p className="text-muted-foreground mb-1 text-xs">Correct</p>
+                                    <p className="text-foreground text-lg font-bold">
+                                      {quizPerformance.correctCount}/
+                                      {quizPerformance.totalQuestions}
                                     </p>
                                   </div>
-                                  <div className="p-3 rounded-lg bg-muted/50">
-                                    <p className="text-xs text-muted-foreground mb-1">Status</p>
-                                    <p className={`text-sm font-semibold ${quizPerformance.passed ? 'text-success' : 'text-destructive'}`}>
-                                      {quizPerformance.passed ? 'Passed' : 'Failed'}
+                                  <div className="bg-muted/50 rounded-lg p-3">
+                                    <p className="text-muted-foreground mb-1 text-xs">Status</p>
+                                    <p
+                                      className={`text-sm font-semibold ${quizPerformance.passed ? "text-success" : "text-destructive"}`}
+                                    >
+                                      {quizPerformance.passed ? "Passed" : "Failed"}
                                     </p>
                                   </div>
                                 </div>
                                 {quizPerformance.completedAt && (
-                                  <p className="text-xs text-muted-foreground">
-                                    Completed on {new Date(quizPerformance.completedAt).toLocaleDateString()}
+                                  <p className="text-muted-foreground text-xs">
+                                    Completed on{" "}
+                                    {new Date(quizPerformance.completedAt).toLocaleDateString()}
                                   </p>
                                 )}
                               </div>
                             ) : (
-                              <p className="text-sm text-muted-foreground">No quiz attempt found</p>
+                              <p className="text-muted-foreground text-sm">No quiz attempt found</p>
                             )}
                           </div>
                         )}
@@ -733,53 +818,63 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
                         <div className="space-y-4">
                           <div className="flex items-center justify-between gap-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                <Award className="w-5 h-5 text-primary" />
+                              <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                                <Award className="text-primary h-5 w-5" />
                               </div>
                               <div>
-                                <p className="font-medium text-foreground">Quiz Completed</p>
-                                <p className="text-sm text-muted-foreground">View your quiz results</p>
+                                <p className="text-foreground font-medium">Quiz Completed</p>
+                                <p className="text-muted-foreground text-sm">
+                                  View your quiz results
+                                </p>
                               </div>
                             </div>
                             <div className="shrink-0">
-                              <Button 
-                                onClick={() => setShowQuizModal(true)} 
+                              <Button
+                                onClick={() => setShowQuizModal(true)}
                                 variant="outline"
-                                leftIcon={<Award className="w-4 h-4" />}
+                                leftIcon={<Award className="h-4 w-4" />}
                               >
                                 View Results
                               </Button>
                             </div>
                           </div>
-                          
+
                           {/* Quiz Performance Overview */}
                           {quizPerformance && (
-                            <div className="pt-4 border-t border-border">
+                            <div className="border-border border-t pt-4">
                               <div className="space-y-3">
-                                <h4 className="text-sm font-semibold text-foreground">Your Performance</h4>
+                                <h4 className="text-foreground text-sm font-semibold">
+                                  Your Performance
+                                </h4>
                                 <div className="grid grid-cols-3 gap-3">
-                                  <div className="p-3 rounded-lg bg-muted/50">
-                                    <p className="text-xs text-muted-foreground mb-1">Score</p>
-                                    <p className={`text-lg font-bold ${quizPerformance.passed ? 'text-success' : 'text-destructive'}`}>
+                                  <div className="bg-muted/50 rounded-lg p-3">
+                                    <p className="text-muted-foreground mb-1 text-xs">Score</p>
+                                    <p
+                                      className={`text-lg font-bold ${quizPerformance.passed ? "text-success" : "text-destructive"}`}
+                                    >
                                       {Math.round(quizPerformance.score)}%
                                     </p>
                                   </div>
-                                  <div className="p-3 rounded-lg bg-muted/50">
-                                    <p className="text-xs text-muted-foreground mb-1">Correct</p>
-                                    <p className="text-lg font-bold text-foreground">
-                                      {quizPerformance.correctCount}/{quizPerformance.totalQuestions}
+                                  <div className="bg-muted/50 rounded-lg p-3">
+                                    <p className="text-muted-foreground mb-1 text-xs">Correct</p>
+                                    <p className="text-foreground text-lg font-bold">
+                                      {quizPerformance.correctCount}/
+                                      {quizPerformance.totalQuestions}
                                     </p>
                                   </div>
-                                  <div className="p-3 rounded-lg bg-muted/50">
-                                    <p className="text-xs text-muted-foreground mb-1">Status</p>
-                                    <p className={`text-sm font-semibold ${quizPerformance.passed ? 'text-success' : 'text-destructive'}`}>
-                                      {quizPerformance.passed ? 'Passed' : 'Failed'}
+                                  <div className="bg-muted/50 rounded-lg p-3">
+                                    <p className="text-muted-foreground mb-1 text-xs">Status</p>
+                                    <p
+                                      className={`text-sm font-semibold ${quizPerformance.passed ? "text-success" : "text-destructive"}`}
+                                    >
+                                      {quizPerformance.passed ? "Passed" : "Failed"}
                                     </p>
                                   </div>
                                 </div>
                                 {quizPerformance.completedAt && (
-                                  <p className="text-xs text-muted-foreground">
-                                    Completed on {new Date(quizPerformance.completedAt).toLocaleDateString()}
+                                  <p className="text-muted-foreground text-xs">
+                                    Completed on{" "}
+                                    {new Date(quizPerformance.completedAt).toLocaleDateString()}
                                   </p>
                                 )}
                               </div>
@@ -789,16 +884,21 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
                       ) : (
                         <div className="flex items-center justify-between gap-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-success/10 flex items-center justify-center shrink-0">
-                              <CheckCircle2 className="w-5 h-5 text-success" />
+                            <div className="bg-success/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                              <CheckCircle2 className="text-success h-5 w-5" />
                             </div>
                             <div>
-                              <p className="font-medium text-foreground">Quiz Ready!</p>
-                              <p className="text-sm text-muted-foreground">Test your knowledge on this topic</p>
+                              <p className="text-foreground font-medium">Quiz Ready!</p>
+                              <p className="text-muted-foreground text-sm">
+                                Test your knowledge on this topic
+                              </p>
                             </div>
                           </div>
                           <div className="shrink-0">
-                            <Button onClick={() => setShowQuizModal(true)} leftIcon={<Award className="w-4 h-4" />}>
+                            <Button
+                              onClick={() => setShowQuizModal(true)}
+                              leftIcon={<Award className="h-4 w-4" />}
+                            >
                               Take Quiz
                             </Button>
                           </div>
@@ -807,16 +907,18 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
                     ) : isGeneratingQuiz ? (
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                          <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                            <Loader2 className="text-primary h-5 w-5 animate-spin" />
                           </div>
                           <div>
-                            <p className="font-medium text-foreground">Generating Quiz...</p>
-                            <p className="text-sm text-muted-foreground">Creating questions from video content</p>
+                            <p className="text-foreground font-medium">Generating Quiz...</p>
+                            <p className="text-muted-foreground text-sm">
+                              Creating questions from video content
+                            </p>
                           </div>
                         </div>
                         <div className="shrink-0">
-                          <div className="px-4 py-2 rounded-lg bg-muted text-muted-foreground text-sm font-medium">
+                          <div className="bg-muted text-muted-foreground rounded-lg px-4 py-2 text-sm font-medium">
                             Please wait
                           </div>
                         </div>
@@ -824,16 +926,18 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
                     ) : (
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                            <Award className="w-5 h-5 text-primary" />
+                          <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                            <Award className="text-primary h-5 w-5" />
                           </div>
                           <div>
-                            <p className="font-medium text-foreground">Ready for Quiz?</p>
-                            <p className="text-sm text-muted-foreground">Test your understanding of this topic</p>
+                            <p className="text-foreground font-medium">Ready for Quiz?</p>
+                            <p className="text-muted-foreground text-sm">
+                              Test your understanding of this topic
+                            </p>
                           </div>
                         </div>
                         <div className="shrink-0">
-                          <Button onClick={handleTakeQuiz} leftIcon={<Award className="w-4 h-4" />}>
+                          <Button onClick={handleTakeQuiz} leftIcon={<Award className="h-4 w-4" />}>
                             Take Quiz
                           </Button>
                         </div>
@@ -841,7 +945,7 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
                     )}
                   </CardContent>
                 </Card>
-                
+
                 {/* Quiz Modal */}
                 {currentQuiz && (
                   <QuizModal
@@ -860,24 +964,24 @@ export function CourseContent({ course, enrollment: initialEnrollment, userId, l
                 )}
               </div>
             ) : (
-              <div className="h-full flex items-center justify-center py-16">
-                <div className="text-center max-w-sm">
-                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
-                    <BookOpen className="w-8 h-8 text-primary" />
+              <div className="flex h-full items-center justify-center py-16">
+                <div className="max-w-sm text-center">
+                  <div className="bg-primary/10 mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full">
+                    <BookOpen className="text-primary h-8 w-8" />
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground">Select a Topic to Begin</h3>
+                  <h3 className="text-foreground text-lg font-semibold">Select a Topic to Begin</h3>
                   <p className="text-muted-foreground mt-2 text-sm">
                     {sidebarCollapsed ? (
                       <>
                         Click the{" "}
-                        <button 
+                        <button
                           onClick={() => setSidebarCollapsed(false)}
-                          className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                          className="text-primary inline-flex items-center gap-1 font-medium hover:underline"
                         >
-                          <PanelLeft className="w-4 h-4" />
+                          <PanelLeft className="h-4 w-4" />
                           sidebar toggle
-                        </button>
-                        {" "}to view course topics
+                        </button>{" "}
+                        to view course topics
                       </>
                     ) : (
                       "Choose a topic from the course outline on the left to start learning"

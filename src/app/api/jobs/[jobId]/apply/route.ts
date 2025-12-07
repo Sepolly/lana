@@ -19,20 +19,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { jobId } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
     const validationResult = applicationSchema.safeParse(body);
 
     if (!validationResult.success) {
-      return NextResponse.json(
-        { success: false, error: "Invalid request data" },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: "Invalid request data" }, { status: 400 });
     }
 
     const { coverLetter, resumeUrl } = validationResult.data;
@@ -117,10 +111,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { jobId } = await params;
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
     }
 
     const application = await db.jobApplication.findUnique({
@@ -144,4 +135,3 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
   }
 }
-

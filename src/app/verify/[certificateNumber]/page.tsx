@@ -75,10 +75,10 @@ export default function VerifyCertificatePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
-        <Card className="max-w-2xl w-full">
+      <div className="bg-muted/30 flex min-h-screen items-center justify-center p-4">
+        <Card className="w-full max-w-2xl">
           <CardContent className="py-16 text-center">
-            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <div className="border-primary mx-auto mb-4 h-16 w-16 animate-spin rounded-full border-4 border-t-transparent" />
             <p className="text-muted-foreground">Verifying certificate...</p>
           </CardContent>
         </Card>
@@ -88,13 +88,13 @@ export default function VerifyCertificatePage() {
 
   if (!isValid || !certificate) {
     return (
-      <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
-        <Card className="max-w-2xl w-full">
+      <div className="bg-muted/30 flex min-h-screen items-center justify-center p-4">
+        <Card className="w-full max-w-2xl">
           <CardContent className="py-16 text-center">
-            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
-              <XCircle className="w-8 h-8 text-destructive" />
+            <div className="bg-destructive/10 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+              <XCircle className="text-destructive h-8 w-8" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">Certificate Not Found</h1>
+            <h1 className="text-foreground mb-2 text-2xl font-bold">Certificate Not Found</h1>
             <p className="text-muted-foreground mb-6">
               {error || "The certificate number you provided could not be verified."}
             </p>
@@ -115,17 +115,17 @@ export default function VerifyCertificatePage() {
   });
 
   return (
-    <div className="min-h-screen bg-muted/30 py-8">
-      <div className="max-w-4xl mx-auto px-4 space-y-6">
+    <div className="bg-muted/30 min-h-screen py-8">
+      <div className="mx-auto max-w-4xl space-y-6 px-4">
         {/* Verification Status */}
-        <Card className="border-2 border-success">
+        <Card className="border-success border-2">
           <CardContent className="py-6">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-success" />
+              <div className="bg-success/10 flex h-16 w-16 items-center justify-center rounded-full">
+                <CheckCircle className="text-success h-8 w-8" />
               </div>
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-foreground mb-1">Certificate Verified</h1>
+                <h1 className="text-foreground mb-1 text-2xl font-bold">Certificate Verified</h1>
                 <p className="text-muted-foreground">
                   This certificate has been verified and is authentic
                 </p>
@@ -138,38 +138,40 @@ export default function VerifyCertificatePage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-primary" />
+              <Award className="text-primary h-5 w-5" />
               Certificate Details
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Recipient */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <User className="w-5 h-5 text-primary" />
+                <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                  <User className="text-primary h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Recipient</p>
-                  <p className="font-semibold text-foreground">
+                  <p className="text-muted-foreground mb-1 text-sm">Recipient</p>
+                  <p className="text-foreground font-semibold">
                     {certificate.recipient.name || certificate.recipient.email}
                   </p>
                   {certificate.recipient.name && (
-                    <p className="text-xs text-muted-foreground mt-1">{certificate.recipient.email}</p>
+                    <p className="text-muted-foreground mt-1 text-xs">
+                      {certificate.recipient.email}
+                    </p>
                   )}
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-primary" />
+                <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                  <BookOpen className="text-primary h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Course</p>
-                  <p className="font-semibold text-foreground">{certificate.course.title}</p>
+                  <p className="text-muted-foreground mb-1 text-sm">Course</p>
+                  <p className="text-foreground font-semibold">{certificate.course.title}</p>
                   <Link
                     href={`/courses/${certificate.course.slug}`}
-                    className="text-xs text-primary hover:underline mt-1 inline-block"
+                    className="text-primary mt-1 inline-block text-xs hover:underline"
                   >
                     View Course
                   </Link>
@@ -178,18 +180,18 @@ export default function VerifyCertificatePage() {
             </div>
 
             {/* Certificate Info */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t">
+            <div className="grid grid-cols-1 gap-6 border-t pt-6 md:grid-cols-3">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Certificate Number</p>
-                <p className="font-mono font-semibold text-foreground text-sm">
+                <p className="text-muted-foreground mb-1 text-sm">Certificate Number</p>
+                <p className="text-foreground font-mono text-sm font-semibold">
                   {certificate.certificateNumber}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Level</p>
+                <p className="text-muted-foreground mb-1 text-sm">Level</p>
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-sm font-semibold border ${
+                  className={`inline-block rounded-full border px-3 py-1 text-sm font-semibold ${
                     levelColors[certificate.level] || levelColors.BRONZE
                   }`}
                 >
@@ -198,33 +200,33 @@ export default function VerifyCertificatePage() {
               </div>
 
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Exam Score</p>
-                <p className="font-semibold text-foreground text-lg">
+                <p className="text-muted-foreground mb-1 text-sm">Exam Score</p>
+                <p className="text-foreground text-lg font-semibold">
                   {Math.round(certificate.examScore)}%
                 </p>
               </div>
             </div>
 
             {/* Issue Date */}
-            <div className="flex items-start gap-3 pt-6 border-t">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-primary" />
+            <div className="flex items-start gap-3 border-t pt-6">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                <Calendar className="text-primary h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Date of Issue</p>
-                <p className="font-semibold text-foreground">{formattedDate}</p>
+                <p className="text-muted-foreground mb-1 text-sm">Date of Issue</p>
+                <p className="text-foreground font-semibold">{formattedDate}</p>
               </div>
             </div>
 
             {/* Blockchain Verification */}
             {certificate.blockchainHash && (
-              <div className="flex items-start gap-3 pt-6 border-t">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Hash className="w-5 h-5 text-primary" />
+              <div className="flex items-start gap-3 border-t pt-6">
+                <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                  <Hash className="text-primary h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Blockchain Hash</p>
-                  <p className="font-mono text-xs text-foreground break-all">
+                  <p className="text-muted-foreground mb-1 text-sm">Blockchain Hash</p>
+                  <p className="text-foreground font-mono text-xs break-all">
                     {certificate.blockchainHash}
                   </p>
                 </div>
@@ -232,17 +234,17 @@ export default function VerifyCertificatePage() {
             )}
 
             {/* Official Notice */}
-            <div className="pt-6 border-t bg-muted/50 p-4 rounded-lg">
+            <div className="bg-muted/50 rounded-lg border-t p-4 pt-6">
               <div className="flex items-start gap-3">
-                <Shield className="w-5 h-5 text-primary mt-0.5" />
+                <Shield className="text-primary mt-0.5 h-5 w-5" />
                 <div>
-                  <p className="text-sm font-semibold text-foreground mb-1">
+                  <p className="text-foreground mb-1 text-sm font-semibold">
                     Official Verification
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-muted-foreground text-xs">
                     This certificate is issued by the Ministry of Technical and Higher Education and
-                    the Ministry of Communication and Technology Information, Republic of Sierra Leone.
-                    The information displayed above has been verified and is authentic.
+                    the Ministry of Communication and Technology Information, Republic of Sierra
+                    Leone. The information displayed above has been verified and is authentic.
                   </p>
                 </div>
               </div>
@@ -260,4 +262,3 @@ export default function VerifyCertificatePage() {
     </div>
   );
 }
-

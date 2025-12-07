@@ -2,7 +2,16 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, useErrorToast, useSuccessToast } from "@/components/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
+  Input,
+  useErrorToast,
+  useSuccessToast,
+} from "@/components/ui";
 import { ArrowLeft, Loader2, Save, Building2 } from "lucide-react";
 import Link from "next/link";
 
@@ -116,8 +125,8 @@ export default function NewJobPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader2 className="text-primary h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -128,14 +137,12 @@ export default function NewJobPage() {
       <div className="flex items-center gap-4">
         <Link href="/admin/jobs">
           <Button variant="ghost" size="icon">
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Create New Job</h1>
-          <p className="text-muted-foreground mt-1">
-            Add a new job listing to the platform
-          </p>
+          <h1 className="text-foreground text-3xl font-bold">Create New Job</h1>
+          <p className="text-muted-foreground mt-1">Add a new job listing to the platform</p>
         </div>
       </div>
 
@@ -146,11 +153,11 @@ export default function NewJobPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="text-sm font-medium text-foreground">Company *</label>
+              <label className="text-foreground text-sm font-medium">Company *</label>
               <select
                 value={formData.companyId}
                 onChange={(e) => setFormData({ ...formData, companyId: e.target.value })}
-                className="w-full mt-1 p-2 border border-border rounded-lg"
+                className="border-border mt-1 w-full rounded-lg border p-2"
                 required
               >
                 <option value="">Select a company</option>
@@ -163,7 +170,7 @@ export default function NewJobPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-foreground">Job Title *</label>
+              <label className="text-foreground text-sm font-medium">Job Title *</label>
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -174,11 +181,11 @@ export default function NewJobPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-foreground">Description *</label>
+              <label className="text-foreground text-sm font-medium">Description *</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full mt-1 p-2 border border-border rounded-lg resize-none"
+                className="border-border mt-1 w-full resize-none rounded-lg border p-2"
                 rows={6}
                 placeholder="Job description..."
                 required
@@ -186,11 +193,11 @@ export default function NewJobPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-foreground">Requirements</label>
+              <label className="text-foreground text-sm font-medium">Requirements</label>
               <textarea
                 value={formData.requirements}
                 onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-                className="w-full mt-1 p-2 border border-border rounded-lg resize-none"
+                className="border-border mt-1 w-full resize-none rounded-lg border p-2"
                 rows={4}
                 placeholder="Job requirements..."
               />
@@ -198,7 +205,7 @@ export default function NewJobPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-foreground">Location</label>
+                <label className="text-foreground text-sm font-medium">Location</label>
                 <Input
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -207,11 +214,11 @@ export default function NewJobPage() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-foreground">Job Type</label>
+                <label className="text-foreground text-sm font-medium">Job Type</label>
                 <select
                   value={formData.jobType}
                   onChange={(e) => setFormData({ ...formData, jobType: e.target.value })}
-                  className="w-full mt-1 p-2 border border-border rounded-lg"
+                  className="border-border mt-1 w-full rounded-lg border p-2"
                 >
                   <option value="Full-time">Full-time</option>
                   <option value="Part-time">Part-time</option>
@@ -223,7 +230,7 @@ export default function NewJobPage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium text-foreground">Salary Range</label>
+              <label className="text-foreground text-sm font-medium">Salary Range</label>
               <Input
                 value={formData.salaryRange}
                 onChange={(e) => setFormData({ ...formData, salaryRange: e.target.value })}
@@ -238,9 +245,9 @@ export default function NewJobPage() {
                 id="isDirectPlacement"
                 checked={formData.isDirectPlacement}
                 onChange={(e) => setFormData({ ...formData, isDirectPlacement: e.target.checked })}
-                className="w-4 h-4"
+                className="h-4 w-4"
               />
-              <label htmlFor="isDirectPlacement" className="text-sm font-medium text-foreground">
+              <label htmlFor="isDirectPlacement" className="text-foreground text-sm font-medium">
                 Direct Placement Opportunity
               </label>
             </div>
@@ -251,9 +258,9 @@ export default function NewJobPage() {
                 id="isActive"
                 checked={formData.isActive}
                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                className="w-4 h-4"
+                className="h-4 w-4"
               />
-              <label htmlFor="isActive" className="text-sm font-medium text-foreground">
+              <label htmlFor="isActive" className="text-foreground text-sm font-medium">
                 Active (visible to users)
               </label>
             </div>
@@ -282,7 +289,7 @@ export default function NewJobPage() {
                 {formData.requiredSkills.map((skill, idx) => (
                   <span
                     key={idx}
-                    className="text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground flex items-center gap-1"
+                    className="bg-secondary text-secondary-foreground flex items-center gap-1 rounded-full px-2 py-1 text-xs"
                   >
                     {skill}
                     <button
@@ -321,7 +328,7 @@ export default function NewJobPage() {
                 {formData.requiredCourses.map((course, idx) => (
                   <span
                     key={idx}
-                    className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary flex items-center gap-1"
+                    className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2 py-1 text-xs"
                   >
                     {course}
                     <button
@@ -339,7 +346,7 @@ export default function NewJobPage() {
         </Card>
 
         <div className="flex items-center gap-4">
-          <Button type="submit" disabled={isSaving} leftIcon={<Save className="w-4 h-4" />}>
+          <Button type="submit" disabled={isSaving} leftIcon={<Save className="h-4 w-4" />}>
             {isSaving ? "Creating..." : "Create Job"}
           </Button>
           <Link href="/admin/jobs">
@@ -352,4 +359,3 @@ export default function NewJobPage() {
     </div>
   );
 }
-

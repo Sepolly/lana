@@ -40,7 +40,8 @@ function AcceptInvitationForm() {
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
       addToast({
         type: "error",
-        title: "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+        title:
+          "Password must contain at least one uppercase letter, one lowercase letter, and one number",
       });
       return;
     }
@@ -76,25 +77,23 @@ function AcceptInvitationForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/50 p-4">
+    <div className="bg-muted/50 flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-            <Key className="w-6 h-6 text-primary" />
+          <div className="bg-primary/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+            <Key className="text-primary h-6 w-6" />
           </div>
           <CardTitle>Set Your Admin Password</CardTitle>
-          <p className="text-sm text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-2 text-sm">
             You've been invited to become an administrator. Please set your password to continue.
           </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Password
-              </label>
+              <label className="mb-1 block text-sm font-medium">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
                   type="password"
                   value={password}
@@ -105,16 +104,14 @@ function AcceptInvitationForm() {
                   placeholder="Enter your password"
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-muted-foreground mt-1 text-xs">
                 Must be at least 8 characters with uppercase, lowercase, and number
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Confirm Password
-              </label>
+              <label className="mb-1 block text-sm font-medium">Confirm Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Lock className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                 <Input
                   type="password"
                   value={confirmPassword}
@@ -138,17 +135,18 @@ function AcceptInvitationForm() {
 
 export default function AcceptInvitationPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-muted/50 p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <CardTitle>Loading...</CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="bg-muted/50 flex min-h-screen items-center justify-center p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <CardTitle>Loading...</CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
+      }
+    >
       <AcceptInvitationForm />
     </Suspense>
   );
 }
-

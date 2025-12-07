@@ -28,12 +28,11 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : "Failed to fetch users" 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch users",
       },
       { status: 500 }
     );
   }
 }
-

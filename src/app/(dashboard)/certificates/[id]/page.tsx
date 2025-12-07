@@ -43,15 +43,15 @@ export default async function CertificateDetailPage({ params }: PageProps) {
   }
 
   // Generate verification URL
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || "http://localhost:3000";
   const verificationUrl = `${baseUrl}/verify/${certificate.certificateNumber}`;
 
   return (
-    <div className="min-h-screen bg-muted/30 py-8">
-      <div className="max-w-5xl mx-auto px-4">
+    <div className="bg-muted/30 min-h-screen py-8">
+      <div className="mx-auto max-w-5xl px-4">
         <CertificateView certificate={certificate} verificationUrl={verificationUrl} />
       </div>
     </div>
   );
 }
-

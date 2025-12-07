@@ -2,8 +2,26 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, Button, Mascot } from "@/components/ui";
-import { Briefcase, MapPin, Clock, DollarSign, Search, Filter, Building2, Star, ExternalLink } from "lucide-react";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  Button,
+  Mascot,
+} from "@/components/ui";
+import {
+  Briefcase,
+  MapPin,
+  Clock,
+  DollarSign,
+  Search,
+  Filter,
+  Building2,
+  Star,
+  ExternalLink,
+} from "lucide-react";
 
 export default async function JobsPage() {
   const session = await auth();
@@ -49,24 +67,24 @@ export default async function JobsPage() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="animate-fade-in space-y-8">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+      <div className="flex flex-col items-start justify-between gap-4 lg:flex-row lg:items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Job Opportunities</h1>
+          <h1 className="text-foreground text-3xl font-bold">Job Opportunities</h1>
           <p className="text-muted-foreground mt-1">
             Find your next career opportunity with our partner companies
           </p>
         </div>
-        
+
         {/* Search and Filter */}
-        <div className="flex items-center gap-3 w-full lg:w-auto">
+        <div className="flex w-full items-center gap-3 lg:w-auto">
           <div className="relative flex-1 lg:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search jobs..."
-              className="w-full h-10 pl-10 pr-4 rounded-xl border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="border-border bg-card focus:ring-primary h-10 w-full rounded-xl border pr-4 pl-10 text-sm focus:ring-2 focus:outline-none"
             />
           </div>
           <Button variant="outline" size="icon" className="h-10 w-10">
@@ -77,15 +95,13 @@ export default async function JobsPage() {
 
       {/* Eligibility Notice */}
       {!hasCertificates && (
-        <Card className="bg-gradient-to-r from-tertiary to-tertiary/50 border-0">
+        <Card className="from-tertiary to-tertiary/50 border-0 bg-gradient-to-r">
           <CardContent className="py-6">
-            <div className="flex flex-col md:flex-row items-center gap-4">
+            <div className="flex flex-col items-center gap-4 md:flex-row">
               <Mascot size="md" mood="thinking" animate={false} />
               <div className="flex-1 text-center md:text-left">
-                <h3 className="font-semibold text-foreground">
-                  Get Certified to Apply
-                </h3>
-                <p className="text-sm text-muted-foreground mt-1">
+                <h3 className="text-foreground font-semibold">Get Certified to Apply</h3>
+                <p className="text-muted-foreground mt-1 text-sm">
                   Complete courses and earn certificates to become eligible for job applications.
                   Certified students get priority consideration from our partner companies.
                 </p>
@@ -101,40 +117,38 @@ export default async function JobsPage() {
       {/* My Applications */}
       {applications.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold text-foreground mb-4">
-            My Applications
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <h2 className="text-foreground mb-4 text-xl font-semibold">My Applications</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {applications.slice(0, 3).map((application) => (
               <Card key={application.id}>
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center">
+                      <div className="bg-secondary flex h-10 w-10 items-center justify-center rounded-lg">
                         {application.job.company.logo ? (
                           <img
                             src={application.job.company.logo}
                             alt={application.job.company.name}
-                            className="w-full h-full rounded-lg object-cover"
+                            className="h-full w-full rounded-lg object-cover"
                           />
                         ) : (
-                          <Building2 className="w-5 h-5 text-primary" />
+                          <Building2 className="text-primary h-5 w-5" />
                         )}
                       </div>
                       <div>
-                        <p className="font-medium text-foreground">
-                          {application.job.title}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-foreground font-medium">{application.job.title}</p>
+                        <p className="text-muted-foreground text-sm">
                           {application.job.company.name}
                         </p>
                       </div>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full ${statusColors[application.status]}`}>
+                    <span
+                      className={`rounded-full px-2 py-1 text-xs ${statusColors[application.status]}`}
+                    >
                       {application.status}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-3">
+                  <p className="text-muted-foreground mt-3 text-xs">
                     Applied {new Date(application.appliedAt).toLocaleDateString()}
                   </p>
                 </CardContent>
@@ -142,7 +156,7 @@ export default async function JobsPage() {
             ))}
           </div>
           {applications.length > 3 && (
-            <div className="text-center mt-4">
+            <div className="mt-4 text-center">
               <Button variant="outline" size="sm">
                 View All Applications ({applications.length})
               </Button>
@@ -153,41 +167,35 @@ export default async function JobsPage() {
 
       {/* Job Listings */}
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">
-          Available Positions
-        </h2>
-        
+        <h2 className="text-foreground mb-4 text-xl font-semibold">Available Positions</h2>
+
         {jobs.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <Mascot size="lg" mood="thinking" animate={false} />
-              <h3 className="font-semibold text-foreground mt-4">
-                No Jobs Available
-              </h3>
-              <p className="text-muted-foreground mt-2">
-                Check back soon for new opportunities!
-              </p>
+              <h3 className="text-foreground mt-4 font-semibold">No Jobs Available</h3>
+              <p className="text-muted-foreground mt-2">Check back soon for new opportunities!</p>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-4">
             {jobs.map((job) => {
               const hasApplied = appliedJobIds.has(job.id);
-              
+
               return (
                 <Card key={job.id} variant="interactive">
                   <CardContent className="py-6">
-                    <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
                       {/* Company logo */}
-                      <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+                      <div className="bg-secondary flex h-14 w-14 shrink-0 items-center justify-center rounded-xl">
                         {job.company.logo ? (
                           <img
                             src={job.company.logo}
                             alt={job.company.name}
-                            className="w-full h-full rounded-xl object-cover"
+                            className="h-full w-full rounded-xl object-cover"
                           />
                         ) : (
-                          <Building2 className="w-7 h-7 text-primary" />
+                          <Building2 className="text-primary h-7 w-7" />
                         )}
                       </div>
 
@@ -196,12 +204,10 @@ export default async function JobsPage() {
                         <div className="flex items-start justify-between gap-4">
                           <div>
                             <div className="flex items-center gap-2">
-                              <h3 className="font-semibold text-foreground text-lg">
-                                {job.title}
-                              </h3>
+                              <h3 className="text-foreground text-lg font-semibold">{job.title}</h3>
                               {job.isDirectPlacement && (
-                                <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                                  <Star className="w-3 h-3" />
+                                <span className="bg-primary/10 text-primary flex items-center gap-1 rounded-full px-2 py-0.5 text-xs">
+                                  <Star className="h-3 w-3" />
                                   Direct Placement
                                 </span>
                               )}
@@ -214,13 +220,10 @@ export default async function JobsPage() {
                             </p>
                           </div>
                           {hasApplied ? (
-                            <span className="text-sm text-muted-foreground">Applied</span>
+                            <span className="text-muted-foreground text-sm">Applied</span>
                           ) : (
                             <Link href={`/jobs/${job.slug}`}>
-                              <Button 
-                                size="sm" 
-                                rightIcon={<ExternalLink className="w-4 h-4" />}
-                              >
+                              <Button size="sm" rightIcon={<ExternalLink className="h-4 w-4" />}>
                                 View Details
                               </Button>
                             </Link>
@@ -228,44 +231,44 @@ export default async function JobsPage() {
                         </div>
 
                         {/* Job details */}
-                        <div className="flex flex-wrap items-center gap-4 mt-3 text-sm text-muted-foreground">
+                        <div className="text-muted-foreground mt-3 flex flex-wrap items-center gap-4 text-sm">
                           {job.location && (
                             <span className="flex items-center gap-1">
-                              <MapPin className="w-4 h-4" />
+                              <MapPin className="h-4 w-4" />
                               {job.location}
                             </span>
                           )}
                           {job.jobType && (
                             <span className="flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
+                              <Clock className="h-4 w-4" />
                               {job.jobType}
                             </span>
                           )}
                           {job.salaryRange && (
                             <span className="flex items-center gap-1">
-                              <DollarSign className="w-4 h-4" />
+                              <DollarSign className="h-4 w-4" />
                               {job.salaryRange}
                             </span>
                           )}
                           <span className="flex items-center gap-1">
-                            <Briefcase className="w-4 h-4" />
+                            <Briefcase className="h-4 w-4" />
                             {job._count.applications} applicants
                           </span>
                         </div>
 
                         {/* Required skills */}
                         {job.requiredSkills.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-3">
+                          <div className="mt-3 flex flex-wrap gap-1">
                             {job.requiredSkills.slice(0, 4).map((skill) => (
                               <span
                                 key={skill}
-                                className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground"
+                                className="bg-muted text-muted-foreground rounded-full px-2 py-1 text-xs"
                               >
                                 {skill}
                               </span>
                             ))}
                             {job.requiredSkills.length > 4 && (
-                              <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                              <span className="bg-muted text-muted-foreground rounded-full px-2 py-1 text-xs">
                                 +{job.requiredSkills.length - 4} more
                               </span>
                             )}
@@ -283,4 +286,3 @@ export default async function JobsPage() {
     </div>
   );
 }
-

@@ -26,7 +26,7 @@ export async function ensureUserExists(sessionUser: SessionUser) {
   // If user doesn't exist, create them
   if (!user) {
     console.log("User not found in database, creating:", sessionUser.id);
-    
+
     // Check if email already exists (might need to link accounts)
     const existingByEmail = await db.user.findUnique({
       where: { email: sessionUser.email },
@@ -48,7 +48,7 @@ export async function ensureUserExists(sessionUser: SessionUser) {
         emailVerified: new Date(),
       },
     });
-    
+
     console.log("Created user:", user.id);
   }
 
@@ -78,4 +78,3 @@ export async function ensureUserAndProfile(sessionUser: SessionUser) {
 
   return { user, profile };
 }
-

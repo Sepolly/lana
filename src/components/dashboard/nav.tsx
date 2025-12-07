@@ -62,37 +62,32 @@ export function DashboardNav() {
 
   if (!mounted) {
     return (
-      <aside className="hidden lg:flex w-64 fixed left-0 top-16 h-[calc(100vh-4rem)] border-r border-border bg-card z-30" />
+      <aside className="border-border bg-card fixed top-16 left-0 z-30 hidden h-[calc(100vh-4rem)] w-64 border-r lg:flex" />
     );
   }
 
   return (
-    <aside 
+    <aside
       className={cn(
-        "hidden lg:flex flex-col fixed left-0 top-16 h-[calc(100vh-4rem)] border-r border-border bg-card z-30 transition-all duration-300",
+        "border-border bg-card fixed top-16 left-0 z-30 hidden h-[calc(100vh-4rem)] flex-col border-r transition-all duration-300 lg:flex",
         isCollapsed ? "w-16" : "w-64"
       )}
     >
       {/* Toggle Button */}
-      <div className="p-2 flex justify-end">
+      <div className="flex justify-end p-2">
         <button
           onClick={toggle}
-          className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+          className="hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg p-2 transition-colors"
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {isCollapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <ChevronLeft className="h-4 w-4" />
-          )}
+          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-2 space-y-1 overflow-y-auto">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-2">
         {navItems.map((item) => {
-          const isActive =
-            pathname === item.href || pathname.startsWith(item.href + "/");
+          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
 
           return (
             <Link
@@ -115,31 +110,29 @@ export function DashboardNav() {
       </nav>
 
       {/* Help section */}
-      <div className={cn("p-2 border-t border-border", isCollapsed && "flex justify-center")}>
+      <div className={cn("border-border border-t p-2", isCollapsed && "flex justify-center")}>
         {isCollapsed ? (
           <Link
             href="/support"
             title="Contact Support"
-            className="p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors flex items-center justify-center"
+            className="bg-secondary/50 hover:bg-secondary flex items-center justify-center rounded-xl p-3 transition-colors"
           >
-            <HelpCircle className="h-5 w-5 text-primary" />
+            <HelpCircle className="text-primary h-5 w-5" />
           </Link>
         ) : (
-          <div className="rounded-xl bg-secondary/50 p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <HelpCircle className="h-5 w-5 text-primary" />
+          <div className="bg-secondary/50 rounded-xl p-4">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="bg-primary/10 flex h-10 w-10 items-center justify-center rounded-full">
+                <HelpCircle className="text-primary h-5 w-5" />
               </div>
               <div>
-                <p className="font-medium text-foreground text-sm">Need Help?</p>
-                <p className="text-xs text-muted-foreground">
-                  Get assistance anytime
-                </p>
+                <p className="text-foreground text-sm font-medium">Need Help?</p>
+                <p className="text-muted-foreground text-xs">Get assistance anytime</p>
               </div>
             </div>
             <Link
               href="/support"
-              className="block text-center py-2 px-4 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 block rounded-lg px-4 py-2 text-center text-sm font-medium transition-colors"
             >
               Contact Support
             </Link>
