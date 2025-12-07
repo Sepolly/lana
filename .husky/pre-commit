@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit checks..."
+
+# Run lint-staged for staged files (linting and formatting)
+echo "📝 Linting and formatting staged files..."
+npm run lint-staged || {
+  echo "❌ Linting/formatting failed. Please fix the errors and try again."
+  exit 1
+}
+
+# Generate Prisma Client if DATABASE_URL is available (for type checking)
+if [ -n "$DATABASE_URL" ]; then
+  echo "🔧 Generating Prisma Client..."
+  npx prisma generate > /dev/null 2>&1 || echo "⚠️  Prisma generation skipped (DATABASE_URL may not be set)"
+fi
+
+# Run type checking
+echo "🔎 Running TypeScript type check..."
+npm run type-check || {
+  echo "❌ Type checking failed. Please fix the errors and try again."
+  exit 1
+}
+
+echo "✅ All pre-commit checks passed!"
+
