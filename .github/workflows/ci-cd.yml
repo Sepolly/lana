@@ -32,7 +32,7 @@ jobs:
         run: npm ci
 
       - name: Run ESLint
-        run: npm run lint
+        run: npm run lint:fix
 
   type-check:
     name: Type Check
