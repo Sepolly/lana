@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { generateExamQuestions, GeneratedQuestion } from "@/lib/quiz-generator";
 
@@ -110,7 +111,9 @@ export async function POST(request: NextRequest) {
     const existingCourseExam = await db.examSchedule.findFirst({
       where: {
         courseId,
-        questions: { not: null },
+        questions: {
+          not: Prisma.JsonNull,
+        },
       },
       orderBy: {
         createdAt: "desc",
