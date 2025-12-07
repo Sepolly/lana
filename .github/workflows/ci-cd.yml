@@ -2,13 +2,10 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
-      - master
+    # Run on every commit pushed to any branch
   pull_request:
-    branches:
-      - main
-      - master
+    # Run on every commit in pull requests
+    types: [opened, synchronize, reopened, ready_for_review]
 
 env:
   NODE_VERSION: "20.x"
@@ -52,6 +49,8 @@ jobs:
 
       - name: Generate Prisma Client
         run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run TypeScript type check
         run: npm run type-check
