@@ -1,14 +1,12 @@
-/**
- * AI-powered Quiz Generator
- * Generates quiz questions from topic notes using Google Gemini (Node.js SDK)
- */
-
 import { GoogleGenerativeAI, type GenerativeModel } from "@google/generative-ai";
+import { chatCompletion, type Message } from "./openrouter";
+
+const isDevelopment = process.env.NODE_ENV === "development";
 
 export interface GeneratedQuestion {
   question: string;
   options: string[];
-  correctAnswer: number; // Index of correct option (0-3)
+  correctAnswer: number;
   explanation: string;
 }
 
@@ -19,34 +17,19 @@ export interface GeneratedQuiz {
 
 const GEMINI_MODEL_NAME = "gemini-2.0-flash";
 
-/**
- * Calculate the number of questions to generate based on text content length.
- * More content = more questions, up to a maximum of 10.
- *
- * @param textContent - The text content to analyze
- * @returns Number of questions to generate (between 3 and 10)
- */
 export function calculateQuestionCount(textContent: string): number {
   if (!textContent || textContent.trim().length < 100) {
-    return 3; // Minimum questions for very short content
+    return 3;
   }
 
   const length = textContent.trim().length;
-
-  // Scale questions based on content length:
-  // - 100-500 chars: 3 questions
-  // - 500-1000 chars: 5 questions
-  // - 1000-2000 chars: 7 questions
-  // - 2000-3000 chars: 8 questions
-  // - 3000-5000 chars: 9 questions
-  // - 5000+ chars: 10 questions (maximum)
 
   if (length < 500) return 3;
   if (length < 1000) return 5;
   if (length < 2000) return 7;
   if (length < 3000) return 8;
   if (length < 5000) return 9;
-  return 10; // Maximum
+  return 10;
 }
 
 function getGeminiModel(): GenerativeModel {
@@ -78,7 +61,6 @@ async function callGemini(prompt: string): Promise<string> {
     }
     return text;
   } catch (error: unknown) {
-    // Handle specific Gemini API errors
     const errorWithStatus = error as { status?: number };
     if (errorWithStatus?.status === 429) {
       throw new Error(
@@ -93,53 +75,94 @@ async function callGemini(prompt: string): Promise<string> {
     if (errorWithStatus?.status === 500) {
       throw new Error("API_SERVER_ERROR: Gemini API server error. Please try again later.");
     }
-    // Re-throw other errors
     throw error;
   }
 }
 
-/**
- * Safely parse JSON from the Gemini response, trying to recover from
- * minor formatting issues like trailing commas or extra text around
- * the JSON block.
- */
+async function callOpenRouter(prompt: string): Promise<string> {
+  try {
+    const messages: Message[] = [
+      {
+        role: "system",
+        content:
+          "You are an expert educational quiz creator. Always respond with valid JSON only, following the exact structure requested.",
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ];
+
+    const response = await chatCompletion(messages, {
+      model: "openai/gpt-5.1-codex-max",
+      temperature: 0.3,
+      maxTokens: 6662,
+    });
+
+    if (!response || response.trim().length === 0) {
+      throw new Error("Empty response from OpenRouter");
+    }
+
+    return response;
+  } catch (error: unknown) {
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    throw new Error(`OpenRouter fallback failed: ${errorObj.message}`);
+  }
+}
+
+async function callAIWithFallback(prompt: string): Promise<string> {
+  try {
+    return await callGemini(prompt);
+  } catch (error: unknown) {
+    const errorObj = error instanceof Error ? error : new Error(String(error));
+    const errorMessage = errorObj.message || "Unknown error";
+
+    if (isDevelopment) {
+      console.warn("Gemini call failed, falling back to OpenRouter:", errorMessage);
+    }
+
+    try {
+      return await callOpenRouter(prompt);
+    } catch (fallbackError: unknown) {
+      const fallbackErrorObj =
+        fallbackError instanceof Error ? fallbackError : new Error(String(fallbackError));
+      if (isDevelopment) {
+        console.error("OpenRouter fallback also failed:", fallbackErrorObj.message);
+      }
+      throw new Error(
+        `Both Gemini and OpenRouter failed. Original error: ${errorMessage}. Fallback error: ${fallbackErrorObj.message}`
+      );
+    }
+  }
+}
+
 type QuizJson = {
   questions?: Record<string, unknown>[];
   passingScore?: number;
 };
 
 function safeParseQuizJson(raw: string): QuizJson {
-  // Remove markdown code fences if present
   let cleaned = raw
     .replace(/```json\s*/gi, "")
     .replace(/```\s*/g, "")
     .trim();
 
-  // Extract the first top‑level JSON object if there is any extra text
   const firstBrace = cleaned.indexOf("{");
   const lastBrace = cleaned.lastIndexOf("}");
   if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
     cleaned = cleaned.slice(firstBrace, lastBrace + 1);
   }
 
-  // Fix some common JSON issues Gemini can produce
-  cleaned = cleaned
-    // Trailing commas before ] or }
-    .replace(/,\s*]/g, "]")
-    .replace(/,\s*}/g, "}");
+  cleaned = cleaned.replace(/,\s*]/g, "]").replace(/,\s*}/g, "}");
 
   return JSON.parse(cleaned) as QuizJson;
 }
 
-/**
- * Generate quiz questions from video transcript content
- */
 export async function generateQuizFromTranscript(
   topicTitle: string,
   transcript: string,
   numQuestions?: number
 ): Promise<GeneratedQuiz> {
-  // If numQuestions not provided, calculate based on transcript length
   const questionCount = numQuestions ?? calculateQuestionCount(transcript);
 
   const prompt = `You are an expert educational quiz creator. Your task is to generate ${questionCount} high-quality multiple-choice quiz questions based DIRECTLY on the specific content from this video transcript.
@@ -185,17 +208,13 @@ Generate a JSON response with this EXACT structure:
 Return ONLY valid JSON, no other text.`;
 
   try {
-    const responseText = await callGemini(prompt);
-
-    // Parse the response robustly
+    const responseText = await callAIWithFallback(prompt);
     const quizData = safeParseQuizJson(responseText);
 
-    // Validate the structure
     if (!quizData.questions || !Array.isArray(quizData.questions)) {
       throw new Error("Invalid quiz structure: missing questions array");
     }
 
-    // Validate each question
     const validatedQuestions: GeneratedQuestion[] = quizData.questions
       .filter((q: Record<string, unknown>) => {
         return (
@@ -223,17 +242,13 @@ Return ONLY valid JSON, no other text.`;
       passingScore: quizData.passingScore || 70,
     };
   } catch (error) {
-    console.error("Failed to generate quiz:", error);
-
-    // Return fallback quiz
+    if (isDevelopment) {
+      console.error("Failed to generate quiz:", error);
+    }
     return createFallbackQuiz(topicTitle, questionCount);
   }
 }
 
-/**
- * Generate quiz without transcript (from topic title and description only)
- * This is used as a fallback when video transcript is not available
- */
 export async function generateQuizFromTopic(
   topicTitle: string,
   topicDescription: string,
@@ -276,9 +291,7 @@ Generate a JSON response with this EXACT structure:
 Return ONLY valid JSON, no other text.`;
 
   try {
-    const responseText = await callGemini(prompt);
-
-    // Parse the response robustly
+    const responseText = await callAIWithFallback(prompt);
     const quizData = safeParseQuizJson(responseText);
 
     if (!quizData.questions || !Array.isArray(quizData.questions)) {
@@ -312,14 +325,13 @@ Return ONLY valid JSON, no other text.`;
       passingScore: quizData.passingScore || 70,
     };
   } catch (error) {
-    console.error("Failed to generate quiz from topic:", error);
+    if (isDevelopment) {
+      console.error("Failed to generate quiz from topic:", error);
+    }
     return createFallbackQuiz(topicTitle, numQuestions);
   }
 }
 
-/**
- * Create a fallback quiz when AI generation fails
- */
 function createFallbackQuiz(topicTitle: string, numQuestions: number): GeneratedQuiz {
   const fallbackQuestions: GeneratedQuestion[] = [
     {
@@ -385,10 +397,6 @@ function createFallbackQuiz(topicTitle: string, numQuestions: number): Generated
   };
 }
 
-/**
- * Generate comprehensive exam questions from all course topics
- * Creates Stanford/Cambridge-style academic questions
- */
 export async function generateExamQuestions(
   topics: Array<{
     id: string;
@@ -406,7 +414,6 @@ export async function generateExamQuestions(
   courseTitle: string,
   minQuestions: number = 50
 ): Promise<GeneratedQuestion[]> {
-  // Collect all available content from topics
   const allContent = topics
     .map((topic) => {
       const transcript = topic.videoTranscript || "";
@@ -424,8 +431,6 @@ export async function generateExamQuestions(
     throw new Error("No content available to generate exam questions");
   }
 
-  // Calculate questions per topic to ensure we reach at least minQuestions
-  // Aim for more questions per topic to guarantee minimum total
   const questionsPerTopic = Math.max(8, Math.ceil((minQuestions * 1.5) / allContent.length));
 
   const allExamQuestions: GeneratedQuestion[] = [];
@@ -491,14 +496,13 @@ Generate a JSON response with this EXACT structure:
 Return ONLY valid JSON, no additional text or commentary.`;
 
     try {
-      const responseText = await callGemini(prompt);
+      const responseText = await callAIWithFallback(prompt);
       const quizData = safeParseQuizJson(responseText);
 
       if (!quizData.questions || !Array.isArray(quizData.questions)) {
         throw new Error("Invalid exam questions structure");
       }
 
-      // Validate and filter questions
       const validatedQuestions: GeneratedQuestion[] = quizData.questions
         .filter((q: Record<string, unknown>) => {
           if (!q.question || typeof q.question !== "string") return false;
@@ -647,27 +651,26 @@ Return ONLY valid JSON, no additional text or commentary.`;
     } catch (error: unknown) {
       const errorObj = error instanceof Error ? error : new Error(String(error));
       const errorMessage = errorObj.message || "Unknown error";
-      console.error(
-        `Failed to generate exam questions for topic ${topicContent.topicTitle}:`,
-        errorMessage
-      );
-
-      // If it's a rate limit error, we should stop trying to avoid wasting API calls
-      if (errorMessage.includes("API_RATE_LIMIT_EXCEEDED") || errorMessage.includes("429")) {
-        console.warn("Rate limit exceeded, skipping remaining topic question generation");
-        break; // Stop processing other topics to avoid further rate limit hits
+      if (isDevelopment) {
+        console.error(
+          `Failed to generate exam questions for topic ${topicContent.topicTitle}:`,
+          errorMessage
+        );
       }
 
-      // Continue with other topics for other types of errors
+      if (errorMessage.includes("API_RATE_LIMIT_EXCEEDED") || errorMessage.includes("429")) {
+        if (isDevelopment) {
+          console.warn("Rate limit exceeded, skipping remaining topic question generation");
+        }
+        break;
+      }
     }
   }
 
-  // If we don't have enough questions, generate additional ones from combined content
-  // Cap at reasonable maximum to prevent excessive generation
   const targetQuestions = Math.min(minQuestions, 60);
 
   if (allExamQuestions.length < targetQuestions) {
-    const remainingQuestions = Math.min(targetQuestions - allExamQuestions.length, 30); // Cap additional questions
+    const remainingQuestions = Math.min(targetQuestions - allExamQuestions.length, 30);
     const combinedContent = allContent
       .map((item) => `${item.topicTitle}:\n${item.content}`)
       .join("\n\n---\n\n");
@@ -684,7 +687,7 @@ Requirements: Same as before - rigorous academic questions, no duplicates, no pe
 Return ONLY valid JSON with questions array.`;
 
     try {
-      const responseText = await callGemini(prompt);
+      const responseText = await callAIWithFallback(prompt);
       const quizData = safeParseQuizJson(responseText);
 
       if (quizData.questions && Array.isArray(quizData.questions)) {
@@ -695,7 +698,6 @@ Return ONLY valid JSON with questions array.`;
             if (typeof q.correctAnswer !== "number" || q.correctAnswer < 0 || q.correctAnswer > 3)
               return false;
 
-            // Enhanced duplicate detection for additional questions
             const questionLower = q.question.toLowerCase().trim();
             const isDuplicate = allExamQuestions.some((existing) => {
               const existingLower = existing.question.toLowerCase().trim();
@@ -729,7 +731,6 @@ Return ONLY valid JSON with questions array.`;
               return false;
             });
 
-            // Comprehensive filtering of personal/presenter content for additional questions
             const personalKeywords = [
               // Presenter/instructor references
               "presenter",
@@ -835,30 +836,26 @@ Return ONLY valid JSON with questions array.`;
         allExamQuestions.push(...additionalQuestions);
       }
     } catch (error) {
-      console.error("Failed to generate additional exam questions:", error);
+      if (isDevelopment) {
+        console.error("Failed to generate additional exam questions:", error);
+      }
     }
   }
 
-  // Shuffle and return target number of questions (capped at reasonable maximum)
   const shuffledQuestions = allExamQuestions.sort(() => Math.random() - 0.5);
   const finalCount = Math.min(targetQuestions, shuffledQuestions.length);
   return shuffledQuestions.slice(0, finalCount);
 }
 
-/**
- * Save generated quiz to database
- */
 export async function saveQuizToDatabase(
   db: PrismaClientType,
   topicId: string,
   quiz: GeneratedQuiz
 ): Promise<void> {
-  // Delete existing quiz for this topic if any
   await db.quiz.deleteMany({
     where: { topicId },
   });
 
-  // Create new quiz with questions
   await db.quiz.create({
     data: {
       topicId,
@@ -877,7 +874,6 @@ export async function saveQuizToDatabase(
   });
 }
 
-// Type for Prisma client
 type PrismaClientType = {
   quiz: {
     deleteMany: (args: { where: { topicId: string } }) => Promise<unknown>;

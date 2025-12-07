@@ -48,6 +48,8 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
   const [timeLeft, setTimeLeft] = React.useState<number | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [lastSaved, setLastSaved] = React.useState<Date | null>(null);
   const [result, setResult] = React.useState<{
     score: number;
     passed: boolean;
@@ -56,18 +58,79 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
     certificate?: Certificate;
   } | null>(null);
 
+  // Load ongoing exam on mount
+  React.useEffect(() => {
+    const loadOngoingExam = async () => {
+      // If we already have questions loaded, don't reload
+      if (questions.length > 0) {
+        return;
+      }
+
+      // If there's an existing exam with IN_PROGRESS status, load it
+      if (existingExam?.status === "IN_PROGRESS" && existingExam.id) {
+        setIsLoading(true);
+        try {
+          const response = await fetch(`/api/exams/${existingExam.id}`);
+          const data = await response.json();
+
+          if (data.success && data.data) {
+            const examData = data.data;
+            const examQuestions = (examData.questions || []) as ExamQuestion[];
+            const savedAnswers = (examData.answers || {}) as Record<string, number>;
+
+            if (examQuestions.length > 0) {
+              setQuestions(examQuestions);
+              setAnswers(savedAnswers);
+              setExam(examData);
+
+              // Calculate remaining time
+              if (examData.startedAt && examData.duration) {
+                const endTime =
+                  new Date(examData.startedAt).getTime() + examData.duration * 60 * 1000;
+                const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+                setTimeLeft(remaining);
+                // Timer effect will handle auto-submit when time runs out
+              }
+
+              // Set current question to first unanswered question, or last answered question
+              const answeredQuestionIds = Object.keys(savedAnswers);
+              if (answeredQuestionIds.length > 0) {
+                const lastAnsweredIndex = examQuestions.findIndex(
+                  (q) => q.id === answeredQuestionIds[answeredQuestionIds.length - 1]
+                );
+                if (lastAnsweredIndex >= 0) {
+                  setCurrentQuestion(Math.min(lastAnsweredIndex + 1, examQuestions.length - 1));
+                }
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Failed to load ongoing exam:", error);
+          setError("Failed to load ongoing exam. Please refresh the page.");
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadOngoingExam();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existingExam?.id, existingExam?.status]);
+
   // Debug: log exam state on mount and changes
   React.useEffect(() => {
-    console.log("ExamInterface debug:", {
-      hasExistingExam: !!existingExam,
-      existingExamStatus: existingExam?.status,
-      existingExamId: existingExam?.id,
-      currentExamState: exam?.status,
-      certificateExists: !!certificate,
-      questionsCount: questions.length,
-      timeLeft,
-      shouldShowExam: exam?.status === "IN_PROGRESS" && questions.length > 0,
-    });
+    if (process.env.NODE_ENV === "development") {
+      console.log("ExamInterface debug:", {
+        hasExistingExam: !!existingExam,
+        existingExamStatus: existingExam?.status,
+        existingExamId: existingExam?.id,
+        currentExamState: exam?.status,
+        certificateExists: !!certificate,
+        questionsCount: questions.length,
+        timeLeft,
+        shouldShowExam: exam?.status === "IN_PROGRESS" && questions.length > 0,
+      });
+    }
   }, [existingExam, exam, certificate, questions.length, timeLeft]);
 
   // Timer effect
@@ -207,13 +270,68 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
     }
   };
 
+  // Auto-save debounce timer
+  const autoSaveTimerRef = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-save function
+  const autoSaveAnswers = React.useCallback(
+    async (answersToSave: Record<string, number>) => {
+      if (!exam?.id || exam.status !== "IN_PROGRESS") {
+        return;
+      }
+
+      setIsSaving(true);
+      try {
+        const response = await fetch(`/api/exams/${exam.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers: answersToSave }),
+        });
+
+        if (response.ok) {
+          setLastSaved(new Date());
+        } else {
+          if (process.env.NODE_ENV === "development") {
+            console.error("Auto-save failed:", await response.json());
+          }
+        }
+      } catch (error) {
+        if (process.env.NODE_ENV === "development") {
+          console.error("Auto-save error:", error);
+        }
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [exam?.id, exam?.status]
+  );
+
+  // Cleanup auto-save timer on unmount
+  React.useEffect(() => {
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleAnswer = (answerIndex: number) => {
     if (!questions[currentQuestion]) return;
 
-    setAnswers((prev) => ({
-      ...prev,
+    const newAnswers = {
+      ...answers,
       [questions[currentQuestion].id]: answerIndex,
-    }));
+    };
+    setAnswers(newAnswers);
+
+    // Auto-save with debounce (save after 1 second of no changes)
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      autoSaveAnswers(newAnswers);
+    }, 1000);
   };
 
   const handleSubmit = async () => {
@@ -369,12 +487,15 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
 
   // Exam in progress
   if (exam?.status === "IN_PROGRESS" && questions.length > 0) {
-    console.log("Showing exam in progress UI", {
-      examStatus: exam.status,
-      questionsCount: questions.length,
-      currentQuestion,
-      timeLeft,
-    });
+    if (process.env.NODE_ENV === "development") {
+      console.log("Showing exam in progress UI", {
+        examStatus: exam.status,
+        questionsCount: questions.length,
+        currentQuestion,
+        timeLeft,
+        answeredCount: Object.keys(answers).length,
+      });
+    }
     const question = questions[currentQuestion];
 
     if (!question) {
@@ -398,9 +519,17 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-foreground text-xl font-bold">{course.title} - Final Exam</h1>
-            <p className="text-muted-foreground text-sm">
-              Question {currentQuestion + 1} of {questions.length}
-            </p>
+            <div className="flex items-center gap-3">
+              <p className="text-muted-foreground text-sm">
+                Question {currentQuestion + 1} of {questions.length}
+              </p>
+              {isSaving && <span className="text-muted-foreground text-xs">Saving...</span>}
+              {lastSaved && !isSaving && (
+                <span className="text-muted-foreground text-xs">
+                  Saved {lastSaved.toLocaleTimeString()}
+                </span>
+              )}
+            </div>
           </div>
           <div
             className={`flex items-center gap-2 rounded-xl px-4 py-2 ${
@@ -455,7 +584,13 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
-            onClick={() => setCurrentQuestion((p) => Math.max(0, p - 1))}
+            onClick={() => {
+              // Save answers before navigating
+              if (Object.keys(answers).length > 0) {
+                autoSaveAnswers(answers);
+              }
+              setCurrentQuestion((p) => Math.max(0, p - 1));
+            }}
             disabled={currentQuestion === 0}
           >
             Previous
@@ -466,7 +601,13 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
             {questions.map((_, idx) => (
               <button
                 key={idx}
-                onClick={() => setCurrentQuestion(idx)}
+                onClick={() => {
+                  // Save answers before navigating
+                  if (Object.keys(answers).length > 0) {
+                    autoSaveAnswers(answers);
+                  }
+                  setCurrentQuestion(idx);
+                }}
                 className={`h-8 w-8 rounded-lg text-sm font-medium transition-colors ${
                   idx === currentQuestion
                     ? "bg-primary text-white"
@@ -490,7 +631,13 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
             </Button>
           ) : (
             <Button
-              onClick={() => setCurrentQuestion((p) => Math.min(questions.length - 1, p + 1))}
+              onClick={() => {
+                // Save answers before navigating
+                if (Object.keys(answers).length > 0) {
+                  autoSaveAnswers(answers);
+                }
+                setCurrentQuestion((p) => Math.min(questions.length - 1, p + 1));
+              }}
             >
               Next
             </Button>
@@ -510,7 +657,9 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
 
   // Exam completed - show results based on pass/fail
   if (exam?.status === "COMPLETED") {
-    console.log("Showing exam completed UI, passed:", exam.passed);
+    if (process.env.NODE_ENV === "development") {
+      console.log("Showing exam completed UI, passed:", exam.passed);
+    }
     const passed = exam.passed;
     const score = exam.score || 0;
 
@@ -616,7 +765,9 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
   }
 
   // No exam scheduled - show scheduling screen
-  console.log("Showing scheduling UI - no exam found or unexpected status");
+  if (process.env.NODE_ENV === "development") {
+    console.log("Showing scheduling UI - no exam found or unexpected status");
+  }
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <Link

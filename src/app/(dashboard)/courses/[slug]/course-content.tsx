@@ -121,15 +121,15 @@ function groupTopicsBySection(topics: TopicWithQuiz[]): TopicSection[] {
 export function CourseContent({
   course,
   enrollment: initialEnrollment,
-  userId,
-  learningStyle,
+  userId: _userId,
+  learningStyle: _learningStyle,
 }: CourseContentProps) {
   const router = useRouter();
   const [enrollment, setEnrollment] = React.useState(initialEnrollment);
   const [isEnrolling, setIsEnrolling] = React.useState(false);
   const [activeTopic, setActiveTopic] = React.useState<TopicWithQuiz | null>(null);
   const [showQuizModal, setShowQuizModal] = React.useState(false);
-  const [videoProgress, setVideoProgress] = React.useState(0);
+  const [_videoProgress, setVideoProgress] = React.useState(0);
   const [videoCompleted, setVideoCompleted] = React.useState(false);
   const [isGeneratingQuiz, setIsGeneratingQuiz] = React.useState(false);
   const [generatedQuiz, setGeneratedQuiz] = React.useState<
@@ -153,8 +153,21 @@ export function CourseContent({
   const [isLoadingQuizPerformance, setIsLoadingQuizPerformance] = React.useState(false);
   const [hasQuizAttempt, setHasQuizAttempt] = React.useState(false);
 
-  // Sidebar state
-  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
+  // Sidebar state - default to collapsed on mobile
+  const [sidebarCollapsed, setSidebarCollapsed] = React.useState(true);
+
+  // Auto-collapse sidebar on mobile when topic is selected
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768 && activeTopic) {
+        setSidebarCollapsed(true);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [activeTopic]);
 
   const isEnrolled = !!enrollment;
 
@@ -472,51 +485,53 @@ export function CourseContent({
   return (
     <div className="-mx-4 -mt-4 flex h-[calc(100vh-4rem)] flex-col sm:-mx-6 sm:-mt-6 lg:-mx-8 lg:-mt-8 xl:-mx-10 xl:-mt-10">
       {/* Top Bar */}
-      <div className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 shrink-0 border-b px-4 py-2 backdrop-blur">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+      <div className="border-border bg-background/95 supports-[backdrop-filter]:bg-background/60 shrink-0 border-b px-2 py-2 backdrop-blur sm:px-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex min-w-0 flex-1 items-center gap-1 sm:gap-3">
             <Link
               href="/courses"
-              className="hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg p-2 transition-colors"
+              className="hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 rounded-lg p-1.5 transition-colors sm:p-2"
               title="Back to Courses"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
             </Link>
 
-            <div className="bg-border h-6 w-px" />
+            <div className="bg-border h-4 w-px shrink-0 sm:h-6" />
 
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="hover:bg-muted text-muted-foreground hover:text-foreground rounded-lg p-2 transition-colors"
+              className="hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 rounded-lg p-1.5 transition-colors sm:p-2"
               title={sidebarCollapsed ? "Show course outline" : "Hide course outline"}
             >
               {sidebarCollapsed ? (
-                <PanelLeft className="h-5 w-5" />
+                <PanelLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               ) : (
-                <PanelLeftClose className="h-5 w-5" />
+                <PanelLeftClose className="h-4 w-4 sm:h-5 sm:w-5" />
               )}
             </button>
 
-            <div className="hidden md:block">
-              <h1 className="text-foreground line-clamp-1 text-sm font-semibold">{course.title}</h1>
-              <p className="text-muted-foreground text-xs">
+            <div className="hidden min-w-0 sm:block">
+              <h1 className="text-foreground line-clamp-1 truncate text-xs font-semibold sm:text-sm">
+                {course.title}
+              </h1>
+              <p className="text-muted-foreground text-[10px] sm:text-xs">
                 {course.topics.length} Topics • {course.duration}h
               </p>
             </div>
           </div>
 
           {isEnrolled && (
-            <div className="flex items-center gap-4">
-              <div className="hidden items-center gap-3 sm:flex">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-4">
+              <div className="hidden items-center gap-2 sm:gap-3 lg:flex">
                 <span className="text-muted-foreground text-xs font-medium">Progress</span>
                 <div className="flex items-center gap-2">
-                  <div className="bg-secondary h-2 w-28 overflow-hidden rounded-full">
+                  <div className="bg-secondary h-2 w-20 overflow-hidden rounded-full sm:w-28">
                     <div
                       className="bg-primary h-full rounded-full transition-all duration-500"
                       style={{ width: `${calculateOverallProgress()}%` }}
                     />
                   </div>
-                  <span className="text-primary min-w-10 text-xs font-semibold">
+                  <span className="text-primary min-w-8 text-xs font-semibold sm:min-w-10">
                     {Math.round(calculateOverallProgress())}%
                   </span>
                 </div>
@@ -524,8 +539,13 @@ export function CourseContent({
 
               {canTakeExam() && (
                 <Link href={`/courses/${course.slug}/exam`}>
-                  <Button size="sm" leftIcon={<Award className="h-4 w-4" />}>
-                    Take Exam
+                  <Button
+                    size="sm"
+                    className="text-xs sm:text-sm"
+                    leftIcon={<Award className="h-3 w-3 sm:h-4 sm:w-4" />}
+                  >
+                    <span className="hidden sm:inline">Take Exam</span>
+                    <span className="sm:hidden">Exam</span>
                   </Button>
                 </Link>
               )}
@@ -535,14 +555,24 @@ export function CourseContent({
       </div>
 
       {/* Main Content */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative flex flex-1 overflow-hidden">
+        {/* Mobile Overlay */}
+        {!sidebarCollapsed && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            onClick={() => setSidebarCollapsed(true)}
+          />
+        )}
+
         {/* Collapsible Sidebar */}
         <div
           className={`border-border bg-card shrink-0 overflow-hidden border-r transition-all duration-300 ${
-            sidebarCollapsed ? "w-0" : "w-80"
-          }`}
+            sidebarCollapsed
+              ? "w-0 -translate-x-full md:translate-x-0"
+              : "w-full translate-x-0 md:w-80"
+          } fixed z-50 h-full md:relative md:z-auto`}
         >
-          <div className="flex h-full w-80 flex-col">
+          <div className="flex h-full w-full flex-col md:w-80">
             {/* Enrollment Status (if not enrolled) */}
             {!isEnrolled && (
               <div className="border-border bg-muted/30 border-b p-4">
@@ -657,27 +687,31 @@ export function CourseContent({
         </div>
 
         {/* Main Content Area */}
-        <div className="bg-muted/30 flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-5xl p-3 lg:p-4">
+        <div className="bg-muted/30 w-full flex-1 overflow-y-auto">
+          <div className="mx-auto max-w-5xl p-2 sm:p-3 lg:p-4">
             {activeTopic ? (
               <div className="space-y-3">
                 {/* Topic Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-xs">
-                    <span className="bg-primary/10 text-primary rounded-md px-2 py-1 font-medium">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap items-center gap-1.5 text-[10px] sm:gap-2 sm:text-xs">
+                    <span className="bg-primary/10 text-primary max-w-[140px] truncate rounded-md px-1.5 py-0.5 font-medium sm:max-w-none sm:px-2 sm:py-1">
                       {sections.find((s) => s.topics.some((t) => t.id === activeTopic.id))?.name}
                     </span>
-                    <ChevronRight className="text-muted-foreground h-3 w-3" />
-                    <span className="text-muted-foreground">
+                    <ChevronRight className="text-muted-foreground h-2.5 w-2.5 shrink-0 sm:h-3 sm:w-3" />
+                    <span className="text-muted-foreground whitespace-nowrap">
                       Topic {getGlobalTopicIndex(activeTopic.id) + 1} of {course.topics.length}
                     </span>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <h2 className="text-foreground text-xl font-bold">{activeTopic.title}</h2>
+                  <h2 className="text-foreground text-lg font-bold break-words sm:text-xl">
+                    {activeTopic.title}
+                  </h2>
                   {activeTopic.description && (
-                    <p className="text-muted-foreground text-sm">{activeTopic.description}</p>
+                    <p className="text-muted-foreground text-xs break-words sm:text-sm">
+                      {activeTopic.description}
+                    </p>
                   )}
                 </div>
 
@@ -698,43 +732,49 @@ export function CourseContent({
                 )}
 
                 {/* Quiz Section */}
-                <Card className="border-2 p-2">
-                  <CardContent className="p-5">
+                <Card className="border-2 p-1.5 sm:p-2">
+                  <CardContent className="p-3 sm:p-5">
                     {!videoCompleted && !progressMap.get(activeTopic.id)?.videoWatched ? (
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-                            <Play className="text-muted-foreground h-5 w-5" />
+                      <div className="flex items-center justify-between gap-2 sm:gap-4">
+                        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                          <div className="bg-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10">
+                            <Play className="text-muted-foreground h-4 w-4 sm:h-5 sm:w-5" />
                           </div>
-                          <div>
-                            <p className="text-foreground font-medium">Video Required</p>
-                            <p className="text-muted-foreground text-sm">
+                          <div className="min-w-0">
+                            <p className="text-foreground text-sm font-medium sm:text-base">
+                              Video Required
+                            </p>
+                            <p className="text-muted-foreground text-xs sm:text-sm">
                               Watch 100% of the video to unlock the quiz
                             </p>
                           </div>
                         </div>
                         <div className="shrink-0">
-                          <Lock className="text-muted-foreground h-5 w-5" />
+                          <Lock className="text-muted-foreground h-4 w-4 sm:h-5 sm:w-5" />
                         </div>
                       </div>
                     ) : progressMap.get(activeTopic.id)?.isCompleted ? (
                       <div className="space-y-4">
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3">
-                            <div className="bg-success/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-                              <CheckCircle2 className="text-success h-5 w-5" />
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                            <div className="bg-success/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10">
+                              <CheckCircle2 className="text-success h-4 w-4 sm:h-5 sm:w-5" />
                             </div>
-                            <div>
-                              <p className="text-success font-medium">Topic Completed!</p>
-                              <p className="text-muted-foreground text-sm">
+                            <div className="min-w-0">
+                              <p className="text-success text-sm font-medium sm:text-base">
+                                Topic Completed!
+                              </p>
+                              <p className="text-muted-foreground text-xs sm:text-sm">
                                 Great work! You&apos;ve mastered this topic
                               </p>
                             </div>
                           </div>
-                          <div className="shrink-0">
+                          <div className="w-full shrink-0 sm:w-auto">
                             {!isLastTopic ? (
                               <Button
                                 size="sm"
+                                fullWidth
+                                className="sm:w-auto"
                                 onClick={() => {
                                   const nextTopic = getNextTopic(activeTopic.id);
                                   if (nextTopic) setActiveTopic(nextTopic);
@@ -744,8 +784,16 @@ export function CourseContent({
                                 Next Topic
                               </Button>
                             ) : (
-                              <Link href={`/courses/${course.slug}/exam`}>
-                                <Button size="sm" leftIcon={<Award className="h-4 w-4" />}>
+                              <Link
+                                href={`/courses/${course.slug}/exam`}
+                                className="block w-full sm:w-auto"
+                              >
+                                <Button
+                                  size="sm"
+                                  fullWidth
+                                  className="sm:w-auto"
+                                  leftIcon={<Award className="h-4 w-4" />}
+                                >
                                   Take Exam
                                 </Button>
                               </Link>
@@ -816,22 +864,26 @@ export function CourseContent({
                     ) : currentQuiz && !isGeneratingQuiz ? (
                       hasQuizAttempt ? (
                         <div className="space-y-4">
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex items-center gap-3">
-                              <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-                                <Award className="text-primary h-5 w-5" />
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                              <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10">
+                                <Award className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
                               </div>
-                              <div>
-                                <p className="text-foreground font-medium">Quiz Completed</p>
-                                <p className="text-muted-foreground text-sm">
+                              <div className="min-w-0">
+                                <p className="text-foreground text-sm font-medium sm:text-base">
+                                  Quiz Completed
+                                </p>
+                                <p className="text-muted-foreground text-xs sm:text-sm">
                                   View your quiz results
                                 </p>
                               </div>
                             </div>
-                            <div className="shrink-0">
+                            <div className="w-full shrink-0 sm:w-auto">
                               <Button
                                 onClick={() => setShowQuizModal(true)}
                                 variant="outline"
+                                fullWidth
+                                className="sm:w-auto"
                                 leftIcon={<Award className="h-4 w-4" />}
                               >
                                 View Results
@@ -882,21 +934,25 @@ export function CourseContent({
                           )}
                         </div>
                       ) : (
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3">
-                            <div className="bg-success/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-                              <CheckCircle2 className="text-success h-5 w-5" />
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                            <div className="bg-success/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10">
+                              <CheckCircle2 className="text-success h-4 w-4 sm:h-5 sm:w-5" />
                             </div>
-                            <div>
-                              <p className="text-foreground font-medium">Quiz Ready!</p>
-                              <p className="text-muted-foreground text-sm">
+                            <div className="min-w-0">
+                              <p className="text-foreground text-sm font-medium sm:text-base">
+                                Quiz Ready!
+                              </p>
+                              <p className="text-muted-foreground text-xs sm:text-sm">
                                 Test your knowledge on this topic
                               </p>
                             </div>
                           </div>
-                          <div className="shrink-0">
+                          <div className="w-full shrink-0 sm:w-auto">
                             <Button
                               onClick={() => setShowQuizModal(true)}
+                              fullWidth
+                              className="sm:w-auto"
                               leftIcon={<Award className="h-4 w-4" />}
                             >
                               Take Quiz
@@ -905,39 +961,48 @@ export function CourseContent({
                         </div>
                       )
                     ) : isGeneratingQuiz ? (
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-                            <Loader2 className="text-primary h-5 w-5 animate-spin" />
+                      <div className="flex items-center justify-between gap-2 sm:gap-4">
+                        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                          <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10">
+                            <Loader2 className="text-primary h-4 w-4 animate-spin sm:h-5 sm:w-5" />
                           </div>
-                          <div>
-                            <p className="text-foreground font-medium">Generating Quiz...</p>
-                            <p className="text-muted-foreground text-sm">
+                          <div className="min-w-0">
+                            <p className="text-foreground text-sm font-medium sm:text-base">
+                              Generating Quiz...
+                            </p>
+                            <p className="text-muted-foreground text-xs sm:text-sm">
                               Creating questions from video content
                             </p>
                           </div>
                         </div>
                         <div className="shrink-0">
-                          <div className="bg-muted text-muted-foreground rounded-lg px-4 py-2 text-sm font-medium">
+                          <div className="bg-muted text-muted-foreground rounded-lg px-2 py-1.5 text-xs font-medium whitespace-nowrap sm:px-4 sm:py-2 sm:text-sm">
                             Please wait
                           </div>
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <div className="bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
-                            <Award className="text-primary h-5 w-5" />
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                          <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10">
+                            <Award className="text-primary h-4 w-4 sm:h-5 sm:w-5" />
                           </div>
-                          <div>
-                            <p className="text-foreground font-medium">Ready for Quiz?</p>
-                            <p className="text-muted-foreground text-sm">
+                          <div className="min-w-0">
+                            <p className="text-foreground text-sm font-medium sm:text-base">
+                              Ready for Quiz?
+                            </p>
+                            <p className="text-muted-foreground text-xs sm:text-sm">
                               Test your understanding of this topic
                             </p>
                           </div>
                         </div>
-                        <div className="shrink-0">
-                          <Button onClick={handleTakeQuiz} leftIcon={<Award className="h-4 w-4" />}>
+                        <div className="w-full shrink-0 sm:w-auto">
+                          <Button
+                            onClick={handleTakeQuiz}
+                            fullWidth
+                            className="sm:w-auto"
+                            leftIcon={<Award className="h-4 w-4" />}
+                          >
                             Take Quiz
                           </Button>
                         </div>

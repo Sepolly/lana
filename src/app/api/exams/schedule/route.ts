@@ -4,12 +4,13 @@ import { db } from "@/lib/db";
 import { z } from "zod";
 import { generateExamQuestions, GeneratedQuestion } from "@/lib/quiz-generator";
 
+const isDevelopment = process.env.NODE_ENV === "development";
+
 const scheduleSchema = z.object({
   courseId: z.string(),
   scheduledAt: z.string().datetime(),
 });
 
-// Schedule an exam
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();
@@ -27,7 +28,6 @@ export async function POST(request: NextRequest) {
 
     const { courseId, scheduledAt } = validationResult.data;
 
-    // Verify enrollment and completion
     const enrollment = await db.enrollment.findUnique({
       where: {
         userId_courseId: {
@@ -44,7 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get course with topics to verify completion
     const courseData = await db.course.findUnique({
       where: { id: courseId },
       include: {
@@ -58,7 +57,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
     }
 
-    // Get current topic progress
     const topicProgress = await db.topicProgress.findMany({
       where: {
         enrollmentId: enrollment.id,
@@ -72,18 +70,18 @@ export async function POST(request: NextRequest) {
     const completedTopics = completedTopicIds.size;
     const actualProgress = totalTopics > 0 ? (completedTopics / totalTopics) * 100 : 0;
 
-    // Debug: log current progress
-    console.log("Exam scheduling attempt:", {
-      userId: session.user.id,
-      courseId,
-      enrollmentProgress: enrollment.progress,
-      actualProgress,
-      totalTopics,
-      completedTopics,
-      completedTopicIds: Array.from(completedTopicIds),
-    });
+    if (isDevelopment) {
+      console.log("Exam scheduling attempt:", {
+        userId: session.user.id,
+        courseId,
+        enrollmentProgress: enrollment.progress,
+        actualProgress,
+        totalTopics,
+        completedTopics,
+        completedTopicIds: Array.from(completedTopicIds),
+      });
+    }
 
-    // Check if all topics are actually completed
     if (completedTopics < totalTopics) {
       return NextResponse.json(
         {
@@ -94,7 +92,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check for existing pending exam - allow retakes by permitting new exams even with completed ones
     const existingExam = await db.examSchedule.findFirst({
       where: {
         userId: session.user.id,
@@ -110,119 +107,189 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For retakes, we allow scheduling even if there's a completed exam
-    // The user can have multiple attempts, with the latest one being active
+    const existingCourseExam = await db.examSchedule.findFirst({
+      where: {
+        courseId,
+        questions: { not: null },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        questions: true,
+        duration: true,
+      },
+    });
 
-    // Get course for exam generation
-    const course = await db.course.findUnique({
-      where: { id: courseId },
-      include: {
-        topics: {
-          include: {
-            quiz: {
-              include: {
-                questions: true,
+    let finalQuestions: GeneratedQuestion[] = [];
+    let shouldGenerateNewQuestions = true;
+
+    if (existingCourseExam?.questions) {
+      try {
+        const existingQuestions = existingCourseExam.questions as Array<{
+          id: string;
+          question: string;
+          options: string[];
+          correctAnswer: number;
+          topicId?: string;
+          topicTitle?: string;
+        }>;
+
+        if (Array.isArray(existingQuestions) && existingQuestions.length > 0) {
+          if (isDevelopment) {
+            console.log(
+              `Reusing ${existingQuestions.length} questions from existing exam for course ${courseId}`
+            );
+          }
+
+          finalQuestions = existingQuestions.map((q) => ({
+            question: q.question,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            explanation: "Based on the course material.",
+          }));
+
+          shouldGenerateNewQuestions = false;
+        }
+      } catch (error) {
+        if (isDevelopment) {
+          console.error("Error parsing existing exam questions, will generate new ones:", error);
+        }
+      }
+    }
+
+    if (shouldGenerateNewQuestions) {
+      const course = await db.course.findUnique({
+        where: { id: courseId },
+        include: {
+          topics: {
+            include: {
+              quiz: {
+                include: {
+                  questions: true,
+                },
               },
             },
           },
         },
-      },
-    });
-
-    if (!course) {
-      return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
-    }
-
-    // Generate comprehensive exam questions using AI
-    const topicsForExam = course.topics.map((topic) => ({
-      id: topic.id,
-      title: topic.title,
-      videoTranscript: topic.videoTranscript,
-      textContent: topic.textContent,
-      quiz: topic.quiz
-        ? {
-            questions: topic.quiz.questions.map((q) => ({
-              question: q.question,
-              options: q.options as string[],
-              correctAnswer: q.correctAnswer,
-            })),
-          }
-        : null,
-    }));
-
-    let generatedQuestions: GeneratedQuestion[] = [];
-    let generationError: string | null = null;
-
-    try {
-      generatedQuestions = await generateExamQuestions(
-        topicsForExam,
-        course.title,
-        50 // Generate at least 50 questions
-      );
-
-      console.log("Exam generation:", {
-        courseId,
-        requestedMin: 50,
-        topicsCount: topicsForExam.length,
-        generatedCount: generatedQuestions.length,
       });
-    } catch (error: unknown) {
-      console.error("Exam question generation failed:", error);
-      const errorObj = error instanceof Error ? error : new Error(String(error));
-      generationError = errorObj.message || "Failed to generate exam questions";
 
-      // Check if it's a rate limit or API error
-      if (
-        generationError &&
-        (generationError.includes("API_RATE_LIMIT_EXCEEDED") ||
-          generationError.includes("API_QUOTA_EXCEEDED") ||
-          generationError.includes("429"))
-      ) {
-        console.warn("API rate limit exceeded, will use fallback questions");
-      } else {
-        // Re-throw non-API errors
-        throw error;
+      if (!course) {
+        return NextResponse.json({ success: false, error: "Course not found" }, { status: 404 });
+      }
+
+      const topicsForExam = course.topics.map((topic) => ({
+        id: topic.id,
+        title: topic.title,
+        videoTranscript: topic.videoTranscript,
+        textContent: topic.textContent,
+        quiz: topic.quiz
+          ? {
+              questions: topic.quiz.questions.map((q) => ({
+                question: q.question,
+                options: q.options as string[],
+                correctAnswer: q.correctAnswer,
+              })),
+            }
+          : null,
+      }));
+
+      let generatedQuestions: GeneratedQuestion[] = [];
+      let generationError: string | null = null;
+
+      try {
+        generatedQuestions = await generateExamQuestions(topicsForExam, course.title, 50);
+
+        if (isDevelopment) {
+          console.log("Exam generation:", {
+            courseId,
+            requestedMin: 50,
+            topicsCount: topicsForExam.length,
+            generatedCount: generatedQuestions.length,
+          });
+        }
+      } catch (error: unknown) {
+        if (isDevelopment) {
+          console.error("Exam question generation failed:", error);
+        }
+        const errorObj = error instanceof Error ? error : new Error(String(error));
+        generationError = errorObj.message || "Failed to generate exam questions";
+
+        if (
+          generationError &&
+          (generationError.includes("API_RATE_LIMIT_EXCEEDED") ||
+            generationError.includes("API_QUOTA_EXCEEDED") ||
+            generationError.includes("429"))
+        ) {
+          if (isDevelopment) {
+            console.warn(
+              "API rate limit exceeded, will try to use existing exam questions or fallback"
+            );
+          }
+
+          if (finalQuestions.length === 0 && existingCourseExam?.questions) {
+            try {
+              const existingQuestions = existingCourseExam.questions as Array<{
+                id: string;
+                question: string;
+                options: string[];
+                correctAnswer: number;
+              }>;
+
+              if (Array.isArray(existingQuestions) && existingQuestions.length > 0) {
+                if (isDevelopment) {
+                  console.log("Using existing exam questions as fallback due to rate limit");
+                }
+                finalQuestions = existingQuestions.map((q) => ({
+                  question: q.question,
+                  options: q.options,
+                  correctAnswer: q.correctAnswer,
+                  explanation: "Based on the course material.",
+                }));
+                shouldGenerateNewQuestions = false;
+              }
+            } catch (parseError) {
+              if (isDevelopment) {
+                console.error("Failed to parse existing questions:", parseError);
+              }
+            }
+          }
+        } else {
+          throw error;
+        }
+      }
+
+      const maxQuestions = 60;
+      finalQuestions = generatedQuestions.slice(0, maxQuestions);
+
+      if (finalQuestions.length === 0 && generationError) {
+        if (isDevelopment) {
+          console.log("Using fallback questions due to generation failure");
+        }
+        finalQuestions = createFallbackExamQuestions(course.title, Math.min(30, maxQuestions));
       }
     }
 
-    // Cap questions at reasonable maximum to prevent excessive exam length
-    const maxQuestions = 60;
-    let finalQuestions = generatedQuestions.slice(0, maxQuestions);
-
-    // If we have no questions due to API errors, use fallback questions
-    if (finalQuestions.length === 0 && generationError) {
-      console.log("Using fallback questions due to generation failure");
-      finalQuestions = createFallbackExamQuestions(course.title, Math.min(30, maxQuestions));
-    }
-
-    // Format questions for database storage (capped at reasonable maximum)
     const examQuestions = finalQuestions.map((q, index) => ({
       id: `exam-q-${index + 1}`,
       question: q.question,
       options: q.options,
       correctAnswer: q.correctAnswer,
-      topicId: "", // Will be set when questions are associated with topics
+      topicId: "",
       topicTitle: "",
     }));
 
-    // Calculate duration based on standard 1 minute per question
     const calculateExamDuration = (questionCount: number): number => {
-      // Standard time allocation: 1 minute per question
-      const timePerQuestion = 1.0; // minute
-
-      // Additional time for setup, reading instructions, and review
-      const baseDuration = 15; // minutes
-
-      // Calculate total duration
+      const timePerQuestion = 1.0;
+      const baseDuration = 15;
       const calculatedDuration = baseDuration + questionCount * timePerQuestion;
-
-      // Minimum exam time (30 minutes for very short exams)
       const minDuration = 30;
-
       return Math.max(calculatedDuration, minDuration);
     };
 
-    const duration = calculateExamDuration(examQuestions.length);
+    const duration = existingCourseExam?.duration
+      ? existingCourseExam.duration
+      : calculateExamDuration(examQuestions.length);
 
     const exam = await db.examSchedule.create({
       data: {
@@ -240,12 +307,13 @@ export async function POST(request: NextRequest) {
       data: exam,
     });
   } catch (error) {
-    console.error("Exam schedule error:", error);
+    if (isDevelopment) {
+      console.error("Exam schedule error:", error);
+    }
     return NextResponse.json({ success: false, error: "Failed to schedule exam" }, { status: 500 });
   }
 }
 
-// Fallback function to create basic exam questions when AI generation fails
 function createFallbackExamQuestions(courseTitle: string, count: number): GeneratedQuestion[] {
   const fallbackQuestions: GeneratedQuestion[] = [
     {
@@ -366,7 +434,6 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
     },
   ];
 
-  // Return the requested number of questions, cycling through available ones if needed
   const result: GeneratedQuestion[] = [];
   for (let i = 0; i < count; i++) {
     const question = fallbackQuestions[i % fallbackQuestions.length];
@@ -379,7 +446,6 @@ function createFallbackExamQuestions(courseTitle: string, count: number): Genera
   return result;
 }
 
-// Get scheduled exams
 export async function GET() {
   try {
     const session = await auth();
@@ -402,7 +468,9 @@ export async function GET() {
       data: exams,
     });
   } catch (error) {
-    console.error("Exam fetch error:", error);
+    if (isDevelopment) {
+      console.error("Exam fetch error:", error);
+    }
     return NextResponse.json({ success: false, error: "Failed to fetch exams" }, { status: 500 });
   }
 }
