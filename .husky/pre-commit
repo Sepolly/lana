@@ -23,5 +23,11 @@ npm run type-check || {
   exit 1
 }
 
+echo "Building the application..."
+npm run build || {
+  echo "❌ Building failed. Please fix the errors and try again."
+  exit 1
+}
+
 echo "✅ All pre-commit checks passed!"
 
