@@ -79,8 +79,9 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["lucide-react", "@prisma/client"],
   },
 
-  // Output configuration for Vercel
-  output: "standalone",
+  // Output configuration for Vercel (only on Linux/CI, not Windows)
+  // Standalone output causes symlink issues on Windows
+  ...(process.platform !== "win32" && { output: "standalone" }),
 
   // Bundle analyzer (only when ANALYZE=true)
   ...(isAnalyze && {
