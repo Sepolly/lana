@@ -20,7 +20,6 @@ import {
   CheckCircle2,
   XCircle,
   AlertTriangle,
-  Calendar,
   Play,
   Download,
 } from "lucide-react";
@@ -119,12 +118,12 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
     }
   };
 
-  const scheduleExam = async () => {
+  const startExamImmediately = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      // Schedule exam for now
-      const response = await fetch("/api/exams/schedule", {
+      // Schedule exam first
+      const scheduleResponse = await fetch("/api/exams/schedule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -133,41 +132,36 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
         }),
       });
 
-      const data = await response.json();
+      const scheduleData = await scheduleResponse.json();
 
-      if (response.ok) {
-        console.log("Exam scheduled successfully:", data.data);
-        setExam(data.data);
-      } else {
-        // Display the error message from the API
-        setError(data.error || "Failed to schedule exam. Please try again.");
-        console.error("Schedule error:", data.error);
+      if (!scheduleResponse.ok) {
+        setError(scheduleData.error || "Failed to start exam. Please try again.");
+        console.error("Schedule error:", scheduleData.error);
+        setIsLoading(false);
+        return;
       }
-    } catch (error) {
-      setError("Network error. Please check your connection and try again.");
-      console.error("Schedule error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const startExam = async () => {
-    if (!exam) return;
+      console.log("Exam scheduled successfully:", scheduleData.data);
+      const scheduledExam = scheduleData.data;
 
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/exams/${exam.id}/start`, {
+      // Immediately start the exam
+      const startResponse = await fetch(`/api/exams/${scheduledExam.id}/start`, {
         method: "POST",
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setExam(data.data);
-        setQuestions(data.data.questions);
-        setTimeLeft(data.data.duration * 60);
+      if (startResponse.ok) {
+        const startData = await startResponse.json();
+        setExam(startData.data);
+        setQuestions(startData.data.questions);
+        setTimeLeft(startData.data.duration * 60);
+      } else {
+        const startError = await startResponse.json();
+        setError(startError.error || "Failed to start exam. Please try again.");
+        console.error("Start error:", startError.error);
       }
     } catch (error) {
-      console.error("Start error:", error);
+      setError("Network error. Please check your connection and try again.");
+      console.error("Start exam error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -561,67 +555,6 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
     );
   }
 
-  // Exam scheduled, ready to start
-  if (exam?.status === "SCHEDULED") {
-    console.log("Showing scheduled exam UI - Start Exam button");
-    return (
-      <div className="mx-auto max-w-2xl space-y-6">
-        <Link
-          href={`/courses/${course.slug}`}
-          className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Course
-        </Link>
-
-        <Card className="text-center">
-          <CardContent className="py-12">
-            <Mascot size="lg" mood="happy" animate={true} />
-
-            <h1 className="text-foreground mt-6 text-2xl font-bold">Ready for Your Final Exam?</h1>
-            <p className="text-muted-foreground mt-2">{course.title}</p>
-
-            <div className="mx-auto mt-8 grid max-w-sm grid-cols-2 gap-4">
-              <div className="bg-muted rounded-xl p-4">
-                <Clock className="text-primary mx-auto mb-2 h-6 w-6" />
-                <p className="text-foreground font-bold">{exam.duration} min</p>
-                <p className="text-muted-foreground text-xs">Duration</p>
-              </div>
-              <div className="bg-muted rounded-xl p-4">
-                <Award className="text-primary mx-auto mb-2 h-6 w-6" />
-                <p className="text-foreground font-bold">60%</p>
-                <p className="text-muted-foreground text-xs">Passing Score</p>
-              </div>
-            </div>
-
-            <div className="bg-warning/10 mt-8 rounded-xl p-4 text-left">
-              <h3 className="text-foreground flex items-center gap-2 font-semibold">
-                <AlertTriangle className="text-warning h-4 w-4" />
-                Before you start
-              </h3>
-              <ul className="text-muted-foreground mt-2 space-y-1 text-sm">
-                <li>• Ensure you have a stable internet connection</li>
-                <li>• The timer will start once you begin</li>
-                <li>• You cannot pause or restart the exam</li>
-                <li>• Answer all questions before submitting</li>
-              </ul>
-            </div>
-
-            <Button
-              size="lg"
-              className="mt-8"
-              onClick={startExam}
-              isLoading={isLoading}
-              leftIcon={<Play className="h-5 w-5" />}
-            >
-              Start Exam Now
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   // No exam scheduled - show scheduling screen
   console.log("Showing scheduling UI - no exam found or unexpected status");
   return (
@@ -673,11 +606,11 @@ export function ExamInterface({ course, existingExam, certificate, userId }: Exa
           <Button
             size="lg"
             className="mt-8"
-            onClick={scheduleExam}
+            onClick={startExamImmediately}
             isLoading={isLoading}
-            leftIcon={<Calendar className="h-5 w-5" />}
+            leftIcon={<Play className="h-5 w-5" />}
           >
-            Schedule Exam
+            Start Exam
           </Button>
         </CardContent>
       </Card>

@@ -235,7 +235,10 @@ export default function HomePage() {
               <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-sm">
                 Privacy
               </Link>
-              <Link href="/contact" className="text-muted-foreground hover:text-foreground text-sm">
+              <Link
+                href="mailto:sepolly6@gmail.com"
+                className="text-muted-foreground hover:text-foreground text-sm"
+              >
                 Contact
               </Link>
             </div>

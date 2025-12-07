@@ -11,6 +11,8 @@ const publicRoutes = [
   "/reset-password",
   "/admin/accept-invitation",
   "/verify", // Certificate verification (public)
+  "/privacy", // Privacy Policy (public)
+  "/terms", // Terms of Service (public)
 ];
 
 // Routes that should redirect to dashboard if already authenticated
