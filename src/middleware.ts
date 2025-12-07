@@ -10,6 +10,7 @@ const publicRoutes = [
   "/forgot-password",
   "/reset-password",
   "/admin/accept-invitation",
+  "/verify", // Certificate verification (public)
 ];
 
 // Routes that should redirect to dashboard if already authenticated
